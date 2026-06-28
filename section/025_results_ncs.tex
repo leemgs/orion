@@ -134,8 +134,14 @@ and quantitative bridging to the analytical onset values).
 \caption{\textbf{Regime-oriented experimental probes.}
 Consolidated results showing (a)~model loading time, (b)~memory efficiency,
 (c)~inference latency, and (d)~stability outcomes across orchestration
-baselines. Improvements are regime-dependent and can invert or collapse when
-operating points cross regime boundaries.}
+baselines.
+Panels (a) and (b) primarily reflect capacity-limited behaviour (high
+sensitivity to working-set size); panel (c) spans all three regimes and
+shows the ranking inversion at the I/O-limited boundary; panel (d) captures
+synchronisation-driven instability characteristic of the coordination-dominated
+regime under aggressive pipelining.
+Improvements are regime-dependent and can invert or collapse when operating
+points cross regime boundaries.}
 \label{fig:consolidated}
 \end{figure}
 
