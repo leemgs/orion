@@ -9,16 +9,17 @@ execution coordinates data movement across a hierarchical memory system spanning
 device memory, host memory, and secondary
 storage~\cite{ma2026inference,gholami2024memorywall}.
 
-This shift carries pressing economic stakes.
+This shift carries pressing economic and environmental stakes.
 Once a model is trained, the recurring cost of \emph{serving} it dominates its
 lifetime resource footprint.
 Hardware analyses identify memory capacity, bandwidth, and interconnect
 latency---not arithmetic throughput---as the binding constraints of
 inference~\cite{zhou2024survey}.
-Aggregate capital expenditure across major hyperscalers is on track to overtake
-operating cash inflows by end of 2026~\cite{juniewicz2026hyperscaler}, and
-AI infrastructure is absorbing available memory supply faster than it can be
-produced~\cite{chey2026tpd}.
+The energy penalty of misaligned memory orchestration is substantial: operating
+in the I/O-limited regime reduces throughput-per-Watt by more than $3\times$
+relative to coordination-aligned operation, raising CO$_2$ output from
+15.8\,g to 42.5\,g per $10^6$ tokens at the IEA\,(2024) global carbon
+intensity~\cite{iea2024electricity}.
 Characterising the \emph{intrinsic limits} of memory orchestration is therefore
 a prerequisite for the financial and energy viability of inference-driven AI.
 
@@ -84,9 +85,15 @@ Together, these results reframe hierarchical memory coordination as
 To illustrate the framework's practical accessibility, consider Llama-3\,8B at
 batch\,=\,8 on a server with 80\,GB HBM and 16.1\,GB/s PCIe bandwidth:
 $W = 41.8$\,GB gives $R_C = 80/41.8 = 1.91$ (fully capacity-compliant,
-$R_C \gg \theta_C$), and a step duration of $\Delta t = 120$\,ms with
-$D = 1.2$\,GB yields $R_B = 16.1 \times 0.12 / 1.2 = 1.61$ (well inside the
-coordination-dominated regime).
+$R_C \gg \theta_C$).
+With nearly all weights resident in HBM, compulsory cross-tier transfer is
+small ($D \approx 1.2$\,GB per step); at $\Delta t \approx 120$\,ms,
+$R_B = 16.1 \times 0.12 / 1.2 = 1.61$ (well inside the coordination-dominated
+regime).
+By contrast, constraining HBM to 20\,GB forces $R_C = 0.48$ and
+$D \approx 20.9$\,GB of eviction traffic per step, pushing the same workload
+deep into the capacity-limited regime (see Supplementary Appendix~A for the
+full quantitative derivation).
 Any practitioner can compute these two ratios from hardware datasheets and
 model-card parameter counts---before running a single experiment.
 
