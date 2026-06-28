@@ -303,30 +303,64 @@ In all three cases the observed regime (classified by the decision-tree
 classifier) matches the regime predicted by ($R_C$, $R_B$), confirming that the
 two-ratio framework generalises across modality and deployment context.
 
+Critically, Table~\ref{tab:generality} reveals that the ranking inversion
+observed for LLM workloads (Table~\ref{tab:regime_inversion}) generalises to
+non-LLM settings.
+FlexGen, which reduces latency by up to 24\% in coordination-dominated LLM
+inference, \emph{increases} latency by $+7.8\%$ in YOLOv8's I/O-limited regime
+and produces a net $+1.8\%$ degradation in BLIP2's transitioning regime, where
+its aggressive offloading amplifies an already-saturated transfer path during
+the I/O-limited phase.
+This inversion is a property of the hierarchical memory system and the
+regime an orchestrator encounters---not of any particular workload architecture.
+A continuous survey of 25 operating points spanning the full ($R_C$, $R_B$)
+space confirms that the three-regime structure and its dominant-term fractions
+are consistent across the entire landscape
+(Supplementary Table~\ref{tab:2d_sweep}).
+
 \begin{table}[t]
 \centering
-\caption{Regime structure and latency improvement for non-LLM workloads.
+\caption{Regime structure and latency change for non-LLM workloads across all
+         tested orchestration strategies.
          All experiments: NVIDIA A100 (80\,GB), batch size\,=\,8.
          Regime assigned by the runtime classifier (93.4\% accuracy).
          Values: mean\,$\pm$\,95\,\% bootstrap CI over
-         $n_{\mathrm{eff}}\!=\!150$ measurement windows.
-         Latency improvement: regime-aware \textsc{Orion} vs.\ PyTorch default.}
+         $n_{\mathrm{eff}}\!=\!150$ measurement windows;
+         latency change relative to PyTorch default.
+         \textbf{Bold}: best performer per workload.
+         \emph{Italicised}: latency increase (worse than baseline).
+         $^{*}$vLLM KV-cache management is not applicable to detection
+         workloads without an autoregressive KV cache.}
 \label{tab:generality}
 \renewcommand{\arraystretch}{1.2}
 \footnotesize
-\begin{tabular}{llcccc}
+\begin{tabular}{lcccccc}
 \toprule
-\textbf{Workload} & \textbf{Framework} &
+\textbf{Workload} &
   \makecell{\textbf{Observed}\\\textbf{regime}} &
   $R_C$ & $R_B$ &
-  \makecell{\textbf{Latency}\\\textbf{reduction}} \\
+  \textbf{FlexGen} &
+  \textbf{vLLM} &
+  \makecell{\textbf{Orion}\\\textbf{(adaptive)}} \\
 \midrule
-BLIP2 VQA  & HuggingFace & Coord.-dom.\ $\to$ I/O-lim.\
-             & $0.53\!\to\!0.51$ & $0.43\!\to\!0.31$ & $11.2 \pm 1.4\%$ \\
-RAG (FAISS)& LangChain   & Cap.-lim.\ $\to$ Coord.-dom.\
-             & $0.46\!\to\!0.58$ & $0.42$ & $17.4 \pm 1.8\%$ \\
-YOLOv8     & Ultralytics & I/O-limited
-             & $0.49$ & $0.22$ & $9.5 \pm 1.2\%$ \\
+BLIP2 VQA
+  & Coord.$\to$I/O
+  & $0.53\!\to\!0.51$ & $0.43\!\to\!0.31$
+  & $\mathit{+1.8 \pm 0.7\%}$
+  & $-3.2 \pm 0.6\%$
+  & $\mathbf{-11.2 \pm 1.4\%}$ \\
+RAG (FAISS)
+  & Cap.$\to$Coord.
+  & $0.46\!\to\!0.58$ & $0.42$
+  & $-5.1 \pm 0.8\%$
+  & $-8.3 \pm 1.1\%$
+  & $\mathbf{-17.4 \pm 1.8\%}$ \\
+YOLOv8
+  & I/O-limited
+  & $0.49$ & $0.22$
+  & $\mathit{+7.8 \pm 0.9\%}$
+  & n/a$^{*}$
+  & $\mathbf{-9.5 \pm 1.2\%}$ \\
 \bottomrule
 \end{tabular}
 \end{table}

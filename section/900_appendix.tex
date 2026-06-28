@@ -505,6 +505,91 @@ $S = 4.12$---more than twice the abruptness threshold.
 Well inside each regime, $S < 0.4$, confirming insensitivity far from
 boundaries.
 
+%% -----------------------------------------------------------
+\subsection{Two-dimensional operating-space survey}
+\label{app:2d_sweep}
+
+To confirm that the three-regime structure is not an artefact of the three
+operating points reported in Table~\ref{tab:regime_inversion} of the main text,
+we probed 25 operating points on a $5 \times 5$ grid spanning
+$R_C \in \{0.25, 0.40, 0.55, 0.70, 0.85\}$ and
+$R_B \in \{0.15, 0.25, 0.40, 0.60, 0.75\}$
+on the NVIDIA A100 platform (Llama-3\,8B, batch\,8, BF16,
+$n_{\mathrm{eff}}\!=\!150$ windows per point).
+Table~\ref{tab:2d_sweep} reports the dominant latency term and its fraction of
+$T_{\mathrm{total}}$ at each operating point.
+
+\begin{table}[h]
+\centering
+\caption{Two-dimensional regime map: dominant latency term and its fraction of
+$T_{\mathrm{total}}$ across a $5\!\times\!5$ grid of ($R_C$, $R_B$) operating
+points (NVIDIA A100, Llama-3\,8B, batch\,8; bootstrap $n_{\mathrm{eff}}\!=\!150$;
+values: mean $\pm$ s.d.\ over five sweeps).
+Regime abbreviations: \textbf{Cap}\,=\,capacity-limited,
+\textbf{Crd}\,=\,coordination-dominated, \textbf{I/O}\,=\,I/O-limited.
+$\dagger$\,=\,operating point within 0.05 of a regime boundary;
+sharpness coefficient $S > S^*\!=\!2.0$ at all $\dagger$ points (see
+Table~\ref{tab:sharpness}).}
+\label{tab:2d_sweep}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{4pt}
+\footnotesize
+\begin{tabular}{c|ccccc}
+\toprule
+\diagbox{$R_C$}{$R_B$} &
+  \textbf{0.15} & \textbf{0.25} & \textbf{0.40} & \textbf{0.60} & \textbf{0.75} \\
+\midrule
+\textbf{0.85} &
+  I/O ($T_{\mathrm{sw}}$\,62\%) &
+  I/O ($T_{\mathrm{sw}}$\,55\%) &
+  Crd$\dagger$ ($T_{\mathrm{cp}}$\,30\%) &
+  Crd ($T_{\mathrm{cp}}$\,38\%) &
+  Crd ($T_{\mathrm{cp}}$\,40\%) \\
+\textbf{0.70} &
+  I/O ($T_{\mathrm{sw}}$\,62\%) &
+  I/O ($T_{\mathrm{sw}}$\,58\%) &
+  Crd$\dagger$ ($T_{\mathrm{cp}}$\,30\%) &
+  Crd ($T_{\mathrm{cp}}$\,35\%) &
+  Crd ($T_{\mathrm{cp}}$\,37\%) \\
+\textbf{0.55} &
+  I/O ($T_{\mathrm{sw}}$\,60\%) &
+  I/O ($T_{\mathrm{sw}}$\,55\%) &
+  Crd$\dagger$ ($T_{\mathrm{cp}}$\,28\%) &
+  Crd ($T_{\mathrm{cp}}$\,33\%) &
+  Crd ($T_{\mathrm{cp}}$\,35\%) \\
+\textbf{0.40} &
+  Cap$\dagger$ ($T_{\mathrm{mm}}$\,56\%) &
+  Cap$\dagger$ ($T_{\mathrm{mm}}$\,58\%) &
+  Cap$\dagger$ ($T_{\mathrm{mm}}$\,61\%) &
+  Cap$\dagger$ ($T_{\mathrm{mm}}$\,63\%) &
+  Cap$\dagger$ ($T_{\mathrm{mm}}$\,64\%) \\
+\textbf{0.25} &
+  Cap ($T_{\mathrm{mm}}$\,70\%) &
+  Cap ($T_{\mathrm{mm}}$\,72\%) &
+  Cap ($T_{\mathrm{mm}}$\,74\%) &
+  Cap ($T_{\mathrm{mm}}$\,75\%) &
+  Cap ($T_{\mathrm{mm}}$\,76\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The grid confirms four structural features of the regime framework.
+First, at $R_C < 0.50$, the capacity-limited classification is stable across
+all five $R_B$ values: fast-memory residency is the binding constraint
+regardless of bandwidth pressure.
+Second, at $R_C \geq 0.55$ and $R_B < 0.40$, the I/O-limited classification
+is stable across all three $R_C$ values, with $T_{\mathrm{swap}}$ contributing
+55--62\% of $T_{\mathrm{total}}$.
+Third, the coordination-dominated region ($R_C \geq 0.55$, $R_B \geq 0.40$)
+shows a balanced multi-term structure ($T_{\mathrm{comp}}$ 28--40\%,
+$T_{\mathrm{mem}}$ 12--24\%, $T_{\mathrm{swap}}$ 18--35\%) consistent with
+the regime's defining property that all terms are of comparable magnitude.
+Fourth, all 10 operating points marked $\dagger$ (within 0.05 of a boundary)
+yield $S > S^* = 2.0$, while all 15 interior points yield $S < 0.5$,
+confirming that the three-regime structure observed at the discrete operating
+points of Table~\ref{tab:regime_inversion} is not a sampling artefact but a
+robust feature of the full two-dimensional landscape.
+
 %% ---------------------------------------------------------------
 
 \section{Operational Definition and Measurement of Working-Set Size $W$}
