@@ -19,7 +19,7 @@ Aggregate capital expenditure across major hyperscalers is on track to overtake
 operating cash inflows by end of 2026~\cite{juniewicz2026hyperscaler}, and
 AI infrastructure is absorbing available memory supply faster than it can be
 produced~\cite{chey2026tpd}.
-Characterizing the \emph{intrinsic limits} of memory orchestration is therefore
+Characterising the \emph{intrinsic limits} of memory orchestration is therefore
 a prerequisite for the financial and energy viability of inference-driven AI.
 
 Existing systems reduce memory pressure via CPU/NVMe
@@ -28,8 +28,11 @@ GPU--CPU swapping~\cite{huang2020swapadvisor},
 and KV-cache management~\cite{kwon2023pagedattention}.
 These techniques deliver substantial gains in some configurations yet show
 diminishing returns---or even performance inversion---in others.
+Prior work explains this heterogeneity through workload-specific factors
+(model size, batch size, hardware topology), without a unifying framework that
+predicts \emph{when} and \emph{why} orchestration fails.
 This raises a fundamental question: \emph{Is hierarchical memory orchestration
-a continuously optimizable problem, or does it admit intrinsic boundaries beyond
+a continuously optimisable problem, or does it admit intrinsic boundaries beyond
 which additional coordination cannot improve---and can worsen---end-to-end
 latency?}
 
@@ -49,7 +52,7 @@ This regime structure is not LLM-specific; it governs any workload whose active
 working set cannot fully reside in fast memory, including vision inference,
 retrieval-augmented generation (RAG), and HPC-style scientific workflows.
 
-We make three contributions:
+We make four contributions:
 \begin{itemize}
   \item \textbf{Regime-dependent principle.}
     Three intrinsic operational regimes---capacity-limited,
