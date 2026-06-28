@@ -6,105 +6,65 @@ from arithmetic throughput to \emph{data coordination}.
 When model weights, activations, and key--value (KV) caches exceed accelerator
 memory, inference latency is governed less by compute and more by how efficiently
 execution coordinates data movement across a hierarchical memory system spanning
-device memory, host memory, and secondary storage~\cite{ma2026inference,gholami2024memorywall}.
+device memory, host memory, and secondary
+storage~\cite{ma2026inference,gholami2024memorywall}.
 
-This shift carries pressing economic and environmental stakes.
+This shift carries pressing economic stakes.
 Once a model is trained, the recurring cost of \emph{serving} it dominates its
 lifetime resource footprint.
-Hardware analyses identify memory capacity, memory bandwidth, and interconnect
-latency---not arithmetic throughput---as the binding constraints of the inference
-phase~\cite{zhou2024survey}.
-These constraints translate into macro-level exposure: aggregate capital
-expenditure across major hyperscalers is on track to overtake operating cash
-inflows by end of 2026~\cite{juniewicz2026hyperscaler}, and AI infrastructure
-is absorbing available memory supply faster than it can be
+Hardware analyses identify memory capacity, bandwidth, and interconnect
+latency---not arithmetic throughput---as the binding constraints of
+inference~\cite{zhou2024survey}.
+Aggregate capital expenditure across major hyperscalers is on track to overtake
+operating cash inflows by end of 2026~\cite{juniewicz2026hyperscaler}, and
+AI infrastructure is absorbing available memory supply faster than it can be
 produced~\cite{chey2026tpd}.
-In this context, characterizing the \emph{intrinsic limits} of memory
-orchestration is not merely a systems-optimization concern but a prerequisite
-for the financial and energy viability of inference-driven AI.
+Characterizing the \emph{intrinsic limits} of memory orchestration is therefore
+a prerequisite for the financial and energy viability of inference-driven AI.
 
-A large body of systems work reduces memory pressure via CPU/NVMe offloading
-and heterogeneous execution~\cite{flexgen2023,aminabadi2022deepspeedinference},
-smart GPU--CPU swapping~\cite{huang2020swapadvisor}, and KV-cache management
-for long-context batching~\cite{kwon2023pagedattention}.
+Existing systems reduce memory pressure via CPU/NVMe
+offloading~\cite{flexgen2023,aminabadi2022deepspeedinference},
+GPU--CPU swapping~\cite{huang2020swapadvisor},
+and KV-cache management~\cite{kwon2023pagedattention}.
 These techniques deliver substantial gains in some configurations yet show
 diminishing returns---or even performance inversion---in others.
-This variability raises a fundamental question that incremental optimization
-studies do not answer: \emph{Is hierarchical memory orchestration a continuously
-optimizable engineering problem, or does it admit intrinsic boundaries beyond
+This raises a fundamental question: \emph{Is hierarchical memory orchestration
+a continuously optimizable problem, or does it admit intrinsic boundaries beyond
 which additional coordination cannot improve---and can worsen---end-to-end
 latency?}
 
-\paragraph{This work.}
 We answer this question with a regime-based view.
-We show that multi-tier inference systems exhibit \emph{phase-like} operational
-regimes governed by two dimensionless ratios: the fast-memory residency ratio
-$R_C = C_{\mathrm{fast}}/W$ (capacity balance) and the transfer-pressure ratio
-$R_B = B_{\mathrm{slow}}/D$ (bandwidth balance).
-Crucially, transitions between regimes are \emph{discontinuous}: modest changes
-in model size, batch size, or available bandwidth abruptly shift the dominant
-contributor to latency from locality effects, to coordination overhead, to
-physical I/O limits.
-Orchestration strategies that appear universally beneficial within one regime
-therefore fail predictably---and for principled reasons---outside analytically
-identifiable boundaries.
+Multi-tier inference systems exhibit \emph{phase-like} operational regimes
+governed by two dimensionless ratios: the fast-memory residency ratio
+$R_C = C_{\mathrm{fast}}/W$ and the transfer-pressure ratio
+$R_B = B_{\mathrm{slow}}/D$.
+Transitions between regimes are \emph{abrupt}: modest changes in model size,
+batch size, or bandwidth shift the dominant latency contributor
+discontinuously---analogous to a material crossing a phase boundary when a
+control parameter passes a critical threshold.
+Orchestration strategies effective within one regime therefore fail
+predictably---and for principled reasons---outside analytically identifiable
+boundaries.
+This regime structure is not LLM-specific; it governs any workload whose active
+working set cannot fully reside in fast memory, including vision inference,
+retrieval-augmented generation (RAG), and HPC-style scientific workflows.
 
-The analogy to physical phase transitions is deliberate.
-Just as a material crosses a phase boundary when a control parameter (temperature,
-pressure) passes a critical threshold, a hierarchical memory system crosses a
-regime boundary when $R_C$ or $R_B$ falls below a critical value $\theta_C$ or
-$\theta_B$. Below these thresholds, the dominant latency term changes
-discontinuously, and no amount of coordination can compensate for the violated
-physical constraint.
-
-\paragraph{Scope and role of \textsc{Orion}.}
-\textsc{Orion} is introduced as an \emph{experimental probe} to expose and
-measure regime-dependent behavior, not as a new state-of-the-art inference
-engine.
-Our goal is to test the widespread assumption that deeper orchestration is always
-beneficial.
-We show that even careful coordination cannot prevent systems from crossing
-intrinsic boundaries where additional orchestration becomes additive overhead
-rather than a remedy.
-Improvements observed with \textsc{Orion} should be interpreted as evidence that
-the operating point lies within a coordination-dominated regime; the predictable
-failure modes beyond regime boundaries illustrate limits that no orchestration
-policy can eliminate.
-
-\paragraph{Generality.}
-Although we use large language model serving as a canonical stress test, the
-regime structure is not LLM-specific.
-Whenever an active working set cannot fully reside in fast memory---as in vision
-and multimodal inference, retrieval-augmented generation (RAG), data-intensive
-analytics, and HPC-style scientific workflows---performance is governed by the
-same intrinsic balance between residency, sustained transfer bandwidth, and
-synchronization overhead.
-The regime framework therefore provides a general lens for reasoning about
-scalability limits in any hierarchical-memory computing system.
-
-\paragraph{Contributions.}
 We make three contributions:
 \begin{itemize}
   \item \textbf{Regime-dependent principle.}
-    We identify three intrinsic operational regimes---capacity-limited,
-    coordination-dominated, and I/O-limited---and demonstrate that transitions
-    between them are abrupt rather than gradual, analogous to phase transitions
-    in physical systems.
+    Three intrinsic operational regimes---capacity-limited,
+    coordination-dominated, and I/O-limited---with abrupt, phase-like
+    transitions between them.
   \item \textbf{Minimal analytical model.}
-    We derive a structural lower bound on end-to-end inference latency from a
-    minimal multi-tier transfer model, yielding analytically interpretable regime
-    boundaries expressed as closed-form conditions on $R_C$ and $R_B$.
-  \item \textbf{Multi-platform experimental validation.}
-    Using \textsc{Orion} as a measurement instrument, we validate predicted
-    transitions across language and vision workloads on GPU (NVIDIA A100),
-    TPU~v4, Inferentia2, AMD MI250, and Intel Optane-PMem systems, confirming
-    that regime boundaries are hardware-agnostic within $\pm 0.05$ of predicted
-    thresholds.
+    A structural lower bound on inference latency yielding closed-form regime
+    boundaries expressed as conditions on $R_C$ and $R_B$.
+  \item \textbf{Multi-platform validation.}
+    Predicted transitions are confirmed across language and vision workloads
+    on NVIDIA A100, TPU v4, AWS Inferentia2, AMD MI250, and Intel Optane-PMem
+    systems, with boundaries consistent to within $\pm 0.05$.
 \end{itemize}
 
-Together, these results reframe hierarchical memory coordination as a problem
-of \emph{regime-aware design} rather than continuous tuning, providing a
-principled framework for understanding scalability, stability, and energy
-efficiency in memory-bound AI inference.
+Together, these results reframe hierarchical memory coordination as
+\emph{regime-aware design} rather than continuous tuning.
 
 \FloatBarrier
