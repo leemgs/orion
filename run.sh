@@ -1,9 +1,17 @@
 #!/bin/bash
 set -e
 
-MAIN="main"
+# Usage:
+#   ./run.sh           → build main.pdf      (IEEEtran template)
+#   ./run.sh nature    → build main_nature.pdf (sn-jnl / Springer Nature template)
 
-echo "[1/4] pdflatex (first pass)..."
+if [ "${1}" = "nature" ]; then
+    MAIN="main_nature"
+else
+    MAIN="main"
+fi
+
+echo "[1/4] pdflatex (first pass) — ${MAIN}..."
 pdflatex -interaction=nonstopmode "${MAIN}.tex"
 
 echo "[2/4] bibtex..."

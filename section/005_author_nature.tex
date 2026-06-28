@@ -1,0 +1,25 @@
+%% ============================================================
+%%  Author & Affiliation block — sn-jnl format
+%%  sn-jnl uses \author / \affil macros (not IEEEauthorblock)
+%% ============================================================
+
+\ifnum\anonymous=1
+  %% --- Blind review version ---
+  \author*{\fnm{Anonymous} \sur{Author(s)}}
+  \affil*{\orgname{Anonymous Institution}}
+\else
+  %% --- Camera-ready version ---
+  \author*[1]{\fnm{Geunsik} \sur{Lim}\orcidicon{0000-0003-1845-7132}}
+  \email{geunsik.lim@samsung.com}
+
+  \affil[1]{
+    \orgdiv{Data Service Lab.},
+    \orgname{Samsung Electronics},
+    \orgaddress{
+      \city{Seoul},
+      \country{South Korea}
+    }
+  }
+\fi
+
+\maketitle
