@@ -15,8 +15,9 @@ memory capacity, transfer bandwidth, and coordination overhead.
 \textbf{Capacity-limited regime} ($R_C < \theta_C$). Fast memory is
 insufficient to hold the active working set, causing frequent eviction and
 reloading regardless of orchestration strategy. Locality effects dominate
-performance: even minimal coordination overhead cannot compensate for the
-absence of effective fast-memory residency.
+performance: regime-agnostic memory-coordination strategies cannot compensate
+for the absence of fast-memory residency, though hardware-level optimisations
+(NUMA binding, process pinning) continue to provide modest gains.
 
 \textbf{Coordination-dominated regime} ($R_C \geq \theta_C$,
 $R_B \geq \theta_B$). Fast and intermediate memory tiers together can absorb
@@ -192,6 +193,15 @@ is ineffective in the coordination-dominated regime ($-$0.3\%) but recovers 14\%
 of latency in the I/O-limited regime.
 This ranking reversal---not merely diminishing returns---is the hallmark of
 genuine regime structure and distinguishes it from a smooth performance trade-off.
+\textsc{Orion}'s additional 2.6\,percentage-point gain over simple swap reduction
+in the I/O-limited regime ($-16.8\%$ vs.\ $-14.2\%$) comes from NUMA-aware DMA
+scheduling and pipeline-stall elimination: swap reduction alone shrinks transfer
+volume but does not reduce per-byte queuing delay, whereas \textsc{Orion}'s
+token-bucket rate-limiter also reduces PCIe contention and write-back amplification.
+In the capacity-limited regime, \textsc{Orion}'s $-5.2\%$ gain is similarly
+attributable to NUMA binding and process-pinning subsystems rather than
+coordination policy, consistent with the claim that regime-agnostic
+memory-coordination strategies are ineffective in this regime.
 
 \begin{table}[t]
 \centering
