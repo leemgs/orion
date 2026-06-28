@@ -69,30 +69,37 @@ structural trade-offs that local optimization cannot eliminate.
 \paragraph{Dimensionless control ratios.}
 We characterize any configuration by two ratios:
 \begin{equation}
-R_C = \frac{C_{\mathrm{fast}}}{W}, \qquad R_B = \frac{B_{\mathrm{slow}}}{D},
+R_C = \frac{C_{\mathrm{fast}}}{W}, \qquad
+R_B = \frac{B_{\mathrm{slow}} \cdot \Delta t}{D},
 \label{eq:ratios}
 \end{equation}
-where $C_{\mathrm{fast}}$ is fast-memory capacity, $W = W_{\mathrm{param}} +
-W_{\mathrm{act}} + W_{\mathrm{kv}}$ is the active working-set size, $B_{\mathrm{slow}}$
-is the sustained bandwidth of the slowest tier on the critical transfer path,
-and $D$ is the data volume traversing that path per inference step.
+where $C_{\mathrm{fast}}$ is fast-memory capacity;
+$W = W_{\mathrm{param}} + W_{\mathrm{act}} + W_{\mathrm{kv}}$ is the active
+working-set size; $B_{\mathrm{slow}}$ is the sustained host-to-device bandwidth
+on the critical transfer path; $D$ is the compulsory data volume transferred
+per inference step; and $\Delta t$ is the average inference-step duration,
+so that $D/\Delta t$ is the sustained transfer-demand rate [bytes/s].
+Both ratios are dimensionless: $R_C$ measures residency and $R_B$ measures the
+fraction of the sustained transfer demand that available bandwidth can serve.
 
 \paragraph{Structural lower bound.}
 Independent of the specific orchestration policy,
 \begin{equation}
-T_{\mathrm{total}} \;\geq\; \alpha\,\frac{W}{C_{\mathrm{fast}}}
-                           + \beta\,\frac{D}{B_{\mathrm{slow}}},
+T_{\mathrm{total}} \;\geq\;
+  \underbrace{\rho\,W\,\max(0,1-R_C)}_{T_{\mathrm{mem}}^{\min}}
++ \underbrace{D/B_{\mathrm{slow}}}_{T_{\mathrm{swap}}^{\min}},
 \label{eq:lower_bound_regime}
 \end{equation}
-where $\alpha, \beta > 0$ are platform-dependent constants.
-Under standard eviction models, the miss volume grows sharply once $W$
-approaches $C_{\mathrm{fast}}$, yielding a lower bound proportional to
-$W/C_{\mathrm{fast}}$.
-Any compulsory transfer of volume $D$ across bandwidth $B_{\mathrm{slow}}$
-incurs an irreducible cost of at least $D/B_{\mathrm{slow}}$.
-These bounds hold regardless of scheduling or overlap: computation--transfer
-overlap can redistribute visible latency, but cannot violate physical capacity
-or sustained-bandwidth limits.
+where $\rho$ is the HBM miss-penalty per byte (platform constant).
+The first term is the irreducible memory-access penalty from evicted working-set
+data under any eviction policy~\cite{mattson1970evaluation}; the second is the
+minimum time to transfer $D$ compulsory bytes.
+Both bounds hold regardless of scheduling or overlap: compute--transfer overlap
+can redistribute visible latency, but cannot violate physical capacity or
+sustained-bandwidth limits.
+Platform-specific values of $(\rho, B_{\mathrm{slow}})$ and the fraction of
+observed $T_{\mathrm{total}}$ accounted for by Eq.~\eqref{eq:lower_bound_regime}
+are given in Supplementary Table~A.1.
 
 \paragraph{Regime boundaries.}
 Regime transitions occur at critical values
