@@ -330,6 +330,29 @@ space confirms that the three-regime structure and its dominant-term fractions
 are consistent across the entire landscape
 (Supplementary Table~\ref{tab:2d_sweep}).
 
+\paragraph{Isolating the classifier's contribution.}
+To separate the benefit of regime-adaptive strategy switching from
+\textsc{Orion}'s hardware-level optimisations (NUMA binding and PCIe
+rate-limiting), we compare \textsc{Orion}$_{\mathrm{HW}}$---all hardware
+subsystems active, classification loop \emph{disabled}, strategy fixed at
+the coordination-dominated optimum---against
+\textsc{Orion}$_{\mathrm{Full}}$ (classifier running every 100\,ms,
+strategy switched on regime change).
+Hardware optimisations alone account for $-3.8$ to $-8.3\%$ latency
+reduction across all regimes; the regime classifier contributes an
+\emph{additional} $-1.1$ to $-18.8\%$, representing 21--69\% of
+\textsc{Orion}$_{\mathrm{Full}}$'s total gain on LLM workloads.
+The classifier's contribution is largest in the coordination-dominated
+regime (69\%), where strategy choice has the most leverage, and smallest
+in the capacity-limited regime (21\%), where fast-memory residency is the
+binding constraint regardless of strategy.
+For non-LLM workloads with mid-inference regime transitions (BLIP2, RAG),
+the classifier contributes 66--76\% of total gain---gains structurally
+inaccessible to any fixed-strategy approach---confirming that adaptive
+regime classification is the primary mechanism enabling performance gains
+beyond hardware tuning
+(Supplementary Table~\ref{tab:classifier_ablation}).
+
 \begin{table}[t]
 \centering
 \caption{Regime structure and latency change for non-LLM workloads across all

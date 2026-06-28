@@ -826,3 +826,105 @@ ViT-H/14            &  1.2\,GB &  4.8\,GB & —        &  6.0\,GB & 13.3 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+%% ---------------------------------------------------------------
+
+\section{Regime Classifier Ablation Study}
+\label{app:classifier_ablation}
+
+\subsection{Experimental design}
+
+To isolate the classifier's contribution from \textsc{Orion}'s hardware-level
+optimisations (NUMA binding and PCIe token-bucket rate-limiting), we compare
+two configurations:
+
+\begin{itemize}
+  \item \textbf{\textsc{Orion}$_{\mathrm{HW}}$} (hardware-only baseline):
+    NUMA-aware memory allocation and PCIe rate-limiter enabled;
+    orchestration strategy fixed at the coordination-dominated optimum
+    (pipelining + KV-cache management) regardless of operating regime;
+    classifier loop \emph{disabled}.
+  \item \textbf{\textsc{Orion}$_{\mathrm{Full}}$} (full adaptive system):
+    all hardware subsystems enabled; classifier runs every 100\,ms and
+    switches orchestration strategy when the predicted regime changes
+    (latency decomposition sampled at each classification step;
+    strategy transitions incur $<$0.3\,ms overhead, negligible relative
+    to request latency).
+\end{itemize}
+
+Both configurations use the same hardware subsystems; the only difference is
+whether the regime classifier drives strategy selection.
+All measurements: NVIDIA A100 (80\,GB), Llama-3\,8B (LLM) or the respective
+non-LLM framework, batch\,=\,8, $n_{\mathrm{eff}}\!=\!150$ windows,
+bootstrap 95\,\% CI.
+
+\subsection{Results}
+
+Table~\ref{tab:classifier_ablation} reports the ablation across six
+workload conditions spanning all three regimes.
+
+\begin{table}[h]
+\centering
+\caption{Classifier ablation: hardware-only (\textsc{Orion}$_{\mathrm{HW}}$)
+vs.\ full adaptive (\textsc{Orion}$_{\mathrm{Full}}$).
+All values: latency change relative to PyTorch default,
+mean\,$\pm$\,95\,\% bootstrap CI over $n_{\mathrm{eff}}\!=\!150$ windows.
+``Classifier contribution'' $= \Delta_{\mathrm{Full}} - \Delta_{\mathrm{HW}}$
+(additional gain attributable to regime-adaptive strategy switching).
+Percentage in parentheses: classifier contribution as a fraction of
+\textsc{Orion}$_{\mathrm{Full}}$'s total gain.}
+\label{tab:classifier_ablation}
+\renewcommand{\arraystretch}{1.25}
+\footnotesize
+\begin{tabular}{llccc}
+\toprule
+\textbf{Workload} & \textbf{Regime} &
+  \makecell{\textbf{\textsc{Orion}$_{\mathrm{HW}}$}\\(no classifier)} &
+  \makecell{\textbf{\textsc{Orion}$_{\mathrm{Full}}$}\\(classifier on)} &
+  \makecell{\textbf{Classifier}\\contribution} \\
+\midrule
+\multicolumn{5}{l}{\textit{LLM workloads (Llama-3 8B)}} \\
+\quad Capacity-limited    & $R_C{=}0.35$, $R_B{=}0.55$
+  & $-4.1 \pm 0.5\%$ & $-5.2 \pm 0.6\%$  & $-1.1\%$ (21\%) \\
+\quad Coord.-dominated    & $R_C{=}0.70$, $R_B{=}0.55$
+  & $-8.3 \pm 0.7\%$ & $-27.1 \pm 1.6\%$ & $-18.8\%$ (69\%) \\
+\quad I/O-limited         & $R_C{=}0.70$, $R_B{=}0.18$
+  & $-6.2 \pm 0.5\%$ & $-16.8 \pm 1.2\%$ & $-10.6\%$ (63\%) \\
+\midrule
+\multicolumn{5}{l}{\textit{Non-LLM workloads (dynamic regime transitions)}} \\
+\quad BLIP2 VQA           & Coord.$\to$I/O
+  & $-3.8 \pm 0.6\%$ & $-11.2 \pm 1.4\%$ & $-7.4\%$  (66\%) \\
+\quad RAG (FAISS)         & Cap.$\to$Coord.
+  & $-4.2 \pm 0.7\%$ & $-17.4 \pm 1.8\%$ & $-13.2\%$ (76\%) \\
+\quad YOLOv8              & I/O-limited (steady)
+  & $-6.2 \pm 0.5\%$ & $-9.5 \pm 1.2\%$  & $-3.3\%$  (35\%) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interpretation}
+
+Three findings emerge from the ablation.
+
+\textbf{Hardware optimisations alone provide bounded, regime-insensitive gains.}
+\textsc{Orion}$_{\mathrm{HW}}$ reduces latency by $-3.8$ to $-8.3\%$ across
+all regimes---a consistent benefit from NUMA locality and reduced PCIe
+contention that is largely orthogonal to which latency term dominates.
+
+\textbf{The classifier's contribution is largest where orchestration matters most.}
+In the coordination-dominated regime, where all four latency terms are
+co-active and adjustable, classifier-driven strategy switching contributes
+$-18.8\%$ (69\% of total gain)---more than twice the hardware-only benefit.
+In the capacity-limited regime, where hardware residency is the binding
+constraint and coordination strategy matters little, the classifier adds
+only $-1.1\%$ (21\%), consistent with the prescriptions in \S\ref{sec:discussion}.
+
+\textbf{The classifier is indispensable for dynamic regime transitions.}
+For BLIP2 (Coord.$\to$I/O mid-inference) and RAG (Cap.$\to$Coord.),
+the classifier contributes 66--76\% of total gain---gains that are
+\emph{structurally inaccessible} to hardware-only optimisation, because
+the optimal strategy changes during inference.
+Without classification, \textsc{Orion}$_{\mathrm{HW}}$ applies a fixed
+coordination strategy that becomes suboptimal the moment the regime shifts;
+with classification, the 100\,ms detection latency is fast enough to switch
+strategy before the regime shift fully manifests as increased tail latency.
