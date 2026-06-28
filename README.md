@@ -1,26 +1,40 @@
-# ORION — Regime-dependent limits of hierarchical memory orchestration in large-scale AI inference
+# ORION — 대규모 AI 추론에서 계층적 메모리 오케스트레이션의 레짐 의존적 한계
 
-LaTeX manuscript targeting **Nature Computational Science** (1순위) or **Nature Communications** (2순위).
+LaTeX 논문 원고. **Nature Computational Science** (1순위) 또는 **Nature Communications** (2순위) 투고를 목표로 합니다.
 
 ---
 
-## Repository structure
+## 목차
+
+1. [저장소 구조](#1-저장소-구조)
+2. [의존 패키지 설치 (Ubuntu 24.04)](#2-의존-패키지-설치-ubuntu-2404)
+3. [빌드 방법](#3-빌드-방법)
+4. [PDF 열람](#4-pdf-열람)
+5. [익명 처리 스위치](#5-익명-처리-스위치)
+6. [Nature 저널 구조 이해](#6-nature-저널-구조-이해)
+7. [저널 추천 우선순위](#7-저널-추천-우선순위)
+8. [단계별 투고 전략](#8-단계별-투고-전략)
+9. [리뷰 절차 및 게재료](#9-리뷰-절차-및-게재료)
+
+---
+
+## 1. 저장소 구조
 
 ```
 .
-├── main.tex                  # IEEEtran template (draft / internal review)
-├── main_nature.tex           # Springer Nature sn-jnl template (submission)
-├── sn-jnl.cls                # Springer Nature journal class (required)
-├── IEEEtran.cls              # IEEE class (for main.tex)
-├── IEEEtranDOI.bst           # IEEE BibTeX style
-├── reference-data.bib        # Bibliography database
-├── latexmkrc                 # latexmk configuration (timezone)
-├── run.sh                    # Build script
-├── figures/                  # All figures (PNG)
-└── section/                  # Per-section .tex files
+├── main.tex                    # IEEEtran 템플릿 (초안 / 내부 검토용)
+├── main_nature.tex             # Springer Nature sn-jnl 템플릿 (투고용)
+├── sn-jnl.cls                  # Springer Nature 공식 저널 클래스
+├── IEEEtran.cls                # IEEE 클래스 (main.tex 용)
+├── IEEEtranDOI.bst             # IEEE BibTeX 스타일
+├── reference-data.bib          # 참고문헌 데이터베이스
+├── latexmkrc                   # latexmk 설정 (타임존)
+├── run.sh                      # 빌드 스크립트
+├── figures/                    # 그림 파일 (PNG)
+└── section/                    # 섹션별 .tex 파일
     ├── 001_title.tex
-    ├── 005_author.tex        # IEEEtran author block
-    ├── 005_author_nature.tex # sn-jnl author block
+    ├── 005_author.tex          # IEEEtran 저자 블록
+    ├── 005_author_nature.tex   # sn-jnl 저자 블록
     ├── 006_abstract.tex
     ├── 006_abstract_nature.tex
     ├── 010_introduction.tex
@@ -39,10 +53,10 @@ LaTeX manuscript targeting **Nature Computational Science** (1순위) or **Natur
 
 ---
 
-## 1. Install dependencies (Ubuntu 24.04)
+## 2. 의존 패키지 설치 (Ubuntu 24.04)
 
 ```bash
-# Core TeX Live packages
+# TeX Live 핵심 패키지 설치
 sudo apt-get update
 sudo apt-get install -y \
     texlive-base \
@@ -56,34 +70,33 @@ sudo apt-get install -y \
     texlive-bibtex-extra \
     bibtex
 
-# PDF viewer
+# PDF 뷰어 설치
 sudo apt-get install -y evince
 ```
 
-> **Note:** `texlive-science` provides `algorithm.sty` and `algorithmicx.sty`
-> required by this manuscript.
+> **참고:** `texlive-science` 패키지에 이 논문에서 필요한 `algorithm.sty` 및 `algorithmicx.sty`가 포함되어 있습니다.
 
 ---
 
-## 2. Build
+## 3. 빌드 방법
 
-### Nature template (for submission)
+### Nature 템플릿 (투고용)
 
 ```bash
 ./run.sh nature
 ```
 
-Produces `main_nature.pdf`.
+`main_nature.pdf` 파일이 생성됩니다.
 
-### IEEEtran template (internal draft)
+### IEEEtran 템플릿 (내부 초안용)
 
 ```bash
 ./run.sh
 ```
 
-Produces `main.pdf`.
+`main.pdf` 파일이 생성됩니다.
 
-### What `run.sh` does internally
+### `run.sh` 내부 동작 순서
 
 ```
 pdflatex  →  bibtex  →  pdflatex  →  pdflatex
@@ -91,64 +104,65 @@ pdflatex  →  bibtex  →  pdflatex  →  pdflatex
 
 ---
 
-## 3. View the PDF
+## 4. PDF 열람
 
 ```bash
-# Nature submission PDF
+# Nature 투고용 PDF
 evince main_nature.pdf
 
-# IEEEtran draft PDF
+# IEEEtran 초안 PDF
 evince main.pdf
 ```
 
-Other viewers:
+기타 뷰어:
 
 ```bash
-xdg-open main_nature.pdf     # system default viewer
-okular main_nature.pdf        # KDE viewer
-zathura main_nature.pdf       # lightweight viewer
+xdg-open main_nature.pdf     # 시스템 기본 뷰어
+okular main_nature.pdf        # KDE 뷰어
+zathura main_nature.pdf       # 경량 뷰어
 ```
 
 ---
 
-## 4. Anonymity switch
+## 5. 익명 처리 스위치
 
-The `\anonymous` flag in `main.tex` / `main_nature.tex` controls author visibility:
+`main.tex` / `main_nature.tex` 상단의 `\anonymous` 값으로 저자 공개 여부를 제어합니다.
 
-| Value | Effect |
-|-------|--------|
-| `1`   | Real author name and affiliation shown |
-| `0`   | "Anonymous Author(s)" for blind review |
+| 값 | 효과 |
+|----|------|
+| `1` | 실제 저자명 및 소속 표시 |
+| `0` | 블라인드 리뷰용 익명 처리 |
 
 ---
 
-## 5. Nature 저널 구조 이해
+## 6. Nature 저널 구조 이해
 
-Nature 저널은 **본지(flagship)** 와 **자매지(sister journals)** 로 구성됩니다.
-투고 전 이 구조를 이해하는 것이 중요합니다.
+**Nature (본지)** 는 1869년 창간된 단일 저널이고, 그 아래 특화 자매지들이 별도 저널로 운영됩니다. 구조는 다음과 같습니다.
 
 ```
 Springer Nature (출판사)
 │
-├── Nature  ←── 본지 (1869년 창간, 모든 과학 분야 최상위)
-│               노벨상급 발견 수준 요구. CS 논문은 사실상 투고 불가.
+├── Nature  ←── 본지 (주1회 발행, 모든 과학 분야 최상위)
 │
-├── Nature Research Journals (분야별 자매지, 각각 독립 편집위원회)
-│   ├── Nature Computational Science   ← 이 논문 1순위 투고 대상
-│   ├── Nature Communications          ← 이 논문 2순위 투고 대상
-│   ├── Nature Machine Intelligence    (AI 학계 보이콧 진행 중 — 제외)
+├── Nature Research Journals (자매지 — 분야별)
 │   ├── Nature Medicine
+│   ├── Nature Machine Intelligence
+│   ├── Nature Computational Science   ← 이 논문 1순위
 │   ├── Nature Electronics
+│   ├── Nature Communications          ← 이 논문 2순위
 │   ├── Nature Biotechnology
-│   └── Nature Physics ... 등 50여 개
+│   ├── Nature Physics  ... 등 50여개
 │
 └── npj (Nature Partner Journals) — 외부 기관과 공동 발행
-    ├── npj Computational Intelligence ← 이 논문 3순위 안전망
+    ├── npj Computational Intelligence ← 이 논문 3순위
     └── npj Digital Medicine ... 등
 ```
 
-**핵심 포인트:**
-- 자매지는 본지와 **편집위원회·심사 기준·APC가 모두 독립적**으로 운영됨
+**핵심 차이점:**
+
+- **Nature 본지** 투고 = 노벨상급 발견 수준 요구. CS 논문은 사실상 불가에 가까움
+- **자매지** 투고 = 각 저널의 편집팀이 독립적으로 운영. 본지와 별도 심사
+- 같은 "Nature" 브랜드지만 **편집위원회, 심사 기준, APC가 모두 다름**
 - 자매지 탈락 후 다른 자매지로 **원고 이전(manuscript transfer) 서비스** 제공
 - 구독 방식(Subscription)으로 제출 시 **게재료 무료**
 - Open Access 선택 시 약 $11,690 USD (2024 기준)
@@ -156,7 +170,7 @@ Springer Nature (출판사)
 
 ---
 
-## 6. 저널 추천 (우선순위)
+## 7. 저널 추천 우선순위
 
 ### 1순위: Nature Computational Science ★★★★★
 
@@ -195,12 +209,11 @@ Springer Nature (출판사)
 
 ### 제외 대상: Nature Machine Intelligence
 
-AI 학계 전체 보이콧 운동이 진행 중이며, 오픈 액세스를 중시하는 AI 커뮤니티에서
-배척받고 있음. 피인용 파급력 측면에서 불리.
+AI 학계 전체 보이콧 운동이 진행 중이며, 오픈 액세스를 중시하는 AI 커뮤니티에서 배척받고 있음. 피인용 파급력 측면에서 불리.
 
 ---
 
-## 7. 단계별 투고 전략
+## 8. 단계별 투고 전략
 
 ### Step 1 — arXiv 선공개 (즉시 가능)
 
@@ -246,7 +259,9 @@ Nature 투고 전 전문 영어 편집 필수.
 
 ---
 
-## 8. 리뷰 절차 및 게재료
+## 9. 리뷰 절차 및 게재료
+
+### 리뷰 절차 (통상 4~6개월)
 
 | 단계 | 소요 기간 | 내용 |
 |------|-----------|------|
@@ -255,9 +270,15 @@ Nature 투고 전 전문 영어 편집 필수.
 | 1차 결정 | — | Accept / Major revision / Minor revision / Reject |
 | 수정 및 재심사 | 4~8주 | 통상 1~2 라운드 |
 | 최종 승인 | 1~2주 | 게재 확정 |
-| **총 소요** | **4~6개월** | |
+| **총 소요** | **4~6개월** | 빠르면 3개월 |
+
+### 게재료 (APC)
 
 | 출판 방식 | 게재료 |
 |-----------|--------|
-| 구독 방식 (Subscription) | **무료** |
+| 구독 방식 (Subscription) | **무료** (저자 부담 없음) |
 | Open Access | 약 $11,690 USD (2024 기준) |
+
+> **결론:** 구독 방식으로 제출하면 **게재료 무료**입니다.
+> 단, 독자는 구독 없이 열람 불가.
+> 삼성전자는 Springer Nature와 기관 협약(Read & Publish)을 맺고 있을 가능성이 높으므로 소속 도서관에 확인 권장.
