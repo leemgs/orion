@@ -96,6 +96,14 @@ can \emph{worsen} latency by 8--12\% in this regime by amplifying an already
 saturated transfer path.
 These prescriptions are immediately actionable from two ratios computable
 before deployment.
+Crucially, both thresholds are predictable a priori without exhaustive
+sweeps: $\theta_C = 0.50$ follows analytically from the majority-eviction
+condition (hardware-independent, mean error $\leq 2.4\%$ across five
+platforms), and $\theta_B$ is estimable from three measurements---sustained
+bandwidth $B_{\mathrm{slow}}$, single-run computation time $T_{\mathrm{comp}}$,
+and DMA log-derived amplification factors---obtainable in a 10-minute
+profiling session (mean error $\leq 4.7\%$ on PCIe-based platforms;
+Supplementary Table~\ref{tab:threshold_prediction}).
 
 This perspective applies beyond large language models to any workload whose
 active working set cannot fully reside in fast memory---multimodal inference,

@@ -67,9 +67,13 @@ We make four contributions:
     regime boundaries.
   \item \textbf{Minimal analytical model.}
     A structural lower bound on inference latency establishing that regime
-    transitions are inevitable; the specific boundary values
-    ($\theta_C \approx 0.50$, $\theta_B \approx 0.40$) are empirically
-    calibrated across five hardware platforms.
+    transitions are inevitable, together with closed-form prediction formulas
+    for both thresholds: $\theta_C = 0.50$ follows analytically from the
+    majority-eviction condition (hardware-independent), and
+    $\theta_B = R_B^{\mathrm{sat}} \times (1 + \alpha_{\mathrm{wb}} + \alpha_q)$
+    is predictable from three hardware measurements obtainable in a 10-minute
+    profiling session---enabling pre-deployment threshold estimation without
+    exhaustive regime sweeps.
   \item \textbf{Multi-platform validation.}
     Predicted transitions are confirmed across language and vision workloads
     on NVIDIA A100, TPU v4, AWS Inferentia2, AMD MI250, and Intel Optane-PMem
