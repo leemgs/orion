@@ -37,7 +37,7 @@ We answer this question with a regime-based view.
 Multi-tier inference systems exhibit \emph{phase-like} operational regimes
 governed by two dimensionless ratios: the fast-memory residency ratio
 $R_C = C_{\mathrm{fast}}/W$ and the transfer-pressure ratio
-$R_B = B_{\mathrm{slow}}/D$.
+$R_B = B_{\mathrm{slow}} \cdot \Delta t / D$.
 Transitions between regimes are \emph{abrupt}: modest changes in model size,
 batch size, or bandwidth shift the dominant latency contributor
 discontinuously---analogous to a material crossing a phase boundary when a
@@ -56,8 +56,10 @@ We make three contributions:
     coordination-dominated, and I/O-limited---with abrupt, phase-like
     transitions between them.
   \item \textbf{Minimal analytical model.}
-    A structural lower bound on inference latency yielding closed-form regime
-    boundaries expressed as conditions on $R_C$ and $R_B$.
+    A structural lower bound on inference latency establishing that regime
+    transitions are inevitable; the specific boundary values
+    ($\theta_C \approx 0.50$, $\theta_B \approx 0.40$) are empirically
+    calibrated across five hardware platforms.
   \item \textbf{Multi-platform validation.}
     Predicted transitions are confirmed across language and vision workloads
     on NVIDIA A100, TPU v4, AWS Inferentia2, AMD MI250, and Intel Optane-PMem

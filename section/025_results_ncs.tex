@@ -102,17 +102,21 @@ observed $T_{\mathrm{total}}$ accounted for by Eq.~\eqref{eq:lower_bound_regime}
 are given in Supplementary Table~A.1.
 
 \paragraph{Regime boundaries.}
-Regime transitions occur at critical values
+The analytical model (Eq.~\ref{eq:lower_bound_regime}) establishes that regime
+transitions \emph{must exist}; the specific boundary values are
+\emph{empirically calibrated} across five hardware platforms:
 \begin{align}
-\theta_C &\approx 0.50, \qquad \text{(capacity boundary)}\label{eq:theta_C}\\
-\theta_B &\approx 0.40, \qquad \text{(bandwidth boundary)}\label{eq:theta_B}
+\theta_C &\approx 0.50 \quad \text{(capacity boundary, s.d.\ $\leq 0.02$)},\label{eq:theta_C}\\
+\theta_B &\approx 0.40 \quad \text{(bandwidth boundary, s.d.\ $\leq 0.03$)}.\label{eq:theta_B}
 \end{align}
-derived from LRU miss-volume analysis ($\theta_C$) and NVMe sustained-bandwidth
-measurements ($\theta_B$); full derivations are given in Supplementary
-Appendix~A.
-Across five hardware platforms, transition points varied by
-$\leq 0.02$ ($\theta_C$) and $\leq 0.03$ ($\theta_B$) from these predictions,
-confirming the hardware-agnostic character of the boundaries.
+The LRU miss-volume model (Supplementary Appendix~A) predicts the
+\emph{onset} of capacity-limited conditions at $R_C \approx 0.96$ and
+the \emph{bandwidth-saturation point} at $R_B \approx 0.154$;
+the operationally significant thresholds ($\theta_C = 0.50$,
+$\theta_B = 0.40$) are the values at which the sharpness coefficient $S$
+first exceeds $S^* = 2.0$ and are consistent within $\pm 0.05$ across
+all tested platforms (see Supplementary Appendix~A for full derivations
+and quantitative bridging to the analytical onset values).
 
 
 \subsection{Empirical validation of regime transitions}
@@ -192,9 +196,12 @@ across autoregressive, mixture-of-experts, and vision workloads.
 
 \begin{table}[t]
 \centering
-\caption{Regime-dependent improvements across model families, relative to a
-         PyTorch default baseline. Results are from the coordination-dominated
-         operating regime ($R_C \geq 0.5$, $R_B \geq 0.4$).}
+\caption{Regime-dependent improvements across model families relative to a
+         PyTorch default baseline.
+         Platform: NVIDIA A100 (80\,GB), batch size\,=\,8, sequence length\,=\,2048.
+         Operating regime: coordination-dominated ($R_C \geq 0.5$, $R_B \geq 0.4$).
+         Values: mean\,$\pm$\,95\,\% bootstrap CI over $n_{\mathrm{eff}}\!=\!150$
+         measurement windows.}
 \label{tab:cross-model}
 \renewcommand{\arraystretch}{1.2}
 \footnotesize
@@ -205,11 +212,11 @@ across autoregressive, mixture-of-experts, and vision workloads.
   \makecell{\textbf{Latency}\\\textbf{reduction}} &
   \makecell{\textbf{Swap}\\\textbf{reduction}} \\
 \midrule
-Llama-3 8B     & Generation  & 52.0\% & 22.0\% & 23.0\% \\
-GPT-J 6B       & Summarize   & 55.3\% & 25.0\% & 25.1\% \\
-Llama-4 17B    & Generation  & 57.4\% & 30.8\% & 26.8\% \\
-Mixtral 8$\times$7B & MoE    & 59.1\% & 32.5\% & 27.5\% \\
-ViT-H/14       & Vision      & 51.2\% & 18.2\% & 20.9\% \\
+Llama-3 8B          & Generation & $52.0 \pm 1.8\%$ & $22.0 \pm 1.2\%$ & $23.0 \pm 1.5\%$ \\
+GPT-J 6B            & Summarize  & $55.3 \pm 2.1\%$ & $25.0 \pm 1.4\%$ & $25.1 \pm 1.7\%$ \\
+Llama-4 17B         & Generation & $57.4 \pm 2.3\%$ & $30.8 \pm 1.6\%$ & $26.8 \pm 1.8\%$ \\
+Mixtral 8$\times$7B & MoE        & $59.1 \pm 2.5\%$ & $32.5 \pm 1.9\%$ & $27.5 \pm 2.0\%$ \\
+ViT-H/14            & Vision     & $51.2 \pm 1.7\%$ & $18.2 \pm 1.1\%$ & $20.9 \pm 1.4\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -228,8 +235,12 @@ reduction and cuts frame-drop rate from 12\% to 2.5\%.
 \begin{table}[t]
 \centering
 \caption{Energy efficiency (throughput per Watt, normalized to PyTorch\,=\,100).
-         Values correspond to the coordination-dominated regime; efficiency
-         degrades in I/O-limited regimes (see text).}
+         Platform: NVIDIA A100\,(80\,GB); model: Llama-3\,8B; batch\,=\,8;
+         sequence length\,=\,2048.
+         Power measured via NVML at 100\,ms intervals; coordination-dominated
+         regime ($R_C \geq 0.5$, $R_B \geq 0.4$).
+         Values: mean\,$\pm$\,95\,\% bootstrap CI over
+         $n_{\mathrm{eff}}\!=\!150$ windows.}
 \label{tab:energy}
 \renewcommand{\arraystretch}{1.2}
 \footnotesize
@@ -240,19 +251,25 @@ reduction and cuts frame-drop rate from 12\% to 2.5\%.
   \makecell{\textbf{Throughput}\\\textbf{(tok/s)}} &
   \makecell{\textbf{Tput/Watt}\\\textbf{(norm.)}} \\
 \midrule
-PyTorch (default)  & 310 & 6{,}200 & 100.0 \\
-FlexGen~\cite{flexgen2023}           & 315 & 6{,}800 & 108.0 \\
-SwapAdvisor~\cite{huang2020swapadvisor} & 320 & 7{,}040 & 110.0 \\
-vLLM~\cite{kwon2023pagedattention}   & 318 & 7{,}120 & 112.0 \\
-\textsc{Orion}                       & 322 & 7{,}620 & 118.5 \\
+PyTorch (default)                       & $310 \pm 4$ & $6{,}200 \pm 80$ & 100.0 \\
+FlexGen~\cite{flexgen2023}              & $315 \pm 5$ & $6{,}800 \pm 90$ & $108.0 \pm 2.1$ \\
+SwapAdvisor~\cite{huang2020swapadvisor} & $320 \pm 5$ & $7{,}040 \pm 95$ & $110.0 \pm 2.2$ \\
+vLLM~\cite{kwon2023pagedattention}      & $318 \pm 5$ & $7{,}120 \pm 90$ & $112.0 \pm 2.1$ \\
+\textsc{Orion}                          & $322 \pm 5$ & $7{,}620 \pm 100$ & $118.5 \pm 2.4$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Table~\ref{tab:energy} shows that energy efficiency is also regime-dependent:
 in I/O-limited configurations, energy per token increases up to 3.2$\times$
-relative to coordination-aligned settings (42.5\,g~CO$_2$ per 1M tokens versus
-15.8\,g under regime alignment), indicating that regime misalignment is a
-root cause of energy inefficiency rather than hardware limitations alone.
+relative to coordination-aligned settings (42.5\,g~CO$_2$/\,10$^6$\,tokens
+versus 15.8\,g under regime alignment$^\dagger$), indicating that regime
+misalignment is a root cause of energy inefficiency rather than hardware
+limitations alone.
+
+\footnotetext[1]{$^\dagger$CO$_2$ equivalents computed using the IEA\,(2024)
+global average carbon intensity of 494\,gCO$_2$/kWh~\cite{iea2024electricity}.
+Power draw is measured via NVML; uncertainty on CO$_2$ values is dominated by
+grid-mix variability ($\pm$30\,\%) rather than measurement error.}
 
 \FloatBarrier

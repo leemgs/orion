@@ -62,6 +62,13 @@ accomplishes with 93.4\% accuracy across diverse workloads at $<$0.1~ms cost
 per classification.
 The first question for any memory-bound inference system should be not ``how
 much more coordination?'' but ``in which regime does the system operate?''
+We note, however, that the 93.4\% classification accuracy reported here is an
+in-distribution result: the classifier was trained and evaluated on measurements
+from the same five hardware platforms.
+Generalisation to unseen hardware configurations, novel memory-tier arrangements
+(e.g., CXL-pooled memory), or architectures with qualitatively different
+bandwidth profiles has not been characterised and represents an important
+direction for future validation.
 
 This perspective applies beyond large language models to any workload whose
 active working set cannot fully reside in fast memory---multimodal inference,
