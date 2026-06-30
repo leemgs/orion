@@ -34,7 +34,7 @@ LaTeX 논문 원고. **Nature Computational Science** (1순위) 또는 **Nature 
 ├── run.sh                      # 빌드 스크립트
 ├── figures/                    # 그림 파일
 │   ├── orion_regime_map.png    # Figure 1 — Regime map (2059×1607 px)
-│   ├── mball_consolidated.png  # Figure 2 — Experimental probes (3568×2657 px)
+│   ├── orion_consolidated.png  # Figure 2 — Experimental probes (3568×2657 px)
 │   └── *.png                   # 기타 보조 그림
 ├── ppt/                        # 발표 자료
 │   ├── orion_en.pptx           # 영문 12슬라이드
@@ -99,7 +99,7 @@ LaTeX 논문 원고. **Nature Computational Science** (1순위) 또는 **Nature 
 | 8 | GitHub URL 익명화 | ✅ | `[anonymised-for-review]` |
 | 9 | Acknowledgements 표현 수정 | ✅ | "anonymous reviewers / shepherd" 제거 |
 | 10 | Figure 1 고해상도 교체 | ✅ | `orion_regime_map.png` (2059×1607 px) |
-| 11 | Figure 2 고해상도 교체 | ✅ | `mball_consolidated.png` (3568×2657 px) |
+| 11 | Figure 2 고해상도 교체 | ✅ | `orion_consolidated.png` (3568×2657 px) |
 | 12 | **익명화 플래그 설정** | 🔴 | `main_nature.tex:69` → `\anonymous` 를 `0` 으로 변경 |
 | 13 | **Zenodo DOI 기재** | 🔴 | `070_methods.tex` → `XXXXXXX` 를 실제 DOI로 교체 |
 | 14 | arXiv preprint 선공개 | ⬜ | 선택 사항 (권장) |
