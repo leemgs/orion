@@ -38,6 +38,13 @@ which additional coordination cannot improve---and can worsen---end-to-end
 latency?}
 
 We answer this question with a regime-based view.
+Classical memory-hierarchy theory (thrashing~\cite{mattson1970evaluation},
+Little's Law~\cite{kleinrock1975queueing}) identifies saturation as a binary
+event on a single-tier system; our framework characterises \emph{which} of four
+co-active latency terms dominates across a \emph{multi-tier} hierarchy as the
+operating point changes continuously---a distinction that determines which
+intervention (capacity, bandwidth, or coordination) is effective at any given
+configuration.
 Unlike the Roofline model~\cite{williams2009roofline}, which characterises
 compute/memory balance for a fixed workload on static hardware, our framework
 characterises a hierarchical memory system under \emph{dynamic} orchestration

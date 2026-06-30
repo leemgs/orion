@@ -123,6 +123,19 @@ replacement) yields 95\,\% confidence intervals; these are reported in the main
 text and Supplementary Appendix~B.
 The effective sample size is $n_{\mathrm{eff}} \approx 150$ per condition.
 
+\textbf{Sharpness coefficient $S$ and numerical differentiation.}
+The sharpness coefficient $S = |d\ln T_{\mathrm{total}} / d\ln R|$ is estimated
+at each operating point via symmetric finite differences over adjacent
+$R$ grid steps ($\Delta R = 0.05$):
+\begin{equation*}
+S(R_i) = \left|\frac{\ln T(R_{i+1}) - \ln T(R_{i-1})}{\ln R_{i+1} - \ln R_{i-1}}\right|,
+\end{equation*}
+where $T(R_j)$ is the sweep-mean latency at grid point $j$.
+No additional smoothing is applied; the grid spacing $\Delta R = 0.05$ is fine
+enough to resolve the $\pm 0.05$ boundary width identified empirically.
+Reported $S$ values (e.g.\ $S = 4.12 \pm 0.31$ near $\theta_C$) are means and
+bootstrap 95\,\% CIs over the five sweep-level estimates of $S(R_i)$.
+
 \textbf{Statistical significance.}
 For the primary claim that $S > S^* = 2.0$ near regime boundaries, we apply
 a one-sided Wilcoxon signed-rank test (null: $S \leq 2.0$) to the five
@@ -189,6 +202,12 @@ The classifier is evaluated via stratified five-fold cross-validation; mean
 accuracy is 93.4\% (s.d.\ 1.2\%).
 Inference cost is $<$0.1~ms per classification step, negligible relative to
 request latency.
+\textbf{Important caveat:} the 93.4\% accuracy figure is an
+\emph{in-distribution} result---training and evaluation use measurements from
+the same five hardware platforms.
+Generalisation to unseen hardware configurations, novel memory-tier
+arrangements, or qualitatively different bandwidth profiles has not been
+validated and is an open direction for future work.
 
 \subsection*{Code and data availability}
 
@@ -203,3 +222,15 @@ scripts.
 Raw measurement logs (\texttt{.jsonl} format, one entry per 10\,s window)
 are archived on Zenodo (DOI: \texttt{10.5281/zenodo.XXXXXXX}; to be
 confirmed upon acceptance).
+
+\textbf{Note on reproduction scripts.}
+The \texttt{src/experiments/} directory in the repository contains
+\emph{simulation-based} reproduction scripts (using a parameterised
+\texttt{SimulatedBackend}) that reproduce the qualitative regime structure and
+analytical curves reported in the paper without requiring physical access to the
+five hardware platforms.
+All quantitative values reported in the main text and supplementary tables
+(latency measurements, sharpness coefficients, energy figures) are derived from
+\emph{real hardware measurements} conducted on the platforms listed in the
+Hardware platforms subsection above; the pre-processed traces on Zenodo are the
+primary reproducibility artefact.

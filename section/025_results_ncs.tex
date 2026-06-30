@@ -196,24 +196,18 @@ that excels in the coordination-dominated regime may perform worse than the
 PyTorch baseline in the I/O-limited regime, because its additional coordination
 overhead becomes purely additive.
 Table~\ref{tab:regime_inversion} confirms this prediction.
-FlexGen and DeepSpeed-Inference, which aggressively pipeline offloading
-operations, reduce latency by up to 24\% in coordination-dominated conditions
-but \emph{increase} latency by 8--12\% in the I/O-limited regime, where their
-additional DMA scheduling amplifies an already-saturated transfer path.
-Conversely, a minimal swap-reduction policy (reducing offloaded volume by 10\%)
-is ineffective in the coordination-dominated regime ($-$0.3\%) but recovers 14\%
-of latency in the I/O-limited regime.
+FlexGen and DeepSpeed-Inference reduce latency by up to 24\% in the
+coordination-dominated regime but \emph{increase} it by 8--12\% in the
+I/O-limited regime, where their additional DMA scheduling amplifies an already
+saturated transfer path.
+A minimal swap-reduction policy (offloaded volume $-10\%$) is ineffective in the
+coordination-dominated regime ($-0.3\%$) yet recovers 14\% of latency in the
+I/O-limited regime.
 This ranking reversal---not merely diminishing returns---is the hallmark of
-genuine regime structure and distinguishes it from a smooth performance trade-off.
-\textsc{Orion}'s additional 2.6\,percentage-point gain over simple swap reduction
-in the I/O-limited regime ($-16.8\%$ vs.\ $-14.2\%$) comes from NUMA-aware DMA
-scheduling and pipeline-stall elimination: swap reduction alone shrinks transfer
-volume but does not reduce per-byte queuing delay, whereas \textsc{Orion}'s
-token-bucket rate-limiter also reduces PCIe contention and write-back amplification.
-In the capacity-limited regime, \textsc{Orion}'s $-5.2\%$ gain is similarly
-attributable to NUMA binding and process-pinning subsystems rather than
-coordination policy, consistent with the claim that regime-agnostic
-memory-coordination strategies are ineffective in this regime.
+genuine regime structure.
+\textsc{Orion}'s additional gain in the I/O-limited regime
+($-16.8\%$ vs.\ $-14.2\%$ for simple swap reduction) comes from NUMA-aware DMA
+scheduling and PCIe contention reduction, not coordination policy alone.
 
 \begin{table}[t]
 \centering
