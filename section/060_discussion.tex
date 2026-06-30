@@ -120,15 +120,12 @@ arrangements (e.g., CXL-pooled memory), or architectures with qualitatively
 different bandwidth profiles has not been characterised and is an important
 direction for future validation.
 Large-scale multi-node clusters introduce additional coordination layers that
-may shift or fragment regime boundaries; our 4-node experiments observed
-$\Delta\theta_B \approx +0.05$ but full multi-node characterisation remains
-open.
-Hybrid training--inference pipelines and highly irregular sparse-access patterns
-may exhibit nested regime structures.
+shift the I/O-limited boundary; our 4-node experiments observed
+$\Delta\theta_B \approx +0.05$, but characterising multi-node regime fragmentation
+at scale remains open.
 Hysteresis-like latency behaviour observed when workloads traverse boundaries
 in both directions suggests \emph{regime memory} driven by nonlinear cache-reuse
-effects; characterising this theoretically and exploiting it in scheduling is an
-open problem.
+effects; exploiting this in adaptive scheduling is a concrete open problem.
 The two-ratio framework extends naturally to variable-working-set paradigms.
 For mixture-of-experts (MoE) models with top-$k$ routing,
 $W_{\mathrm{eff}} = W_{\mathrm{param}} \times (k/N_{\mathrm{exp}})

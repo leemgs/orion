@@ -45,10 +45,17 @@ co-active latency terms dominates across a \emph{multi-tier} hierarchy as the
 operating point changes continuously---a distinction that determines which
 intervention (capacity, bandwidth, or coordination) is effective at any given
 configuration.
-Unlike the Roofline model~\cite{williams2009roofline}, which characterises
-compute/memory balance for a fixed workload on static hardware, our framework
-characterises a hierarchical memory system under \emph{dynamic} orchestration
-where the dominant bottleneck itself shifts as operating conditions change.
+Unlike the Roofline model~\cite{williams2009roofline}---which expresses
+performance as $\min(F \cdot I,\, B_{\mathrm{peak}})$ for a \emph{fixed}
+workload on a \emph{single} memory tier---our framework decomposes latency into
+four co-active terms
+($T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}} + T_{\mathrm{sync}}$)
+across a \emph{multi-tier} hierarchy and characterises how their relative
+magnitudes shift as two dimensionless ratios change.
+The key distinction is that in a multi-tier system under dynamic orchestration,
+the dominant bottleneck \emph{itself} changes as a function of deployment
+configuration---a phenomenon the single-tier Roofline formulation cannot
+capture.
 Multi-tier inference systems exhibit \emph{phase-like} operational regimes
 governed by two dimensionless ratios: the fast-memory residency ratio
 $R_C = C_{\mathrm{fast}}/W$ and the transfer-pressure ratio
@@ -75,10 +82,12 @@ We make four contributions:
   \item \textbf{Minimal analytical model.}
     A structural lower bound on inference latency establishing that regime
     transitions are inevitable, together with closed-form prediction formulas
-    for both thresholds: $\theta_C = 0.50$ follows analytically from the
-    majority-eviction condition (hardware-independent), and
-    $\theta_B = R_B^{\mathrm{sat}} \times (1 + \alpha_{\mathrm{wb}} + \alpha_q)$
-    is predictable from three hardware measurements obtainable in a 10-minute
+    for both thresholds: $\theta_C = 0.50$ is derived analytically from the
+    majority-eviction condition and depends only on the ratio of residency to
+    working-set size---not on specific hardware constants---and is consistent
+    within $\pm 0.02$ across all five tested platforms; $\theta_B =
+    R_B^{\mathrm{sat}} \times (1 + \alpha_{\mathrm{wb}} + \alpha_q)$
+    is estimable from three hardware measurements obtainable in a 10-minute
     profiling session---enabling pre-deployment threshold estimation without
     exhaustive regime sweeps.
   \item \textbf{Multi-platform validation.}
