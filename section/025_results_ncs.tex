@@ -108,12 +108,13 @@ only.
 At regime boundaries the bound accounts for 78--84\% of observed
 $T_{\mathrm{total}}$; the remaining 16--22\% is $T_{\mathrm{sync}}$,
 separately quantified in Supplementary Appendix~B.
-Critically, \textsc{Orion}'s regime-aware orchestration drives
-$T_{\mathrm{total}}$ to within 8--14\% of the physical lower bound across
-all five platforms---demonstrating that the bound is near-achievable in
-practice and that the residual gap reflects excluded synchronisation physics
-rather than algorithmic suboptimality
-(Supplementary Table~\ref{tab:achievability}).
+Critically, after subtracting measured $T_{\mathrm{sync}}$ from observed
+$T_{\mathrm{total}}$ on each platform, \textsc{Orion}'s regime-aware
+orchestration drives $(T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}})$
+to within 8--14\% of the physical lower bound across all five
+platforms---demonstrating that the bound is near-achievable and that the
+residual gap reflects excluded synchronisation physics rather than algorithmic
+suboptimality (Supplementary Table~\ref{tab:achievability}).
 Platform-specific values of $(\rho, B_{\mathrm{slow}})$ and per-term tightness
 are given in Supplementary Table~A.1.
 
@@ -307,63 +308,32 @@ ViT-H/14            & Vision     & $51.2 \pm 1.7\%$ & $18.2 \pm 1.1\%$ & $20.9 \
 \end{tabular}
 \end{table}
 
-Regime-dependent effects also extend to non-LLM workloads, as summarised in
-Table~\ref{tab:generality}.
-In a BLIP2 visual question-answering pipeline, retrieval-induced memory pressure
-dynamically shifts the operating point from coordination-dominated
-($R_B \approx 0.43$) into I/O-limited ($R_B \approx 0.31$) conditions during
-inference.
-At the I/O-limited operating point, a PyTorch-default baseline degrades sharply;
-regime-aware \textsc{Orion} detects the transition and switches to a
-swap-reduction policy, recovering $11.2 \pm 1.4\%$ of latency relative to the
-unresponsive baseline at the same operating point.
-In a RAG pipeline (LangChain + FAISS), vector-store lookups introduce
-intermittent working-set spikes that shift $R_C$ from 0.46 (capacity-limited)
-to 0.58 (coordination-dominated); adaptive orchestration exploits the
-newly available coordination margin and reduces latency by $17.4 \pm 1.8\%$.
-An edge YOLOv8 deployment operates steadily in the I/O-limited regime
-($R_C = 0.49$, $R_B = 0.22$); reducing swap granularity by 10\% recovers
-$9.5 \pm 1.2\%$ of latency and cuts frame-drop rate from 12\% to 2.5\%.
-In all three cases the observed regime (classified by the decision-tree
-classifier) matches the regime predicted by ($R_C$, $R_B$), confirming that the
-two-ratio framework generalises across modality and deployment context.
-
-Critically, Table~\ref{tab:generality} reveals that the ranking inversion
-observed for LLM workloads (Table~\ref{tab:regime_inversion}) generalises to
-non-LLM settings.
-FlexGen, which reduces latency by up to 24\% in coordination-dominated LLM
-inference, \emph{increases} latency by $+7.8\%$ in YOLOv8's I/O-limited regime
-and produces a net $+1.8\%$ degradation in BLIP2's transitioning regime, where
-its aggressive offloading amplifies an already-saturated transfer path during
-the I/O-limited phase.
-This inversion is a property of the hierarchical memory system and the
-regime an orchestrator encounters---not of any particular workload architecture.
-A continuous survey of 25 operating points spanning the full ($R_C$, $R_B$)
-space confirms that the three-regime structure and its dominant-term fractions
-are consistent across the entire landscape
-(Supplementary Table~\ref{tab:2d_sweep}).
+Regime-dependent effects extend to non-LLM workloads (Table~\ref{tab:generality}).
+In BLIP2 visual QA, retrieval pressure shifts the operating point from
+coordination-dominated ($R_B \approx 0.43$) into I/O-limited ($R_B \approx 0.31$)
+mid-inference; \textsc{Orion} detects the transition and recovers $11.2 \pm 1.4\%$
+of latency.
+In a RAG pipeline, vector-store spikes shift $R_C$ from 0.46 to 0.58;
+adaptive coordination reduces latency by $17.4 \pm 1.8\%$.
+An edge YOLOv8 deployment ($R_C\!=\!0.49$, $R_B\!=\!0.22$) recovers $9.5 \pm 1.2\%$
+and cuts frame-drop rate from 12\% to 2.5\%.
+In all three cases the observed regime matches the ($R_C$, $R_B$) prediction,
+and the strategy ranking inversion---FlexGen +7.8\% in YOLOv8's I/O-limited
+regime versus $-18.4\%$ in coordination-dominated LLM inference---confirms that
+inversion is a property of the regime, not the workload architecture.
+A 25-point survey of the ($R_C$, $R_B$) space confirms three-regime consistency
+throughout (Supplementary Table~\ref{tab:2d_sweep}).
 
 \paragraph{Isolating the classifier's contribution.}
-To separate the benefit of regime-adaptive strategy switching from
-\textsc{Orion}'s hardware-level optimisations (NUMA binding and PCIe
-rate-limiting), we compare \textsc{Orion}$_{\mathrm{HW}}$---all hardware
-subsystems active, classification loop \emph{disabled}, strategy fixed at
-the coordination-dominated optimum---against
-\textsc{Orion}$_{\mathrm{Full}}$ (classifier running every 100\,ms,
-strategy switched on regime change).
-Hardware optimisations alone account for $-3.8$ to $-8.3\%$ latency
-reduction across all regimes; the regime classifier contributes an
-\emph{additional} $-1.1$ to $-18.8\%$, representing 21--69\% of
-\textsc{Orion}$_{\mathrm{Full}}$'s total gain on LLM workloads.
-The classifier's contribution is largest in the coordination-dominated
-regime (69\%), where strategy choice has the most leverage, and smallest
-in the capacity-limited regime (21\%), where fast-memory residency is the
-binding constraint regardless of strategy.
-For non-LLM workloads with mid-inference regime transitions (BLIP2, RAG),
-the classifier contributes 66--76\% of total gain---gains not observed
-under any fixed-strategy configuration in our experiments---confirming
-that adaptive regime classification is the primary mechanism enabling
-performance gains beyond hardware tuning
+Comparing \textsc{Orion}$_{\mathrm{HW}}$ (hardware subsystems only, classifier
+disabled, strategy fixed) against \textsc{Orion}$_{\mathrm{Full}}$ (classifier
+running every 100\,ms) reveals that hardware optimisations alone yield
+$-3.8$ to $-8.3\%$ latency reduction; the regime classifier contributes
+an \emph{additional} $-1.1$ to $-18.8\%$ (21--69\% of total gain on LLM
+workloads), with the largest contribution in the coordination-dominated
+regime (69\%) where strategy choice has the most leverage.
+For workloads with mid-inference transitions (BLIP2, RAG), the classifier
+contributes 66--76\% of total gain
 (Supplementary Table~\ref{tab:classifier_ablation}).
 
 \begin{table}[t]

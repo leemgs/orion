@@ -38,34 +38,26 @@ which additional coordination cannot improve---and can worsen---end-to-end
 latency?}
 
 We answer this question with a regime-based view.
-Classical memory-hierarchy theory (thrashing~\cite{mattson1970evaluation},
-Little's Law~\cite{kleinrock1975queueing}) identifies saturation as a binary
-event on a single-tier system; our framework characterises \emph{which} of four
-co-active latency terms dominates across a \emph{multi-tier} hierarchy as the
-operating point changes continuously---a distinction that determines which
-intervention (capacity, bandwidth, or coordination) is effective at any given
-configuration.
-Unlike the Roofline model~\cite{williams2009roofline}---which expresses
-performance as $\min(F \cdot I,\, B_{\mathrm{peak}})$ for a \emph{fixed}
-workload on a \emph{single} memory tier---our framework decomposes latency into
-four co-active terms
+Denning's working-set model and thrashing theory~\cite{mattson1970evaluation}
+identify capacity saturation as a binary event on a \emph{single-tier} system,
+and the Roofline model~\cite{williams2009roofline} expresses performance as
+$\min(F \cdot I,\, B_{\mathrm{peak}})$ for a fixed workload on a single tier.
+Neither framework addresses a \emph{multi-tier} hierarchy in which computation,
+locality, cross-tier transfer, and synchronisation co-exist as distinct,
+adjustable latency terms.
+Our framework---extending Little's Law~\cite{kleinrock1975queueing} to multi-tier
+inference---decomposes end-to-end latency into four co-active terms
 ($T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}} + T_{\mathrm{sync}}$)
-across a \emph{multi-tier} hierarchy and characterises how their relative
-magnitudes shift as two dimensionless ratios change.
-Multi-tier inference systems exhibit \emph{phase-like} operational regimes
-governed by two dimensionless ratios: the fast-memory residency ratio
-$R_C = C_{\mathrm{fast}}/W$ and the transfer-pressure ratio
-$R_B = B_{\mathrm{slow}} \cdot \Delta t / D$.
-Transitions between regimes are \emph{abrupt}: modest changes in model size,
-batch size, or bandwidth shift the dominant latency contributor
-discontinuously---analogous to a material crossing a phase boundary when a
-control parameter passes a critical threshold.
-Regime-agnostic orchestration strategies effective within one regime therefore
-fail predictably---and for principled reasons---outside analytically
-identifiable boundaries.
-This regime structure is not LLM-specific; it governs any workload whose active
-working set cannot fully reside in fast memory, including vision inference,
-retrieval-augmented generation (RAG), and HPC-style scientific workflows.
+and characterises how their relative magnitudes shift as two dimensionless
+ratios change, determining \emph{which} intervention is effective at any
+operating point.
+Multi-tier inference systems exhibit three operational regimes governed by the
+fast-memory residency ratio $R_C = C_{\mathrm{fast}}/W$ and the
+transfer-pressure ratio $R_B = B_{\mathrm{slow}} \cdot \Delta t / D$.
+Transitions between regimes are abrupt: modest changes in model size, batch
+size, or bandwidth shift the dominant latency contributor discontinuously.
+Regime-agnostic strategies effective in one regime fail predictably outside
+analytically identifiable boundaries.
 
 We make four contributions:
 \begin{itemize}

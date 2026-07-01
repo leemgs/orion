@@ -112,29 +112,16 @@ provides a principled foundation for understanding scalability, stability, and
 energy efficiency in increasingly complex memory hierarchies.
 
 Several limitations motivate future work.
-The regime classifier's 93.4\% accuracy is an in-distribution result:
-training and evaluation used measurements from the same five hardware
-platforms.
-Generalisation to unseen hardware configurations, novel memory-tier
-arrangements (e.g., CXL-pooled memory), or architectures with qualitatively
-different bandwidth profiles has not been characterised and is an important
-direction for future validation.
-Large-scale multi-node clusters introduce additional coordination layers that
-shift the I/O-limited boundary; our 4-node experiments observed
-$\Delta\theta_B \approx +0.05$, but characterising multi-node regime fragmentation
-at scale remains open.
-Hysteresis-like latency behaviour observed when workloads traverse boundaries
-in both directions suggests \emph{regime memory} driven by nonlinear cache-reuse
-effects; exploiting this in adaptive scheduling is a concrete open problem.
-The two-ratio framework extends naturally to variable-working-set paradigms.
-For mixture-of-experts (MoE) models with top-$k$ routing,
-$W_{\mathrm{eff}} = W_{\mathrm{param}} \times (k/N_{\mathrm{exp}})
-+ W_{\mathrm{act}} + W_{\mathrm{kv}}$ shifts $R_C$ upward relative to
-dense activation, potentially moving an MoE deployment across regime boundaries
-at the same hardware operating point.
-For speculative decoding, draft and target models may occupy different regimes
-simultaneously, requiring per-model ($R_C$, $R_B$) classification.
-Optimal orchestration \emph{within} each regime---particularly in the
-coordination-dominated case where all four latency terms are co-active---remains
-open; combining boundary theory with reinforcement learning or Bayesian
-optimisation is a promising direction.
+The classifier's 93.4\% accuracy is in-distribution: training and evaluation
+used the same five platforms; generalisation to unseen hardware
+(e.g., CXL-pooled memory) is an open direction.
+Multi-node clusters shift $\theta_B$ (4-node experiments: $\Delta\theta_B \approx +0.05$),
+but regime fragmentation at scale is uncharacterised.
+Hysteresis when workloads traverse boundaries in both directions suggests
+nonlinear cache-reuse effects exploitable in adaptive scheduling.
+For mixture-of-experts models, $W_{\mathrm{eff}} = W_{\mathrm{param}} \times (k/N_{\mathrm{exp}}) + W_{\mathrm{act}} + W_{\mathrm{kv}}$ shifts $R_C$ relative to
+dense activation; speculative decoding may place draft and target models in
+different regimes simultaneously, requiring per-model classification.
+Optimal within-regime orchestration, particularly in the coordination-dominated
+case, remains open; combining boundary theory with reinforcement learning or
+Bayesian optimisation is a promising direction.

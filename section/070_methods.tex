@@ -28,10 +28,10 @@ scheduling between I/O-bound and compute-bound models.
 with NUMA-aware policies: aligning processes with the right memory nodes via
 \texttt{mbind()} and \texttt{numa\_alloc\_onnode()} reduces remote-access delay,
 and a \texttt{jemalloc}-based custom heap separates small objects from large
-tensors to keep fragmentation manageable. Memory access latency is modeled as
+tensors to keep fragmentation manageable. Memory access latency is modelled as
 $T_{\mathrm{access}} = T_{\mathrm{local}} + \gamma \cdot T_{\mathrm{remote}}$,
 where $\gamma$ is the penalty factor for a remote NUMA access. A lightweight
-memory pressure prediction model reads live utilization and I/O queue depth to
+memory pressure prediction model reads live utilisation and I/O queue depth to
 predict shortages and trigger mitigation early.
 
 (3)~\textbf{GPU Booster with Swap Support}: This module walks the execution
