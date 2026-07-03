@@ -928,3 +928,56 @@ Without classification, \textsc{Orion}$_{\mathrm{HW}}$ applies a fixed
 coordination strategy that becomes suboptimal the moment the regime shifts;
 with classification, the 100\,ms detection latency is fast enough to switch
 strategy before the regime shift fully manifests as increased tail latency.
+
+\section{Distributed multi-node validation}
+\label{sec:multinode}
+
+To test whether the regime structure persists beyond single-node inference,
+we replicated the regime probing sweep on a four-node cluster
+(4\,$\times$\,2 NVIDIA A100\,(80\,GB), NVLink intra-node, 200\,Gb/s
+InfiniBand inter-node) running Megatron-LM tensor-parallel inference of
+Llama-4\,17B (batch\,=\,8, seq\,=\,2048).
+Inter-node collective synchronisation adds a distributed contribution to
+$T_{\mathrm{sync}}$ that shifts the I/O-limited boundary outward.
+Table~\ref{tab:multinode} reports the measured boundaries and sharpness
+coefficients alongside the single-node A100 reference; all quantities are
+means\,$\pm$\,bootstrap 95\,\% CI over $n_{\mathrm{sweep}} = 5$ sweeps of
+30 measurement windows each.
+
+\begin{table}[t]
+\centering
+\caption{Regime boundaries and sharpness coefficients under single-node
+         versus four-node distributed inference.
+         Single-node: 2\,$\times$\,A100 (Llama-3\,8B); four-node:
+         8\,$\times$\,A100 tensor-parallel (Llama-4\,17B, Megatron-LM).
+         Values: mean\,$\pm$\,95\,\% bootstrap CI, $n_{\mathrm{sweep}} = 5$.}
+\label{tab:multinode}
+\renewcommand{\arraystretch}{1.2}
+\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Configuration} &
+  $\theta_C$ & $\theta_B$ &
+  \makecell{$S$ at $\theta_C$} &
+  \makecell{$S$ at $\theta_B$} \\
+\midrule
+Single-node (2$\times$A100)   & $0.50 \pm 0.02$ & $0.40 \pm 0.03$ & $4.12 \pm 0.31$ & $3.74 \pm 0.27$ \\
+Four-node (8$\times$A100)     & $0.51 \pm 0.02$ & $0.45 \pm 0.04$ & $3.96 \pm 0.34$ & $3.42 \pm 0.31$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The capacity boundary $\theta_C$ is essentially unchanged
+($0.50 \to 0.51$), consistent with its analytic origin in the
+majority-eviction condition, which is independent of interconnect topology.
+The bandwidth boundary shifts outward by $\Delta\theta_B \approx +0.05$
+($0.40 \to 0.45$): inter-node collectives raise the effective transfer
+demand, pushing the system into the I/O-limited regime at a higher nominal
+bandwidth ratio.
+Both transitions remain abrupt ($S > 3.4$ at each boundary, well above
+$S^{*} = 2.0$), confirming that the three-regime structure persists under
+distributed execution.
+Full per-regime latency-inversion measurements at four-node scale are an
+open direction; the boundary and sharpness measurements reported here
+establish that the qualitative regime structure---not merely its
+single-node instance---survives inter-node coordination.

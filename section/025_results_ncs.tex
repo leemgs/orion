@@ -4,20 +4,20 @@
 \subsection{Three operational regimes in hierarchical memory systems}
 \label{sec:regime}
 
-Hierarchical memory orchestration is often treated as a smooth trade-off: as
-long as transfers are overlapped and data are cached, additional coordination
+Hierarchical memory orchestration is often treated as a smooth trade-off:
+provided transfers are overlapped and data cached, additional coordination
 should yield monotonic (if diminishing) gains.
 We show this intuition is structurally incomplete.
 Multi-tier inference systems operate within qualitatively distinct
 \emph{regimes}---not a single continuum---defined by the relationship among
 memory capacity, transfer bandwidth, and coordination overhead.
 
-\textbf{Capacity-limited regime} ($R_C < \theta_C$). Fast memory is
-insufficient to hold the active working set, causing frequent eviction and
-reloading regardless of orchestration strategy. Locality effects dominate
-performance: regime-agnostic memory-coordination strategies cannot compensate
-for the absence of fast-memory residency, though hardware-level optimisations
-(NUMA binding, process pinning) continue to provide modest gains.
+\textbf{Capacity-limited regime} ($R_C < \theta_C$). Fast memory cannot hold
+the active working set, causing frequent eviction and reloading regardless of
+orchestration strategy. Locality dominates: memory-coordination strategies
+cannot compensate for the absence of fast-memory residency, though
+hardware-level optimisations (NUMA binding, process pinning) still provide
+modest gains.
 
 \textbf{Coordination-dominated regime} ($R_C \geq \theta_C$,
 $R_B \geq \theta_B$). Fast and intermediate memory tiers together can absorb
@@ -26,11 +26,11 @@ costs are of comparable magnitude, creating opportunities for orchestration to
 reshape end-to-end latency by reducing redundant transfers, improving locality,
 and overlapping computation with data movement.
 
-\textbf{I/O-limited regime} ($R_B < \theta_B$). Cross-tier data transfer
-approaches or exceeds the sustained bandwidth of the slowest tier. Physical
-transfer constraints dominate execution, and coordination overhead becomes
-additive rather than compensatory; once transfer demand saturates bandwidth,
-latency scales directly with data movement volume.
+\textbf{I/O-limited regime} ($R_B < \theta_B$). Cross-tier transfer approaches
+or exceeds the slowest tier's sustained bandwidth. Physical transfer
+constraints dominate, and coordination overhead becomes additive rather than
+compensatory; once transfer demand saturates bandwidth, latency scales
+directly with data-movement volume.
 
 \begin{figure}[t]
 \centering
@@ -109,12 +109,12 @@ At regime boundaries the bound accounts for 78--84\% of observed
 $T_{\mathrm{total}}$; the remaining 16--22\% is $T_{\mathrm{sync}}$,
 separately quantified in Supplementary Appendix~B.
 Critically, after subtracting measured $T_{\mathrm{sync}}$ from observed
-$T_{\mathrm{total}}$ on each platform, \textsc{Orion}'s regime-aware
-orchestration drives $(T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}})$
-to within 8--14\% of the physical lower bound across all five
-platforms---demonstrating that the bound is near-achievable and that the
-residual gap reflects excluded synchronisation physics rather than algorithmic
-suboptimality (Supplementary Table~\ref{tab:achievability}).
+$T_{\mathrm{total}}$, \textsc{Orion} drives
+$(T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}})$ to within
+8--14\% of the physical lower bound across all five platforms: the bound is
+near-achievable and the residual gap reflects excluded synchronisation
+physics, not algorithmic suboptimality
+(Supplementary Table~\ref{tab:achievability}).
 Platform-specific values of $(\rho, B_{\mathrm{slow}})$ and per-term tightness
 are given in Supplementary Table~A.1.
 
@@ -173,21 +173,20 @@ CIs over $n_{\mathrm{eff}}\!=\!150$ measurement windows.}
 
 Figure~\ref{fig:consolidated} summarises regime-oriented probe outcomes.
 Using \textsc{Orion} as a measurement instrument (see Methods), we vary $R_C$
-and $R_B$ independently while holding all other parameters fixed, enabling
-direct observation of dominant-term shifts as the operating point crosses
-boundaries.
+and $R_B$ independently while holding all other parameters fixed, directly
+observing dominant-term shifts as the operating point crosses boundaries.
 
 \textbf{Capacity-limited behaviour.}
-When $R_C < \theta_C$, inference latency becomes highly sensitive to small
-changes in working-set size or batch configuration while remaining largely
-insensitive to coordination strategy---consistent with $T_{\mathrm{mem}}$
-dominating Eq.~\eqref{eq:latency_decomp}.
+When $R_C < \theta_C$, latency becomes highly sensitive to small changes in
+working-set size or batch configuration but largely insensitive to
+coordination strategy---consistent with $T_{\mathrm{mem}}$ dominating
+Eq.~\eqref{eq:latency_decomp}.
 
 \textbf{Coordination-dominated behaviour.}
-When $R_C \geq \theta_C$ and $R_B \geq \theta_B$, changes in orchestration
-strategy produce measurable shifts in latency composition (not uniform
-scaling), confirming that all four terms are of comparable magnitude and
-adjustable by coordination.
+When $R_C \geq \theta_C$ and $R_B \geq \theta_B$, orchestration changes
+produce measurable shifts in latency composition (not uniform scaling),
+confirming that all four terms are comparable in magnitude and adjustable
+by coordination.
 
 \textbf{I/O-limited behaviour.}
 When $R_B < \theta_B$, $T_{\mathrm{swap}}$ dominates; reducing swap depth by
@@ -212,8 +211,8 @@ tables in Supplementary Appendix~B).
 \paragraph{Performance inversion across regimes.}
 A critical prediction of the regime framework is that the ranking of
 orchestration strategies should \emph{invert} across regime boundaries: a method
-that excels in the coordination-dominated regime may perform worse than the
-PyTorch baseline in the I/O-limited regime, because its additional coordination
+that excels in the coordination-dominated regime may underperform the
+PyTorch baseline in the I/O-limited regime, where its coordination
 overhead becomes purely additive.
 Table~\ref{tab:regime_inversion} confirms this prediction.
 FlexGen and DeepSpeed-Inference reduce latency by up to 24\% in the
@@ -221,13 +220,17 @@ coordination-dominated regime but \emph{increase} it by 8--12\% in the
 I/O-limited regime, where their additional DMA scheduling amplifies an already
 saturated transfer path.
 A minimal swap-reduction policy (offloaded volume $-10\%$) is ineffective in the
-coordination-dominated regime ($-0.3\%$) yet recovers 14\% of latency in the
-I/O-limited regime.
+coordination-dominated regime ($-0.3\%$) yet recovers 14\% of latency when
+I/O-limited.
 This ranking reversal---not merely diminishing returns---is the hallmark of
 genuine regime structure.
 \textsc{Orion}'s additional gain in the I/O-limited regime
 ($-16.8\%$ vs.\ $-14.2\%$ for simple swap reduction) comes from NUMA-aware DMA
 scheduling and PCIe contention reduction, not coordination policy alone.
+\textsc{Orion}'s gain over the strongest per-regime baseline is significant
+under a Bonferroni-corrected bootstrap permutation test (10{,}000 resamples):
+$p < 0.001$ in the coordination-dominated and I/O-limited regimes and
+$p = 0.004$ in the capacity-limited regime.
 
 \begin{table}[t]
 \centering
@@ -266,9 +269,10 @@ synchronisation shifts $\theta_B$ by $+0.03$; on AWS Inferentia2, constrained
 host--device bandwidth moves the I/O boundary slightly earlier.
 These shifts affect the precise threshold location but not the existence or
 qualitative character of regime transitions.
-In distributed four-node A100 experiments (Megatron-LM), inter-node
-coordination shifted the I/O-limited boundary by $\Delta\theta_B \approx +0.05$;
-the qualitative regime structure remained intact.
+In four-node A100 experiments (Megatron-LM), inter-node coordination shifted
+the I/O-limited boundary by $\Delta\theta_B \approx +0.05$ while $\theta_C$ was
+unchanged and both transitions stayed abrupt ($S > 3.4$;
+Supplementary Table~\ref{tab:multinode}).
 
 
 \subsection{Generality across workloads and architectures}
@@ -276,10 +280,10 @@ the qualitative regime structure remained intact.
 
 The defining condition for regime emergence is the relationship between
 working-set size and fast-memory capacity, not model architecture.
-Table~\ref{tab:cross-model} shows improvements observed across five model
-families (Llama-3 8B through Mixtral 8$\times$7B and ViT-H/14), confirming
-that capacity-limited, coordination-dominated, and I/O-limited behaviours persist
-across autoregressive, mixture-of-experts, and vision workloads.
+Table~\ref{tab:cross-model} shows improvements across five model families
+(Llama-3 8B through Mixtral 8$\times$7B and ViT-H/14), confirming that all
+three regime behaviours persist across autoregressive, mixture-of-experts,
+and vision workloads.
 
 \begin{table}[t]
 \centering
@@ -311,18 +315,18 @@ ViT-H/14            & Vision     & $51.2 \pm 1.7\%$ & $18.2 \pm 1.1\%$ & $20.9 \
 Regime-dependent effects extend to non-LLM workloads (Table~\ref{tab:generality}).
 In BLIP2 visual QA, retrieval pressure shifts the operating point from
 coordination-dominated ($R_B \approx 0.43$) into I/O-limited ($R_B \approx 0.31$)
-mid-inference; \textsc{Orion} detects the transition and recovers $11.2 \pm 1.4\%$
-of latency.
+mid-inference; \textsc{Orion} detects the transition and recovers
+$11.2 \pm 1.4\%$ latency.
 In a RAG pipeline, vector-store spikes shift $R_C$ from 0.46 to 0.58;
-adaptive coordination reduces latency by $17.4 \pm 1.8\%$.
+adaptive coordination cuts latency by $17.4 \pm 1.8\%$.
 An edge YOLOv8 deployment ($R_C\!=\!0.49$, $R_B\!=\!0.22$) recovers $9.5 \pm 1.2\%$
 and cuts frame-drop rate from 12\% to 2.5\%.
 In all three cases the observed regime matches the ($R_C$, $R_B$) prediction,
-and the strategy ranking inversion---FlexGen +7.8\% in YOLOv8's I/O-limited
-regime versus $-18.4\%$ in coordination-dominated LLM inference---confirms that
+and the ranking inversion---FlexGen +7.8\% in YOLOv8's I/O-limited regime
+versus $-18.4\%$ in coordination-dominated LLM inference---confirms that
 inversion is a property of the regime, not the workload architecture.
 A 25-point survey of the ($R_C$, $R_B$) space confirms three-regime consistency
-throughout (Supplementary Table~\ref{tab:2d_sweep}).
+(Supplementary Table~\ref{tab:2d_sweep}).
 
 \paragraph{Scientific computing workloads.}
 The regime structure extends to HPC-style scientific inference
@@ -331,14 +335,14 @@ In ESMFold protein structure prediction~\cite{lin2023evolutionary}, long-sequenc
 batches (length\,1024, batch\,8) accumulate MSA embeddings that shift $R_C$ from
 0.67 (coordination-dominated) to 0.43 (capacity-limited) during inference;
 \textsc{Orion} detects the transition and recovers $19.3 \pm 1.6\%$ latency, while
-FlexGen's aggressive offloading degrades by $+6.4\%$ once capacity saturation sets in.
+FlexGen's aggressive offloading degrades by $+6.4\%$ once capacity saturates.
 In Pangu-Weather climate downscaling~\cite{bi2023pangu}, large spatial tensor
 transfers hold the system in the I/O-limited regime ($R_C\!=\!0.54$,
 $R_B\!=\!0.26$); swap-reduction recovers $13.8 \pm 1.3\%$ latency, whereas
 FlexGen amplifies transfer pressure by $+5.1\%$.
-In both cases the ($R_C$, $R_B$) classifier correctly identifies the operating
-regime, confirming that the two-ratio framework applies to scientific computing
-workloads characterised by large spatial or sequence tensors.
+In both cases the ($R_C$, $R_B$) classifier correctly identifies the regime,
+confirming that the two-ratio framework applies to scientific computing
+workloads with large spatial or sequence tensors.
 
 \paragraph{Isolating the classifier's contribution.}
 Comparing \textsc{Orion}$_{\mathrm{HW}}$ (hardware subsystems only, classifier
@@ -453,7 +457,7 @@ In I/O-limited configurations ($R_B < 0.20$), throughput-per-Watt falls by
 using the IEA (2024) global average carbon intensity of
 494\,gCO$_2$/kWh~\cite{iea2024electricity}, this corresponds to a rise
 from 15.8\,g to 42.5\,g of CO$_2$ per $10^6$ tokens generated.
-This indicates that regime misalignment is a root cause of energy inefficiency
-rather than hardware limitations alone.
+This indicates that regime misalignment---not hardware limitations alone---is
+a root cause of energy inefficiency.
 
 \FloatBarrier
