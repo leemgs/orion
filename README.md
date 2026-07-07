@@ -4,6 +4,128 @@ LaTeX 논문 원고. **Nature Computational Science** (1순위) 또는 **Nature 
 
 ---
 
+## 한눈에 보기
+
+> **ORION** 은 대규모 AI 추론에서 계층적 메모리 오케스트레이션이 **하드웨어·워크로드 레짐(regime)에 따라 근본적으로 다른 한계**를 갖는다는 것을 규명한 연구입니다. 두 개의 무차원 비율 **R_C**(계산-메모리 비)와 **R_B**(대역폭-용량 비)만으로 시스템의 최적 오케스트레이션 전략이 결정되며, 특정 레짐에서는 전략이 **역전(inversion)** 됩니다.
+
+```mermaid
+flowchart LR
+    subgraph 입력["📥 입력: 하드웨어 · 워크로드"]
+        HW["하드웨어 스펙<br/>(대역폭·용량·FLOPs)"]
+        WL["워크로드<br/>(모델·워킹셋)"]
+    end
+    subgraph ORION["⚙️ ORION 프레임워크"]
+        RATIO["R_C / R_B 계산<br/>ratios.py"]
+        CLS["레짐 분류기<br/>classifier.py"]
+        STRAT["레짐별 전략<br/>strategies.py"]
+        LB["구조적 하한선 S<br/>lower_bound.py"]
+    end
+    subgraph 출력["📤 출력: 결론"]
+        REGIME["레짐 판정<br/>+ 최적 전략"]
+        PAPER["논문 결과<br/>(2 Fig + 4 Table)"]
+    end
+    HW --> RATIO
+    WL --> RATIO
+    RATIO -->|"R_C, R_B"| CLS
+    CLS --> STRAT
+    RATIO --> LB
+    STRAT --> REGIME
+    LB --> REGIME
+    REGIME --> PAPER
+
+    style HW fill:#dbeafe,stroke:#3b82f6
+    style WL fill:#dbeafe,stroke:#3b82f6
+    style CLS fill:#fef3c7,stroke:#f59e0b
+    style STRAT fill:#fef3c7,stroke:#f59e0b
+    style REGIME fill:#dcfce7,stroke:#22c55e
+    style PAPER fill:#dcfce7,stroke:#22c55e
+```
+
+| 구성 요소 | 역할 | 한 줄 설명 | 위치 |
+|-----------|------|-----------|------|
+| **R_C / R_B 계산기** | 무차원 비율 도출 | 하드웨어·워크로드에서 두 지표를 산출 | `src/orion/ratios.py` |
+| **레짐 분류기** | 레짐 판정 | Depth-3 CART로 <0.1 ms 내 분류 | `src/orion/classifier.py` |
+| **레짐별 전략** | 오케스트레이션 결정 | 레짐마다 다른(역전되는) 최적 전략 | `src/orion/strategies.py` |
+| **구조적 하한선** | 이론적 한계 | 달성 불가능 영역과 sharpness 계수 S | `src/orion/lower_bound.py` |
+| **오케스트레이터** | 통합 제어 루프 | Orion_HW / Orion_Full 실행 | `src/orion/orchestrator.py` |
+| **논문 원고** | 결과 정리 | NCS 투고용 `main_nature.tex` | `section/*.tex` |
+
+**이 저장소로 할 수 있는 일**
+
+| 하고 싶은 것 | 시작 지점 |
+|--------------|-----------|
+| 논문 PDF 빌드 | [`./run.sh nature`](#4-빌드-방법) |
+| 실험 결과 재현 (GPU 불필요) | [`src/experiments/*.py`](#데이터--동작-흐름도) |
+| 레짐 분류 로직 이해 | `src/orion/ratios.py`, `classifier.py` |
+| 투고 전략 확인 | [§9 단계별 투고 전략](#9-단계별-투고-전략) |
+
+---
+
+## 데이터 · 동작 흐름도
+
+### 데이터 흐름 (Data Flow)
+
+하드웨어·워크로드 정의에서 출발하여 무차원 비율 → 레짐 판정 → 전략 결정 → 로그/그림/표에 이르는 재현 파이프라인입니다.
+
+```mermaid
+flowchart TD
+    A["config.py<br/>하드웨어 스펙 · 워킹셋 정의"] --> B["profiler.py<br/>지연 분해 · 하드웨어 프로파일링"]
+    A --> C["ratios.py<br/>R_C · R_B 계산"]
+    C --> D["classifier.py<br/>레짐 분류 (CART)"]
+    D --> E["strategies.py<br/>레짐별 오케스트레이션 전략"]
+    C --> F["lower_bound.py<br/>구조적 하한선 · S 계수"]
+    E --> G["orchestrator.py<br/>Orion_HW / Orion_Full 제어 루프"]
+    F --> G
+    G --> H["run_regime_sweep.py<br/>R_C/R_B 스윕"]
+    H --> I["JSONL 로그<br/>utils/logging.py"]
+    I --> J["utils/stats.py<br/>Bootstrap CI · Wilcoxon 검정"]
+    J --> K["reproduce_figure2.py<br/>reproduce_table2/3.py"]
+    K --> L["figures/*.png<br/>+ 논문 Table/Figure"]
+
+    style A fill:#dbeafe,stroke:#3b82f6
+    style G fill:#fef3c7,stroke:#f59e0b
+    style L fill:#dcfce7,stroke:#22c55e
+```
+
+### 동작 흐름 (Operation Flow) — 재현 절차
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as 👤 사용자
+    participant Env as 🛠️ 환경 (Python ≥3.9)
+    participant Sim as 🧪 simulated_backend.py
+    participant Orion as ⚙️ ORION 코어
+    participant Out as 📊 결과 (Fig/Table)
+
+    U->>Env: pip install -e ".[plot]"
+    U->>Sim: run_regime_sweep.py 실행
+    Sim->>Orion: R_C/R_B 계산 요청
+    Orion->>Orion: 레짐 분류 (classifier.py)
+    alt 계산 우세 레짐
+        Orion-->>Sim: 전략 A (HW 오케스트레이션)
+    else 대역폭 우세 레짐
+        Orion-->>Sim: 전략 B (전략 역전)
+    end
+    Sim->>Out: JSONL 로그 기록
+    Out->>Out: Bootstrap CI · Wilcoxon 검정
+    Out-->>U: Figure 2 · Table 2/3 재현 완료
+```
+
+**단계 요약**
+
+| 단계 | 명령 / 스크립트 | 산출물 |
+|------|-----------------|--------|
+| 1. 환경 준비 | `cd src && pip install -e ".[plot]"` | 실행 환경 |
+| 2. 레짐 스윕 | `python experiments/run_regime_sweep.py` | JSONL 로그 |
+| 3. 그림 재현 | `python experiments/reproduce_figure2.py` | `figures/*.png` |
+| 4. 표 재현 | `python experiments/reproduce_table2.py` 등 | 논문 Table |
+| 5. 논문 빌드 | `./run.sh nature` | `main_nature.pdf` |
+
+> **GPU 없이도** `simulated_backend.py` 로 모든 결과를 재현할 수 있습니다. 라이브 GPU 실험은 `pip install -e ".[gpu,plot]"` 후 동일 스크립트로 수행합니다.
+
+---
+
 ## 목차
 
 1. [저장소 구조](#1-저장소-구조)
