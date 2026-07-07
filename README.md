@@ -358,7 +358,7 @@ Springer Nature (출판사)
   (선택 가이드 직접 해당)
 - 계산 과학 + 수학적 모델링 + 실험 검증 구조가 저널 성격과 정확히 일치
 - Phase transition 발견이라는 다학제적 언어가 이 저널 심사위원에게 친숙
-- Nature Machine Intelligence보다 AI 학계 보이콧 영향 없음
+- Nature Machine Intelligence 대비, AI 분야가 여전히 학회·arXiv 중심 문화를 유지하는 점에서 계산과학 독자층 접근에 유리
 - 삼성전자 SAIT의 Nature Communications 선례(유현승, 함돈회)가 심사 신뢰도에 긍정적
 ```
 
@@ -385,9 +385,15 @@ Springer Nature (출판사)
 - Impact Factor 축적 중 → 지금 게재 시 선도 논문으로 인용 효과 기대
 ```
 
-### 제외 대상: Nature Machine Intelligence
+### 참고: Nature Machine Intelligence
 
-AI 학계 전체 보이콧 운동이 진행 중이며, 오픈 액세스를 중시하는 AI 커뮤니티에서 배척받고 있음. 피인용 파급력 측면에서 불리.
+> **주의 — 정보 갱신 (2026 기준):** 과거 "AI 학계 전체가 보이콧하여 배척받는 저널"이라는 서술은 **오래된(outdated) 정보**입니다. 실제로는 다음과 같습니다.
+
+- **2018년 보이콧은 종료됨.** 2018년 5월경 약 3,000명의 컴퓨터과학자가 폐쇄형(구독료 기반) 모델에 반대하며 창간 전(2019년 1월 창간) 청원에 서명한 사건이었으나, 이후 저널은 정착·성장함.
+- **현재 위상은 최상위권.** 2025년 약 195편 발행, 2026년 6월 공개된 최신 Impact Factor **약 29.8 (JCR Q1)**. "Stop explaining black box machine learning models…"(1,200회 이상 피인용) 등 고피인용 논문을 다수 배출하며 학술적으로 확고히 자리 잡음.
+- **남은 뉘앙스.** 활발한 보이콧 캠페인은 없으나, AI 커뮤니티가 여전히 학회(NeurIPS·ICML·ICLR)와 오픈액세스(arXiv)를 최우선 발표 채널로 선호하는 문화는 지속됨. 즉 "AI 연구자의 1순위 채널은 아니다" 정도는 유효하지만, "배척받는 저널"이라는 진단은 현재 시점에서 과장임.
+
+**본 논문에서의 판단:** NMI 자체의 저널 위상은 문제가 없으나, 본 연구는 *phase transition·구조적 하한선* 등 **계산과학·수리 모델링 성격**이 강하므로 **Nature Computational Science가 스코프상 더 적합**하여 1순위로 유지합니다.
 
 ---
 
