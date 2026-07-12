@@ -2,14 +2,13 @@
 set -e
 
 # Usage:
-#   ./run.sh           → build main.pdf      (IEEEtran template)
-#   ./run.sh nature    → build main_nature.pdf (sn-jnl / Springer Nature template)
+#   ./run.sh   → build main.pdf (sn-jnl / Springer Nature template)
+#
+# main.tex is the single entry file, built on the Springer Nature template
+# for the Nature Machine Intelligence submission. The NMI reframing toggle
+# (\ifNMIframing, default on) lives in main.tex; see README.md §4 / §8.
 
-if [ "${1}" = "nature" ]; then
-    MAIN="main_nature"
-else
-    MAIN="main"
-fi
+MAIN="main"
 
 echo "[1/4] pdflatex (first pass) — ${MAIN}..."
 pdflatex -interaction=nonstopmode "${MAIN}.tex"

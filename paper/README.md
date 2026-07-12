@@ -48,13 +48,13 @@ flowchart LR
 | **레짐별 전략** | 오케스트레이션 결정 | 레짐마다 다른(역전되는) 최적 전략 | `src/orion/strategies.py` |
 | **구조적 하한선** | 이론적 한계 | 달성 불가능 영역과 sharpness 계수 S | `src/orion/lower_bound.py` |
 | **오케스트레이터** | 통합 제어 루프 | Orion_HW / Orion_Full 실행 | `src/orion/orchestrator.py` |
-| **논문 원고** | 결과 정리 | NCS 투고용 `main_nature.tex` | `section/*.tex` |
+| **논문 원고** | 결과 정리 | NMI 투고용 `main.tex` (Nature 템플릿) | `section/*.tex` |
 
 **이 저장소로 할 수 있는 일**
 
 | 하고 싶은 것 | 시작 지점 |
 |--------------|-----------|
-| 논문 PDF 빌드 | [`./run.sh nature`](#4-빌드-방법) |
+| 논문 PDF 빌드 | [`./run.sh`](#4-빌드-방법) |
 | 실험 결과 재현 (GPU 불필요) | [`src/experiments/*.py`](#데이터--동작-흐름도) |
 | 레짐 분류 로직 이해 | `src/orion/ratios.py`, `classifier.py` |
 | 투고 전략 확인 | [§9 단계별 투고 전략](#9-단계별-투고-전략) |
@@ -120,7 +120,7 @@ sequenceDiagram
 | 2. 레짐 스윕 | `python experiments/run_regime_sweep.py` | JSONL 로그 |
 | 3. 그림 재현 | `python experiments/reproduce_figure2.py` | `figures/*.png` |
 | 4. 표 재현 | `python experiments/reproduce_table2.py` 등 | 논문 Table |
-| 5. 논문 빌드 | `./run.sh nature` | `main_nature.pdf` |
+| 5. 논문 빌드 | `./run.sh` | `main.pdf` |
 
 > **GPU 없이도** `simulated_backend.py` 로 모든 결과를 재현할 수 있습니다. 라이브 GPU 실험은 `pip install -e ".[gpu,plot]"` 후 동일 스크립트로 수행합니다.
 
@@ -146,14 +146,14 @@ sequenceDiagram
 
 ```
 .
-├── main.tex                    # IEEEtran 템플릿 (초안 / 내부 검토용)
-├── main_nature.tex             # Springer Nature sn-jnl 템플릿 (투고용) ★
+├── main.tex                    # 단일 시작파일 — Springer Nature sn-jnl 템플릿 (NMI 투고용) ★
+│                               #   NMI 재프레이밍 토글 \ifNMIframing 내장 (기본 ON)
 ├── sn-jnl.cls                  # Springer Nature 공식 저널 클래스
-├── IEEEtran.cls                # IEEE 클래스 (main.tex 용)
-├── IEEEtranDOI.bst             # IEEE BibTeX 스타일
 ├── reference-data.bib          # 참고문헌 데이터베이스 (47개 항목)
 ├── latexmkrc                   # latexmk 설정 (타임존)
-├── run.sh                      # 빌드 스크립트
+├── run.sh                      # 빌드 스크립트 (./run.sh → main.pdf)
+├── submission/                 # 투고 지원 문서
+│   └── nmi_presubmission_inquiry.md  # NMI presubmission inquiry (커버레터+요약)
 ├── figures/                    # 그림 파일
 │   ├── orion_regime_map.png    # Figure 1 — Regime map (2059×1607 px)
 │   ├── orion_consolidated.png  # Figure 2 — Experimental probes (3568×2657 px)
@@ -180,28 +180,26 @@ sequenceDiagram
 │       ├── reproduce_table2.py
 │       ├── reproduce_table3.py
 │       └── reproduce_classifier_ablation.py
-└── section/                    # 섹션별 .tex 파일
-    ├── 001_title.tex
-    ├── 005_author.tex          # IEEEtran 저자 블록
-    ├── 005_author_nature.tex   # sn-jnl 저자 블록
-    ├── 006_abstract.tex
-    ├── 006_abstract_nature.tex # NCS Abstract (149 words) ★
-    ├── 010_introduction.tex    # NCS Introduction (R_C/R_B 표기) ★
-    ├── 020_regime_principle.tex
-    ├── 025_results_ncs.tex     # NCS Results (2 Figs + 4 Tables) ★
-    ├── 030_transfer_model.tex
-    ├── 040_experimental_validation.tex
-    ├── 050_implications.tex
-    ├── 060_discussion.tex      # NCS Discussion ★
+└── section/                    # 섹션별 .tex 파일  (★ = 현재 단일 빌드에서 사용)
+    ├── 001_title.tex           # ★
+    ├── 005_author_nature.tex   # sn-jnl 저자 블록 ★
+    ├── 006_abstract_nature.tex # 원본 Abstract (NMI 토글 OFF 시 사용)
+    ├── 006_abstract_nmi.tex    # NMI 재프레이밍 Abstract (토글 ON, 기본) ★
+    ├── 010_introduction.tex    # 원본 Introduction (토글 OFF 시 사용)
+    ├── 010_introduction_nmi.tex # NMI 재프레이밍 Introduction (토글 ON, 기본) ★
+    ├── 025_results_ncs.tex     # Results (2 Figs + 4 Tables) ★
+    ├── 060_discussion.tex      # Discussion ★
     ├── 070_methods.tex         # Methods (starred, URL 익명화) ★
-    ├── 080_conclusion.tex
-    ├── 090_ack.tex
-    ├── 095_reference.tex
-    ├── 095_reference_nature.tex
-    └── 900_appendix.tex        # Supplementary Information
+    ├── 090_ack.tex             # ★
+    ├── 095_reference_nature.tex # ★
+    ├── 900_appendix.tex        # Supplementary Information ★
+    │
+    └─ [보존 · 현재 빌드 미포함 상세 원고 소스]
+       008_materials · 020_regime_principle · 030_transfer_model
+       040_experimental_validation · 050_implications · 080_conclusion
 ```
 
-> ★ 표시는 NCS 투고용 `main_nature.tex` 에서 실제로 사용하는 파일입니다.
+> ★ 표시는 단일 시작파일 `main.tex` (NMI 투고용 Nature 템플릿)에서 실제로 사용하는 파일입니다.
 
 ---
 
@@ -216,13 +214,13 @@ sequenceDiagram
 | 3 | Display items ≤6 (Fig+Table) | ✅ | Fig 2 + Table 4 = 6 |
 | 4 | "Here we show…" 선언형 도입부 | ✅ | |
 | 5 | NCS Introduction (R_C/R_B 표기, 4개 기여) | ✅ | `010_introduction.tex` 재작성 완료 |
-| 6 | Author Contributions | ✅ | `main_nature.tex` 에 추가 |
-| 7 | Competing Interests | ✅ | `main_nature.tex` 에 추가 |
+| 6 | Author Contributions | ✅ | `main.tex` 에 추가 |
+| 7 | Competing Interests | ✅ | `main.tex` 에 추가 |
 | 8 | GitHub URL 익명화 | ✅ | `[anonymised-for-review]` |
 | 9 | Acknowledgements 표현 수정 | ✅ | "anonymous reviewers / shepherd" 제거 |
 | 10 | Figure 1 고해상도 교체 | ✅ | `orion_regime_map.png` (2059×1607 px) |
 | 11 | Figure 2 고해상도 교체 | ✅ | `orion_consolidated.png` (3568×2657 px) |
-| 12 | **익명화 플래그 설정** | 🔴 | `main_nature.tex:69` → `\anonymous` 를 `0` 으로 변경 |
+| 12 | **익명화 플래그 설정** | 🔴 | `main.tex` 상단 `\anonymous` 를 `0` 으로 변경 |
 | 13 | **Zenodo DOI 기재** | 🔴 | `070_methods.tex` → `XXXXXXX` 를 실제 DOI로 교체 |
 | 14 | arXiv preprint 선공개 | ⬜ | 선택 사항 (권장) |
 | 15 | 영문 교정 서비스 | ⬜ | Springer Nature Author Services 또는 Editage |
@@ -258,21 +256,13 @@ sudo apt-get install -y evince
 
 ## 4. 빌드 방법
 
-### Nature 템플릿 (투고용)
-
-```bash
-./run.sh nature
-```
-
-`main_nature.pdf` 파일이 생성됩니다.
-
-### IEEEtran 템플릿 (내부 초안용)
+단일 시작파일 `main.tex` (Springer Nature 템플릿)를 빌드합니다.
 
 ```bash
 ./run.sh
 ```
 
-`main.pdf` 파일이 생성됩니다.
+`main.pdf` 파일이 생성됩니다. (이것이 NMI 투고본입니다.)
 
 ### `run.sh` 내부 동작 순서
 
@@ -282,48 +272,37 @@ pdflatex  →  bibtex  →  pdflatex  →  pdflatex
 
 ### NMI 재프레이밍 토글 (1차 투고 대상 = Nature Machine Intelligence)
 
-두 빌드 모두 프리앰블에 `\newif\ifNMIframing` 스위치가 있으며 **기본값은 켜짐(`\NMIframingtrue`)** 입니다.
+`main.tex` 프리앰블에 `\newif\ifNMIframing` 스위치가 있으며 **기본값은 켜짐(`\NMIframingtrue`)** 입니다.
 켜져 있으면 NMI용 재프레이밍 초록·서론이 자동으로 include 됩니다.
 
 | 스위치 | 초록 | 서론 |
 |--------|------|------|
-| `\NMIframingtrue` (기본) | `006_abstract_nmi*.tex` (NMI 서사) | `010_introduction_nmi.tex` (NMI 서사) |
-| `\NMIframingfalse` | 기존 초록 | 기존 서론 |
+| `\NMIframingtrue` (기본) | `006_abstract_nmi.tex` (NMI 서사) | `010_introduction_nmi.tex` (NMI 서사) |
+| `\NMIframingfalse` | `006_abstract_nature.tex` (원본) | `010_introduction.tex` (원본) |
 
-- **정식 NMI 투고본**은 반드시 Nature 템플릿으로 빌드하세요 → `./run.sh nature` (`main_nature.pdf`).
-  - `main_nature.tex`는 Nature 문법 초록 `006_abstract_nmi.tex`를 사용합니다.
-- IEEE 초안(`./run.sh`)도 동일 토글로 NMI 서사를 확인할 수 있습니다.
-  - `main.tex`는 IEEE 문법 초록 `006_abstract_nmi_ieee.tex`를 사용합니다 (내용은 Nature판과 동기화).
-- 기존 NCS/IEEE 서사로 되돌리려면 해당 `main*.tex`의 `\NMIframingtrue` → `\NMIframingfalse`.
-
-> 두 초록 파일(`006_abstract_nmi.tex`, `006_abstract_nmi_ieee.tex`)은 문법만 다르고
-> **내용은 동일하게 유지**해야 합니다. 한쪽을 고치면 다른 쪽도 함께 수정하세요.
+원본 NCS 서사로 되돌리려면 `main.tex`의 `\NMIframingtrue` → `\NMIframingfalse` 로만 바꾸면 됩니다.
 
 ---
 
 ## 5. PDF 열람
 
 ```bash
-# Nature 투고용 PDF
-evince main_nature.pdf
-
-# IEEEtran 초안 PDF
-evince main.pdf
+evince main.pdf              # GNOME 기본 뷰어
 ```
 
 기타 뷰어:
 
 ```bash
-xdg-open main_nature.pdf     # 시스템 기본 뷰어
-okular main_nature.pdf        # KDE 뷰어
-zathura main_nature.pdf       # 경량 뷰어
+xdg-open main.pdf            # 시스템 기본 뷰어
+okular main.pdf              # KDE 뷰어
+zathura main.pdf             # 경량 뷰어
 ```
 
 ---
 
 ## 6. 익명 처리 스위치
 
-`main.tex` / `main_nature.tex` 상단의 `\anonymous` 값으로 저자 공개 여부를 제어합니다.
+`main.tex` 상단의 `\anonymous` 값으로 저자 공개 여부를 제어합니다.
 
 | 값 | 효과 |
 |----|------|
