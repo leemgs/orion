@@ -7,6 +7,8 @@
 *.log
 *.out
 *.pdf
+# ...except the built manuscript, which we track for easy sharing
+!paper/main.pdf
 
 
 # Python cache
