@@ -1,0 +1,119 @@
+%% ============================================================
+%%  Introduction — Nature Machine Intelligence variant
+%%  Reframed to foreground a PRINCIPLE governing machine
+%%  intelligence at scale, rather than a systems-engineering
+%%  optimisation. Technical model paragraphs are retained but
+%%  the opening, the central question, and the contributions
+%%  are recast around "intelligent systems" and "discovery".
+%% ============================================================
+
+\section{Introduction}
+\label{sec:introduction}
+
+The intelligence of modern foundation models is increasingly delivered not at
+training time but at \emph{inference} time, where a trained model is repeatedly
+queried to reason, generate, and act.
+As these models scale beyond the fast memory of a single accelerator, the
+performance of large-scale inference is governed less by arithmetic and more by
+how an intelligent system \emph{coordinates data movement} across a hierarchical
+memory system spanning device memory, host memory, and secondary
+storage~\cite{ma2026inference,gholami2024memorywall}.
+Understanding the limits of this coordination is therefore central to
+understanding how machine intelligence behaves---and how it can be deployed---at
+scale.
+
+This shift carries pressing economic and environmental stakes.
+Once a model is trained, the recurring cost of \emph{serving} it dominates its
+lifetime resource footprint, and hardware analyses identify memory capacity,
+bandwidth, and interconnect latency---not arithmetic throughput---as the binding
+constraints of inference~\cite{zhou2024survey}.
+The energy penalty of misaligned coordination is substantial: operating in the
+I/O-limited regime reduces throughput-per-Watt by more than $3\times$ relative to
+coordination-aligned operation, raising CO$_2$ output from 15.8\,g to 42.5\,g per
+$10^6$ tokens at the IEA\,(2024) global carbon
+intensity~\cite{iea2024electricity}.
+Characterising the \emph{intrinsic limits} of memory coordination is thus a
+prerequisite for the viability of inference-driven AI.
+
+Existing systems reduce memory pressure via CPU/NVMe
+offloading~\cite{flexgen2023,aminabadi2022deepspeedinference},
+GPU--CPU swapping~\cite{huang2020swapadvisor},
+and KV-cache management~\cite{kwon2023pagedattention}.
+These techniques deliver substantial gains in some configurations yet show
+diminishing returns---or even performance inversion---in others.
+Prior work explains this heterogeneity through workload-specific factors
+(model size, batch size, hardware topology), without a unifying account that
+predicts \emph{when} and \emph{why} coordination fails.
+This raises a question that is fundamental to how we reason about deploying
+intelligent systems: \emph{Is hierarchical memory coordination a continuously
+optimisable problem, or does machine intelligence at scale admit intrinsic
+boundaries beyond which additional coordination cannot improve---and can
+worsen---end-to-end performance?}
+
+We answer this question with a regime-based view.
+Denning's working-set model and thrashing theory~\cite{mattson1970evaluation}
+identify capacity saturation as a binary event on a \emph{single-tier} system,
+and the Roofline model~\cite{williams2009roofline} expresses performance as
+$\min(F \cdot I,\, B_{\mathrm{peak}})$ for a fixed workload on a single tier.
+Neither framework addresses a \emph{multi-tier} hierarchy in which computation,
+locality, cross-tier transfer, and synchronisation co-exist as distinct,
+adjustable latency terms---the setting in which large-scale intelligent
+inference actually runs.
+Our framework---extending Little's Law~\cite{kleinrock1975queueing} to multi-tier
+inference---decomposes end-to-end latency into four co-active terms
+($T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}} + T_{\mathrm{sync}}$)
+and characterises how their relative magnitudes shift as two dimensionless
+ratios change, determining \emph{which} intervention is effective at any
+operating point.
+Multi-tier inference systems exhibit three operational regimes governed by the
+fast-memory residency ratio $R_C = C_{\mathrm{fast}}/W$ and the
+transfer-pressure ratio $R_B = B_{\mathrm{slow}} \cdot \Delta t / D$.
+Transitions between regimes are abrupt: modest changes in model size, batch
+size, or bandwidth shift the dominant latency contributor discontinuously, in a
+phase-like manner.
+Regime-agnostic strategies effective in one regime fail predictably outside
+analytically identifiable boundaries.
+
+We make four contributions:
+\begin{itemize}
+  \item \textbf{A principle of machine intelligence at scale.}
+    We find, empirically and analytically, that multi-tier inference systems
+    exhibit three intrinsic operational regimes---capacity-limited,
+    coordination-dominated, and I/O-limited---separated by abrupt, phase-like
+    transitions, and that the ranking of optimisation strategies \emph{inverts}
+    across regime boundaries. This reframes AI-inference scaling as a problem of
+    regime-aware design rather than continuous tuning.
+  \item \textbf{Minimal analytical model.}
+    A structural lower bound proving regime transitions are inevitable;
+    $\theta_C = 0.50$ derived analytically from the majority-eviction condition
+    (consistent within $\pm 0.02$ across five platforms);
+    $\theta_B$ estimable from three measurements in a 10-minute profiling session.
+  \item \textbf{Multi-platform validation.}
+    Transitions confirmed on NVIDIA A100, TPU v4, AWS Inferentia2, AMD MI250,
+    and Intel Optane-PMem, with boundaries consistent to within $\pm 0.05$.
+  \item \textbf{Workload generality.}
+    Three-regime behaviour demonstrated across autoregressive LLMs, vision QA,
+    retrieval-augmented generation, edge detection, and scientific-computing
+    workloads (protein structure prediction, climate downscaling), confirming
+    applicability to any intelligent workload whose working set exceeds
+    fast-memory capacity.
+\end{itemize}
+
+Together, these results reframe hierarchical memory coordination as
+\emph{regime-aware design} rather than continuous tuning.
+To illustrate the framework's practical accessibility, consider Llama-3\,8B at
+batch\,=\,8 on a server with 80\,GB HBM and 16.1\,GB/s PCIe bandwidth:
+$W = 41.8$\,GB gives $R_C = 80/41.8 = 1.91$ (fully capacity-compliant,
+$R_C \gg \theta_C$).
+With nearly all weights resident in HBM, compulsory cross-tier transfer is
+small ($D \approx 1.2$\,GB per step); at $\Delta t \approx 120$\,ms,
+$R_B = 16.1 \times 0.12 / 1.2 = 1.61$ (well inside the coordination-dominated
+regime).
+By contrast, constraining HBM to 20\,GB forces $R_C = 0.48$ and
+$D \approx 20.9$\,GB of eviction traffic per step, pushing the same workload
+deep into the capacity-limited regime (see Supplementary Appendix~A for the
+full quantitative derivation).
+Any practitioner can compute these two ratios from hardware datasheets and
+model-card parameter counts---before running a single experiment.
+
+\FloatBarrier

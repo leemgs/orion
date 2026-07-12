@@ -221,15 +221,32 @@
 \renewcommand{\dblfloatpagefraction}{0.86}
 \flushbottom
 
+%% ---- NMI framing toggle -----------------------------------
+%% 1차 투고 대상 = Nature Machine Intelligence.
+%% \NMIframingtrue  → NMI용 재프레이밍(초록·서론) 사용 (기본값).
+%% \NMIframingfalse → 기존 IEEE 서사로 복귀.
+%% 정식 NMI 투고본은 Nature 템플릿 빌드(./run.sh nature)를 사용하세요.
+%% 근거·전략: README.md §8·§9 참조.
+\newif\ifNMIframing
+\NMIframingtrue
+
 \begin{document}
 % \tableofcontents
 
 \input{./section/001_title.tex}
 \input{./section/005_author.tex}
-\input{./section/006_abstract.tex}
+\ifNMIframing
+  \input{./section/006_abstract_nmi_ieee.tex}  % NMI framing (IEEE syntax)
+\else
+  \input{./section/006_abstract.tex}           % original IEEE abstract
+\fi
 
 \input{./section/008_materials.tex}
-\input{section/010_introduction}
+\ifNMIframing
+  \input{section/010_introduction_nmi}          % NMI-reframed introduction
+\else
+  \input{section/010_introduction}              % original introduction
+\fi
 \input{section/020_regime_principle}
 \input{section/030_transfer_model}
 \input{section/040_experimental_validation}

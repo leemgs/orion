@@ -1,6 +1,6 @@
 # ORION — 대규모 AI 추론에서 계층적 메모리 오케스트레이션의 레짐 의존적 한계
 
-LaTeX 논문 원고. **Nature Computational Science** (1순위) 또는 **Nature Communications** (2순위) 투고를 목표로 합니다.
+LaTeX 논문 원고. **1차 투고 대상: Nature Machine Intelligence (확정)** — 폴백: Nature Computational Science → Nature Communications → npj. 투고 전략은 §8·§9 참조.
 
 ---
 
@@ -280,6 +280,25 @@ sudo apt-get install -y evince
 pdflatex  →  bibtex  →  pdflatex  →  pdflatex
 ```
 
+### NMI 재프레이밍 토글 (1차 투고 대상 = Nature Machine Intelligence)
+
+두 빌드 모두 프리앰블에 `\newif\ifNMIframing` 스위치가 있으며 **기본값은 켜짐(`\NMIframingtrue`)** 입니다.
+켜져 있으면 NMI용 재프레이밍 초록·서론이 자동으로 include 됩니다.
+
+| 스위치 | 초록 | 서론 |
+|--------|------|------|
+| `\NMIframingtrue` (기본) | `006_abstract_nmi*.tex` (NMI 서사) | `010_introduction_nmi.tex` (NMI 서사) |
+| `\NMIframingfalse` | 기존 초록 | 기존 서론 |
+
+- **정식 NMI 투고본**은 반드시 Nature 템플릿으로 빌드하세요 → `./run.sh nature` (`main_nature.pdf`).
+  - `main_nature.tex`는 Nature 문법 초록 `006_abstract_nmi.tex`를 사용합니다.
+- IEEE 초안(`./run.sh`)도 동일 토글로 NMI 서사를 확인할 수 있습니다.
+  - `main.tex`는 IEEE 문법 초록 `006_abstract_nmi_ieee.tex`를 사용합니다 (내용은 Nature판과 동기화).
+- 기존 NCS/IEEE 서사로 되돌리려면 해당 `main*.tex`의 `\NMIframingtrue` → `\NMIframingfalse`.
+
+> 두 초록 파일(`006_abstract_nmi.tex`, `006_abstract_nmi_ieee.tex`)은 문법만 다르고
+> **내용은 동일하게 유지**해야 합니다. 한쪽을 고치면 다른 쪽도 함께 수정하세요.
+
 ---
 
 ## 5. PDF 열람
@@ -349,6 +368,25 @@ Springer Nature (출판사)
 ---
 
 ## 8. 저널 추천 우선순위
+
+> **✅ 최종 결정 (2026-07): 1차 투고 대상 = Nature Machine Intelligence (NMI)**
+>
+> 본 연구팀은 NMI를 1차 투고 대상으로 **확정**했습니다. 근거:
+> 1. **회사 차원의 NMI 투고 장려**
+> 2. **최상위 위상** — 2026년 6월 공개 최신 IF 약 29.8 (JCR Q1)
+> 3. **AI 도메인 연구** — 본 연구는 대규모 AI 추론의 근본적·레짐 의존적 한계를 다룸
+>
+> **성공의 관건은 재프레이밍입니다.** 원고를 "메모리 시스템 엔지니어링 최적화"가 아니라
+> **"기계지능(machine intelligence)의 일반 원리 발견"** 으로 다시 잡아야 desk-rejection을 피합니다.
+> NMI용 재프레이밍 초안은 [`section/006_abstract_nmi.tex`](section/006_abstract_nmi.tex),
+> [`section/010_introduction_nmi.tex`](section/010_introduction_nmi.tex)에 있습니다.
+>
+> 정식 투고 전 **presubmission inquiry**로 스코프 적합성을 먼저 검증합니다
+> (문의서: [`submission/nmi_presubmission_inquiry.md`](submission/nmi_presubmission_inquiry.md)).
+> 실행 순서는 **§9**를 참조하세요.
+>
+> 아래 ★ 순위는 **저널 스코프 적합도 분석**으로, NMI 리젝 시 **폴백 순서
+> (NCS → Nature Communications → npj)** 의 근거로 유지합니다.
 
 ### 1순위: Nature Computational Science ★★★★★
 
@@ -429,32 +467,54 @@ Nature 투고 전 전문 영어 편집 필수.
 - Editage (editage.co.kr)
 ```
 
-### Step 3 — 투고 순서
+### Step 3 — NMI용 재프레이밍 + Presubmission Inquiry (핵심)
 
 ```
-[1차] Nature Computational Science
-       ↓ (탈락 시, 약 2~4개월 후)
-[2차] Nature Communications
-       ↓ (탈락 시)
-[3차] Nature Machine Intelligence
-       ↓ (탈락 시)
-[4차] npj Computational Intelligence
+NMI 성공의 관건. 리젝 사이클을 태우지 않고 스코프를 검증하는 안전장치.
+
+3-1. 재프레이밍: 서사 무게중심을 "엔지니어링 성과"에서
+     "기계지능의 근본 원리 발견"으로 이동
+     - 초록:  section/006_abstract_nmi.tex
+     - 서론:  section/010_introduction_nmi.tex
+     - 산업 CPS·IEC 61508 안전 내용은 "부가 검증"으로만 배치
+
+3-2. Presubmission inquiry 발송 (커버레터+요약만, 회신 1~2주)
+     - 문의서: submission/nmi_presubmission_inquiry.md
+     - 에디터 긍정 → NMI 정식 투고
+     - 에디터 부정 → NCS를 1차 타깃으로 전환
 ```
 
-### Step 4 — 논문 프레이밍 강화 포인트
+### Step 4 — 투고 순서 (NMI 우선)
 
 ```
-현재 abstract의 "Here we show..." 구조는 Nature 스타일에 이미 맞음.
+[사전] arXiv 프리프린트 + NMI presubmission inquiry (Step 1·3)
+        │
+[1차] Nature Machine Intelligence   ← 회사 방침 + 최상위 위상, 재프레이밍 선행
+        ↓ (탈락 시, transfer로 하향 재투고)
+[2차] Nature Computational Science   ← 현재 톤에 가장 가까운 폴백
+        ↓ (탈락 시)
+[3차] Nature Communications          ← OA 접근성 + 삼성 1저자 선례
+        ↓ (탈락 시)
+[4차] npj Computational Intelligence ← 최후 안전망
+
+주: Nature 포트폴리오 이관(transfer)은 고IF→저IF 하향이 자연스러움.
+    따라서 NMI(29.8)를 먼저 도전한 뒤 하향 폴백하는 것이 흐름상 유리.
+```
+
+### Step 5 — 논문 프레이밍 강화 포인트
+
+```
+"Here we show..." 구조는 Nature 스타일에 이미 맞음.
 심사 통과를 위해 강조해야 할 요소:
 
-1. "Phase transition" 유사성을 물리학 언어로 더 명시
-   → Nature Computational Science 심사위원 설득력 ↑
+1. "Phase transition" 유사성을 명시
+   → 레짐 전이가 불연속(abrupt)임을 기계지능의 원리로 제시
 
-2. "General principle beyond LLM" 확장성 강조
-   → AI를 넘어 스토리지 시스템, 뇌-신경 계산 등으로 연결
+2. "General principle of memory-bound machine intelligence" 확장성 강조
+   → 특정 오케스트레이터가 아니라 대규모 AI 추론 전반의 법칙으로 프레이밍
 
-3. 삼성전자 실제 인프라 규모 데이터 인용
-   → 산업적 임팩트 명시
+3. 다중 플랫폼·다중 워크로드 일반성 인용
+   → 특정 하드웨어 종속이 아닌 보편 원리임을 입증 (NMI 설득 핵심)
 ```
 
 ---

@@ -69,6 +69,17 @@
 \newcommand{\anonymous}{0}
 
 %% =============================================================
+%% NMI framing toggle
+%% -------------------------------------------------------------
+%% 1차 투고 대상 = Nature Machine Intelligence.
+%% \NMIframingtrue  → NMI용 재프레이밍(초록·서론) 사용 (기본값).
+%% \NMIframingfalse → 기존 NCS/Nature 서사로 복귀.
+%% 근거·전략: README.md §8·§9 참조.
+\newif\ifNMIframing
+\NMIframingtrue
+%% =============================================================
+
+%% =============================================================
 \begin{document}
 %% =============================================================
 
@@ -79,10 +90,18 @@
 \input{./section/005_author_nature.tex}
 
 %% ---- Abstract & Keywords -----------------------------------
-\input{./section/006_abstract_nature.tex}
+\ifNMIframing
+  \input{./section/006_abstract_nmi.tex}      % NMI framing (Nature syntax)
+\else
+  \input{./section/006_abstract_nature.tex}   % original NCS/Nature abstract
+\fi
 
 %% ---- Main text (NCS structure: Intro → Results → Discussion) ---
-\input{section/010_introduction}
+\ifNMIframing
+  \input{section/010_introduction_nmi}         % NMI-reframed introduction
+\else
+  \input{section/010_introduction}             % original introduction
+\fi
 \input{section/025_results_ncs}
 \input{section/060_discussion}
 
