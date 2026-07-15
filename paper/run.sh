@@ -23,3 +23,13 @@ echo "[4/4] pdflatex (final pass)..."
 pdflatex -interaction=nonstopmode "${MAIN}.tex"
 
 echo "Done: ${MAIN}.pdf"
+
+# Supplementary Information (separate NMI submission file)
+SUPP="supplementary"
+echo "[SI] building ${SUPP}.pdf..."
+pdflatex -interaction=nonstopmode "${SUPP}.tex"
+bibtex "${SUPP}" || true
+pdflatex -interaction=nonstopmode "${SUPP}.tex"
+pdflatex -interaction=nonstopmode "${SUPP}.tex"
+
+echo "Done: ${SUPP}.pdf"

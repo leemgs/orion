@@ -107,16 +107,16 @@ it is a lower bound on $T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}}
 only.
 At regime boundaries the bound accounts for 78--84\% of observed
 $T_{\mathrm{total}}$; the remaining 16--22\% is $T_{\mathrm{sync}}$,
-separately quantified in Supplementary Appendix~B.
+separately quantified in Supplementary Note~2.
 Critically, after subtracting measured $T_{\mathrm{sync}}$ from observed
 $T_{\mathrm{total}}$, \textsc{Orion} drives
 $(T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}})$ to within
 8--14\% of the physical lower bound across all five platforms: the bound is
 near-achievable and the residual gap reflects excluded synchronisation
 physics, not algorithmic suboptimality
-(Supplementary Table~\ref{tab:achievability}).
+(Supplementary Table~8).
 Platform-specific values of $(\rho, B_{\mathrm{slow}})$ and per-term tightness
-are given in Supplementary Table~A.1.
+are given in Supplementary Table~1.
 
 \paragraph{Regime boundaries.}
 The analytical model (Eq.~\ref{eq:lower_bound_regime}) establishes that regime
@@ -138,13 +138,13 @@ $C_{\mathrm{miss}} = W - C_{\mathrm{fast}} = W(1 - R_C)$.
 The majority-eviction condition $C_{\mathrm{miss}} > W/2$ becomes
 $1 - R_C > 1/2$, yielding $\theta_C = 0.50$ independently of any
 platform-specific constant.
-The LRU miss-volume model (Supplementary Appendix~A) predicts the
+The LRU miss-volume model (Supplementary Note~1) predicts the
 \emph{onset} of capacity-limited conditions at $R_C \approx 0.96$ and
 the \emph{bandwidth-saturation point} at $R_B \approx 0.154$;
 the operationally significant thresholds ($\theta_C = 0.50$,
 $\theta_B = 0.40$) are the values at which the sharpness coefficient $S$
 first exceeds $S^* = 2.0$ and are consistent within $\pm 0.05$ across
-all tested platforms (see Supplementary Appendix~A for full derivations
+all tested platforms (see Supplementary Note~1 for full derivations
 and quantitative bridging to the analytical onset values).
 
 
@@ -206,7 +206,7 @@ Near $\theta_B$, $S = 3.74 \pm 0.27$; well inside ($R_B = 0.75$),
 $S = 0.28 \pm 0.03$.
 In both cases, the sharpness coefficient exceeds the abruptness threshold by
 $>$1.8$\times$ at the boundary and falls below 0.4 far from it (full sharpness
-tables in Supplementary Appendix~B).
+tables in Supplementary Note~2).
 
 \paragraph{Performance inversion across regimes.}
 A critical prediction of the regime framework is that the ranking of
@@ -269,10 +269,11 @@ synchronisation shifts $\theta_B$ by $+0.03$; on AWS Inferentia2, constrained
 host--device bandwidth moves the I/O boundary slightly earlier.
 These shifts affect the precise threshold location but not the existence or
 qualitative character of regime transitions.
-In four-node A100 experiments (Megatron-LM), inter-node coordination shifted
+In four-node A100 experiments
+(Megatron-LM~\cite{shoeybi2019megatronlm}), inter-node coordination shifted
 the I/O-limited boundary by $\Delta\theta_B \approx +0.05$ while $\theta_C$ was
 unchanged and both transitions stayed abrupt ($S > 3.4$;
-Supplementary Table~\ref{tab:multinode}).
+Supplementary Table~11).
 
 
 \subsection{Generality across workloads and architectures}
@@ -281,7 +282,9 @@ Supplementary Table~\ref{tab:multinode}).
 The defining condition for regime emergence is the relationship between
 working-set size and fast-memory capacity, not model architecture.
 Table~\ref{tab:cross-model} shows improvements across five model families
-(Llama-3 8B through Mixtral 8$\times$7B and ViT-H/14), confirming that all
+(Llama-3 8B~\cite{grattafiori2024llama} through
+Mixtral 8$\times$7B~\cite{jiang2024mixtral} and
+ViT-H/14~\cite{dosovitskiy2021vit}), confirming that all
 three regime behaviours persist across autoregressive, mixture-of-experts,
 and vision workloads.
 
@@ -313,11 +316,12 @@ ViT-H/14            & Vision     & $51.2 \pm 1.7\%$ & $18.2 \pm 1.1\%$ & $20.9 \
 \end{table}
 
 Regime-dependent effects extend to non-LLM workloads (Table~\ref{tab:generality}).
-In BLIP2 visual QA, retrieval pressure shifts the operating point from
+In BLIP2~\cite{li2023blip2} visual QA, retrieval pressure shifts the operating point from
 coordination-dominated ($R_B \approx 0.43$) into I/O-limited ($R_B \approx 0.31$)
 mid-inference; \textsc{Orion} detects the transition and recovers
 $11.2 \pm 1.4\%$ latency.
-In a RAG pipeline, vector-store spikes shift $R_C$ from 0.46 to 0.58;
+In a FAISS-based~\cite{johnson2019faiss} RAG pipeline, vector-store spikes
+shift $R_C$ from 0.46 to 0.58;
 adaptive coordination cuts latency by $17.4 \pm 1.8\%$.
 An edge YOLOv8 deployment ($R_C\!=\!0.49$, $R_B\!=\!0.22$) recovers $9.5 \pm 1.2\%$
 and cuts frame-drop rate from 12\% to 2.5\%.
@@ -326,7 +330,7 @@ and the ranking inversion---FlexGen +7.8\% in YOLOv8's I/O-limited regime
 versus $-18.4\%$ in coordination-dominated LLM inference---confirms that
 inversion is a property of the regime, not the workload architecture.
 A 25-point survey of the ($R_C$, $R_B$) space confirms three-regime consistency
-(Supplementary Table~\ref{tab:2d_sweep}).
+(Supplementary Table~7).
 
 \paragraph{Scientific computing workloads.}
 The regime structure extends to HPC-style scientific inference
@@ -354,7 +358,7 @@ workloads), with the largest contribution in the coordination-dominated
 regime (69\%) where strategy choice has the most leverage.
 For workloads with mid-inference transitions (BLIP2, RAG), the classifier
 contributes 66--76\% of total gain
-(Supplementary Table~\ref{tab:classifier_ablation}).
+(Supplementary Table~10).
 
 \begin{table}[t]
 \centering
@@ -447,7 +451,9 @@ vLLM~\cite{kwon2023pagedattention}      & $318 \pm 5$ & $7{,}120 \pm 90$ & $112.
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:energy} shows that energy efficiency is also regime-dependent.
+Table~\ref{tab:energy} shows that energy efficiency is also regime-dependent,
+consistent with cluster-level evidence that the energy profile of LLM serving
+depends strongly on operating conditions~\cite{stojkovic2025dynamollm}.
 To quantify the regime effect on energy, we re-ran the same Llama-3\,8B workload
 at fixed batch size\,=\,8 and sequence length\,=\,2048 while sweeping $R_B$ from
 0.75 (coordination-dominated) down to 0.15 (I/O-limited), holding all other

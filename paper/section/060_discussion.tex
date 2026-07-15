@@ -1,8 +1,6 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Fundamental limits of hierarchical memory orchestration}
-
 The regime-dependent framework establishes a practically important negative
 result: beyond regime boundaries, additional orchestration can predictably
 \emph{increase} latency and energy expenditure by exposing synchronisation
@@ -32,8 +30,6 @@ and the analogy to physical phase transitions motivates the dimensionless-ratio
 formulation and may extend the framework to other hierarchical-memory systems
 beyond AI inference.
 
-\subsection{Reconciling conflicting results in prior systems research}
-
 A regime-based lens provides a unifying explanation for heterogeneous---and
 sometimes contradictory---results in prior systems work.
 Offloading, caching, and swapping strategies that implicitly assume operation
@@ -46,8 +42,6 @@ characteristics can place nominally similar systems in different regimes,
 producing divergent benchmark outcomes without obvious explanation.
 Making the operating regime explicit therefore directly improves the
 interpretability and generalisability of inference systems research.
-
-\subsection{Persistence of regime structure under hardware advances}
 
 A natural counterargument is that emerging memory technologies---HBM capacity
 expansion, CXL-based memory pooling, disaggregated memory---will render regime
@@ -66,8 +60,6 @@ sustained-bandwidth limits.
 Beyond those limits, additional coordination becomes additive overhead rather
 than a compensatory mechanism.
 
-\subsection{Practical regime-aware inference and limitations}
-
 The framework directly motivates adaptive inference systems.
 Rather than applying a fixed orchestration strategy uniformly, a regime-aware
 controller can sample the latency decomposition
@@ -82,7 +74,8 @@ The regime framework implies concrete prescriptions for each operating
 condition.
 In the \emph{capacity-limited} regime ($R_C < 0.50$), the primary lever is
 fast-memory residency: increase HBM capacity, reduce batch size, or apply
-weight quantisation to shrink $W$; additional coordination overhead has
+weight quantisation or one-shot pruning~\cite{frantar2023sparsegpt} to shrink
+$W$; additional coordination overhead has
 negligible return ($\leq 5\%$ in our experiments, Table~\ref{tab:regime_inversion}).
 In the \emph{coordination-dominated} regime ($R_C \geq 0.50$, $R_B \geq 0.40$),
 pipelining, KV-cache management, and cross-tier overlap all provide measurable
@@ -103,7 +96,7 @@ consistent within $\pm 0.02$ across five platforms, mean error $\leq 2.4\%$), an
 bandwidth $B_{\mathrm{slow}}$, single-run computation time $T_{\mathrm{comp}}$,
 and DMA log-derived amplification factors---obtainable in a 10-minute
 profiling session (mean error $\leq 4.7\%$ on PCIe-based platforms;
-Supplementary Table~\ref{tab:threshold_prediction}).
+Supplementary Table~4).
 
 The framework applies to any workload whose active working set cannot fully
 reside in fast memory, including the scientific computing cases validated above,

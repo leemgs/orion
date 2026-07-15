@@ -1,0 +1,57 @@
+%% ============================================================
+%%  Supplementary Information — standalone document
+%%  Target journal: Nature Machine Intelligence
+%%  Build: pdflatex supplementary && bibtex supplementary
+%%         && pdflatex supplementary && pdflatex supplementary
+%%  Contents: Supplementary Notes 1–5, Supplementary Tables 1–11
+%%  (sourced from section/900_appendix.tex).
+%% ============================================================
+
+\documentclass[Numbered]{sn-jnl}
+
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{pifont}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{diagbox}
+
+%% ---- Supplementary numbering ------------------------------
+%% Sections appear as "Supplementary Note N"; tables as
+%% "Supplementary Table N"; equations as (SN) to avoid collision
+%% with main-text equation numbers.
+\renewcommand{\thesection}{Supplementary Note~\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\tablename}{Supplementary Table}
+\renewcommand{\theequation}{S\arabic{equation}}
+
+\begin{document}
+
+\title{Supplementary Information for ``Hierarchical memory orchestration
+in AI inference exhibits intrinsic regime-dependent limits''}
+
+\author*[1]{\fnm{Geunsik} \sur{Lim}}
+\email{geunsik.lim@samsung.com}
+\affil[1]{\orgdiv{Data Service Lab.}, \orgname{Samsung Electronics},
+  \orgaddress{\city{Seoul}, \country{South Korea}}}
+
+\maketitle
+
+\noindent This document contains Supplementary Notes~1--5 and
+Supplementary Tables~1--11 accompanying the main text.
+Equation numbers of the form (3) refer to the main text;
+equations numbered (S1), (S2), \ldots{} are internal to this document.
+
+\input{section/900_appendix}
+
+\bibliographystyle{unsrtnat}
+\bibliography{reference-data}
+
+\end{document}

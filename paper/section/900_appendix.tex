@@ -4,20 +4,19 @@
 %%  "Supplementary Information" in final production.
 %% ============================================================
 
-\appendix
 
 \section{Analytical Derivation of Regime Thresholds}
 \label{app:regime}
 
 This appendix derives the critical threshold values $\theta_C \approx 0.5$ and
 $\theta_B \approx 0.4$ and quantifies the tightness of the structural lower
-bound (Eq.~\ref{eq:lower_bound_regime} of the main text).
+bound (Eq.~(3) of the main text).
 
 %% -----------------------------------------------------------
 \subsection{Platform constants and lower-bound tightness}
 \label{app:constants}
 
-Table~\ref{tab:platform_constants} reports the platform-specific constants
+Supplementary Table~\ref{tab:platform_constants} reports the platform-specific constants
 $\rho$ (HBM miss-penalty per byte) and $B_{\mathrm{slow}}$ (sustained
 host-to-device bandwidth) that appear in the lower bound, together with
 the fraction of observed $T_{\mathrm{total}}$ that the bound accounts for
@@ -29,7 +28,7 @@ at the regime boundaries.
 $\rho$: measured HBM cache-miss penalty (ns/byte).
 $B_{\mathrm{slow}}$: sustained host-to-device bandwidth (GB/s).
 Tightness: fraction of observed $T_{\mathrm{total}}$ explained by
-Eq.~(\ref{eq:lower_bound_regime}) at the nearest regime boundary,
+Eq.~(3) at the nearest regime boundary,
 averaged over $n=5$ probing sweeps.}
 \label{tab:platform_constants}
 \renewcommand{\arraystretch}{1.2}
@@ -59,7 +58,7 @@ measured as effective collective-reduction bandwidth from host DRAM.}
 The lower bound accounts for 78--84\% of observed latency at regime boundaries,
 confirming that it is meaningfully tight: the remaining 16--22\% corresponds to
 $T_{\mathrm{sync}}$ (synchronization overhead) not included in
-Eq.~(\ref{eq:lower_bound_regime}).
+Eq.~(3).
 Well inside any regime, the residual is larger because one term dominates and
 the bound becomes one-sided, but the existence of the bound is unconditional.
 
@@ -134,7 +133,7 @@ where $\mu = T_{\mathrm{comp}} / (\rho W) = N/(P\rho W)$.
         ($N=1.6{\times}10^{12}$\,FLOP, $P=312$\,TFLOP/s).
   \item $W = W_{\mathrm{param}} + W_{\mathrm{act}} + W_{\mathrm{kv}}
             \approx 16.0 + 17.2 + 8.6 = 41.8$\,GB\quad
-        (see Appendix~\ref{app:working_set}).
+        (see \ref{app:working_set}).
   \item $\rho = 3.2 \times 10^{-9}$\,s/byte (measured HBM miss penalty),
         $\Rightarrow \rho W \approx 133.8$\,ms.
   \item $\mu = 5.1 / 133.8 \approx 0.038$.
@@ -174,7 +173,7 @@ T\_mem is present but modest.
 At $R_C = 0.50$, $T_{\mathrm{mem}} / T_{\mathrm{comp}} = 0.50/\mu \approx 13$:
 T\_mem dominates overwhelmingly.
 The empirically measured sharpness $S(R_C)$ peaks at $R_C \approx 0.50$ across
-all platforms (Table~\ref{tab:threshold_sensitivity}), confirming that
+all platforms (Supplementary Table~\ref{tab:threshold_sensitivity}), confirming that
 $\theta_C = 0.50$ is the operationally relevant boundary.
 
 %% -----------------------------------------------------------
@@ -293,7 +292,7 @@ The three contributing effects are:
         Eviction write-backs consume $\sim$60\% additional PCIe bandwidth
         relative to reload reads, directly increasing effective demand.
 \end{itemize}
-Table~\ref{tab:alpha_measured} reports the independently measured values of
+Supplementary Table~\ref{tab:alpha_measured} reports the independently measured values of
 $\alpha_{\mathrm{wb}}$ and $\alpha_q$ across platforms.
 $\alpha_{\mathrm{wb}}$ is derived from DMA transfer logs by computing the ratio
 of write-back byte volume to reload byte volume per step (measured over
@@ -331,9 +330,9 @@ Intel Optane-PMem    & $0.59 \pm 0.05$ & $1.02 \pm 0.10$ & $0.403$ \\
 We report $\theta_B = 0.40$ as the empirically calibrated boundary at
 which the sharpness $S$ first exceeds $S^* = 2.0$.
 This value is consistent across all five platforms within $\pm 0.03$
-(Table~\ref{tab:threshold_sensitivity}), and the effective-demand model
+(Supplementary Table~\ref{tab:threshold_sensitivity}), and the effective-demand model
 (Eq.~\ref{eq:thetaB_bridge}) predicts $\theta_B$ within 5\% on all platforms
-(Table~\ref{tab:alpha_measured}).
+(Supplementary Table~\ref{tab:alpha_measured}).
 
 %% -----------------------------------------------------------
 \subsection{Inevitability of regime transitions}
@@ -358,7 +357,7 @@ hardware constants; their \emph{existence} is universal.
 \subsection{Sensitivity of thresholds to hardware parameters}
 \label{app:sensitivity}
 
-Table~\ref{tab:threshold_sensitivity} reports $\theta_C$ and $\theta_B$ across
+Supplementary Table~\ref{tab:threshold_sensitivity} reports $\theta_C$ and $\theta_B$ across
 platforms, demonstrating hardware robustness.
 
 \begin{table}[h]
@@ -401,7 +400,7 @@ independent of hardware parameters.
 The prediction requires no measurement: it follows analytically from the
 condition $\mathcal{M}(W, C_{\mathrm{fast}}) > W/2$.
 Across five platforms, the mean absolute prediction error is
-$1.0 \pm 1.5\%$ (Table~\ref{tab:threshold_sensitivity}), within
+$1.0 \pm 1.5\%$ (Supplementary Table~\ref{tab:threshold_sensitivity}), within
 measurement noise.
 
 \paragraph{Predicting $\theta_B$.}
@@ -416,14 +415,14 @@ R_B^{\mathrm{sat}} = \frac{B_{\mathrm{slow}} \cdot T_{\mathrm{comp}}}{D}
 \label{eq:RBsat_general}
 \end{equation}
 and $\alpha_{\mathrm{wb}}$, $\alpha_q$ are obtained from DMA transfer logs
-and NVML PCIe utilisation counters (Table~\ref{tab:alpha_measured}).
+and NVML PCIe utilisation counters (Supplementary Table~\ref{tab:alpha_measured}).
 All three inputs ($B_{\mathrm{slow}}$ from hardware specification,
 $T_{\mathrm{comp}}$ from a single CUDA-event profiling run,
 $\alpha_{\mathrm{wb}}$ and $\alpha_q$ from DMA logs) are obtainable in a
 10-minute profiling session before any regime sweep.
 
 \paragraph{Prediction accuracy.}
-Table~\ref{tab:threshold_prediction} compares predicted and measured
+Supplementary Table~\ref{tab:threshold_prediction} compares predicted and measured
 thresholds across all five platforms.
 
 \begin{table}[h]
@@ -433,7 +432,7 @@ $\theta_C^{\mathrm{pred}} = 0.50$ (Eq.~\ref{eq:thetaC_pred};
 hardware-independent).
 $\theta_B^{\mathrm{pred}}$ from Eq.~\eqref{eq:thetaB_pred} using
 per-platform $R_B^{\mathrm{sat}}$, $\alpha_{\mathrm{wb}}$, and $\alpha_q$.
-Measured values: from Table~\ref{tab:threshold_sensitivity}.
+Measured values: from Supplementary Table~\ref{tab:threshold_sensitivity}.
 Error: $|\theta^{\mathrm{pred}} - \theta^{\mathrm{meas}}| /
 \theta^{\mathrm{meas}} \times 100\%$.
 Larger $\theta_B$ errors on Inferentia2 and Optane-PMem reflect
@@ -504,7 +503,7 @@ We chose $S^* = 2.0$ because it corresponds to the empirically observed
 inflection point where orchestration strategies that succeed in the
 coordination-dominated regime first exhibit net-negative returns
 (see Supplementary Table~\ref{tab:sharpness}).
-To verify robustness, Table~\ref{tab:sensitivity_Sstar} reports the set of
+To verify robustness, Supplementary Table~\ref{tab:sensitivity_Sstar} reports the set of
 operating points classified as ``near-boundary'' under three alternative
 thresholds ($S^* \in \{1.5, 2.0, 2.5\}$); the identity of boundary
 operating points is stable across all three thresholds.
@@ -566,7 +565,7 @@ evidence for the regime structure.
 
 \subsection{Measured sharpness near regime boundaries}
 
-Table~\ref{tab:sharpness} reports $S$ measured at three operating points
+Supplementary Table~\ref{tab:sharpness} reports $S$ measured at three operating points
 per experiment.
 
 \begin{table}[h]
@@ -604,13 +603,13 @@ boundaries.
 \label{app:2d_sweep}
 
 To confirm that the three-regime structure is not an artefact of the three
-operating points reported in Table~\ref{tab:regime_inversion} of the main text,
+operating points reported in Table~1 of the main text,
 we probed 25 operating points on a $5 \times 5$ grid spanning
 $R_C \in \{0.25, 0.40, 0.55, 0.70, 0.85\}$ and
 $R_B \in \{0.15, 0.25, 0.40, 0.60, 0.75\}$
 on the NVIDIA A100 platform (Llama-3\,8B, batch\,8, BF16,
 $n_{\mathrm{eff}}\!=\!150$ windows per point).
-Table~\ref{tab:2d_sweep} reports the dominant latency term and its fraction of
+Supplementary Table~\ref{tab:2d_sweep} reports the dominant latency term and its fraction of
 $T_{\mathrm{total}}$ at each operating point.
 
 \begin{table}[h]
@@ -623,7 +622,7 @@ Regime abbreviations: \textbf{Cap}\,=\,capacity-limited,
 \textbf{Crd}\,=\,coordination-dominated, \textbf{I/O}\,=\,I/O-limited.
 $\dagger$\,=\,operating point within 0.05 of a regime boundary;
 sharpness coefficient $S > S^*\!=\!2.0$ at all $\dagger$ points (see
-Table~\ref{tab:sharpness}).}
+Supplementary Table~\ref{tab:sharpness}).}
 \label{tab:2d_sweep}
 \renewcommand{\arraystretch}{1.3}
 \setlength{\tabcolsep}{4pt}
@@ -681,14 +680,14 @@ the regime's defining property that all terms are of comparable magnitude.
 Fourth, all 10 operating points marked $\dagger$ (within 0.05 of a boundary)
 yield $S > S^* = 2.0$, while all 15 interior points yield $S < 0.5$,
 confirming that the three-regime structure observed at the discrete operating
-points of Table~\ref{tab:regime_inversion} is not a sampling artefact but a
+points of Table~1 of the main text is not a sampling artefact but a
 robust feature of the full two-dimensional landscape.
 
 %% -----------------------------------------------------------
 \subsection{Lower-bound achievability: how close does Orion reach the physical minimum?}
 \label{app:achievability}
 
-The structural lower bound (Eq.~\ref{eq:lower_bound_regime} of the main text)
+The structural lower bound (Eq.~(3) of the main text)
 establishes that regime transitions are inevitable, but it does not directly
 show that the bound is \emph{achievable}---i.e., that any orchestration policy
 can drive $T_{\mathrm{total}}$ close to
@@ -696,7 +695,7 @@ $T_{\mathrm{mem}}^{\min} + T_{\mathrm{swap}}^{\min}$.
 We quantify achievability by comparing two tightness ratios at each regime
 boundary: (i)~the PyTorch baseline tightness
 $\tau_{\mathrm{PT}} = T_{\mathrm{lb}} / T_{\mathrm{total}}^{\mathrm{PT}}$
-(already reported in Table~\ref{tab:platform_constants}), and
+(already reported in Supplementary Table~\ref{tab:platform_constants}), and
 (ii)~the Orion tightness
 $\tau_{\mathrm{Or}} = T_{\mathrm{lb}} / T_{\mathrm{total}}^{\mathrm{Orion}}$,
 measured at the boundary operating point
@@ -711,11 +710,11 @@ which is attributable to the excluded $T_{\mathrm{sync}}$ term.
 \centering
 \caption{Lower-bound achievability at regime boundaries.
 $\tau_{\mathrm{PT}}$: tightness relative to PyTorch baseline (reproduced from
-Table~\ref{tab:platform_constants}).
+Supplementary Table~\ref{tab:platform_constants}).
 $\tau_{\mathrm{Or}}$: tightness relative to \textsc{Orion}; shows how close
 \textsc{Orion} drives $T_{\mathrm{total}}$ to the physical lower bound.
 Residual gap $= 1 - \tau_{\mathrm{Or}}$: portion of
-$T_{\mathrm{total}}^{\mathrm{Orion}}$ not accounted for by Eq.~(\ref{eq:lower_bound_regime}),
+$T_{\mathrm{total}}^{\mathrm{Orion}}$ not accounted for by Eq.~(3),
 attributable to $T_{\mathrm{sync}}$ (excluded from the bound).
 Values: mean over $n{=}5$ sweeps at the boundary operating point.}
 \label{tab:achievability}
@@ -745,11 +744,11 @@ lower bound at regime boundaries---driving $T_{\mathrm{total}}$ to within
 8--14\% of the physical minimum.
 The residual gap (mean 11--13\%) is consistent with $T_{\mathrm{sync}}$
 accounting for 16--22\% of $T_{\mathrm{total}}^{\mathrm{PT}}$ (reported in
-the main text and Table~\ref{tab:platform_constants}): Orion's NUMA-aware
+the main text and Supplementary Table~\ref{tab:platform_constants}): Orion's NUMA-aware
 scheduling and barrier-elimination subsystems reduce unnecessary
 synchronisation overhead, but unavoidable inter-layer coordination events
 contribute an irreducible $T_{\mathrm{sync}}$ floor.
-This result confirms that the lower bound (Eq.~\ref{eq:lower_bound_regime})
+This result confirms that the lower bound (Eq.~(3))
 is near-achievable in practice: the gap reflects excluded physics (synchronisation),
 not algorithmic suboptimality.
 An extended lower bound incorporating $T_{\mathrm{sync}}^{\min} = K c_o$
@@ -805,7 +804,7 @@ Reducing effective $C_{\mathrm{fast}}$ to 20\,GB (by pinning 60\,GB of weights
 to host DRAM) gives $R_C \approx 0.48 < \theta_C$, entering the
 capacity-limited regime---consistent with experimental observations.
 
-Table~\ref{tab:W_models} summarises $W$ for all evaluated model families.
+Supplementary Table~\ref{tab:W_models} summarises $W$ for all evaluated model families.
 
 \begin{table}[h]
 \centering
@@ -860,7 +859,7 @@ bootstrap 95\,\% CI.
 
 \subsection{Results}
 
-Table~\ref{tab:classifier_ablation} reports the ablation across six
+Supplementary Table~\ref{tab:classifier_ablation} reports the ablation across six
 workload conditions spanning all three regimes.
 
 \begin{table}[h]
@@ -917,7 +916,7 @@ co-active and adjustable, classifier-driven strategy switching contributes
 $-18.8\%$ (69\% of total gain)---more than twice the hardware-only benefit.
 In the capacity-limited regime, where hardware residency is the binding
 constraint and coordination strategy matters little, the classifier adds
-only $-1.1\%$ (21\%), consistent with the prescriptions in \S\ref{sec:discussion}.
+only $-1.1\%$ (21\%), consistent with the prescriptions in the Discussion of the main text.
 
 \textbf{The classifier is indispensable for dynamic regime transitions.}
 For BLIP2 (Coord.$\to$I/O mid-inference) and RAG (Cap.$\to$Coord.),
@@ -939,7 +938,7 @@ InfiniBand inter-node) running Megatron-LM tensor-parallel inference of
 Llama-4\,17B (batch\,=\,8, seq\,=\,2048).
 Inter-node collective synchronisation adds a distributed contribution to
 $T_{\mathrm{sync}}$ that shifts the I/O-limited boundary outward.
-Table~\ref{tab:multinode} reports the measured boundaries and sharpness
+Supplementary Table~\ref{tab:multinode} reports the measured boundaries and sharpness
 coefficients alongside the single-node A100 reference; all quantities are
 means\,$\pm$\,bootstrap 95\,\% CI over $n_{\mathrm{sweep}} = 5$ sweeps of
 30 measurement windows each.

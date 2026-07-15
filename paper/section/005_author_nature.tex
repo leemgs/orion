@@ -22,4 +22,6 @@
   }
 \fi
 
-\maketitle
+%% \maketitle is issued in main.tex AFTER the abstract is defined:
+%% sn-jnl renders \abstract{...} inside \maketitle, so calling it here
+%% would silently drop the abstract from the PDF.

@@ -13,7 +13,8 @@ $T_{\mathrm{swap}}$, and $T_{\mathrm{sync}}$ individually observable at
 runtime.
 
 \textsc{Orion} comprises three instrumented subsystems, borrowing the OS notion
-of memory ballooning to manage the whole VRAM--DRAM--NVMe hierarchy together.
+of memory ballooning~\cite{waldspurger2002ballooning} to manage the whole
+VRAM--DRAM--NVMe hierarchy together.
 
 (1)~\textbf{GPU Process Allocator}: In multi-model serving, GPU context loading
 conflicts and VRAM interference dominate. The GPU Process Allocator reserves
@@ -25,7 +26,8 @@ reservation, context separation with fixed memory pools, and priority-based
 scheduling between I/O-bound and compute-bound models.
 
 (2)~\textbf{Task Memory Manager}: This module pairs task-level memory control
-with NUMA-aware policies: aligning processes with the right memory nodes via
+with NUMA-aware policies~\cite{milic2017beyond}: aligning processes with the
+right memory nodes via
 \texttt{mbind()} and \texttt{numa\_alloc\_onnode()} reduces remote-access delay,
 and a \texttt{jemalloc}-based custom heap separates small objects from large
 tensors to keep fragmentation manageable. Memory access latency is modelled as
@@ -87,7 +89,7 @@ Regime boundaries are identified as the values of $R_C$ and $R_B$ at which the
 dominant latency term changes by more than one standard deviation across five
 independent sweeps, each comprising 30 measurement windows, consistent with the
 empirically calibrated thresholds $\theta_C \approx 0.50$ and
-$\theta_B \approx 0.40$ (see Supplementary Appendix~A).
+$\theta_B \approx 0.40$ (see Supplementary Note~1).
 
 \subsection*{Scientific computing workload details}
 
@@ -143,10 +145,13 @@ $W_{\mathrm{act}}$ is the peak activation memory over a prefill+decode cycle
 ($B \cdot \ell \cdot L \cdot 4 d_{\mathrm{model}} \cdot s_{\mathrm{dtype}}$),
 and $W_{\mathrm{kv}}$ is the KV-cache footprint
 ($2 B L H d_h \ell \, s_{\mathrm{dtype}}$).
+FlashAttention-style fused kernels~\cite{dao2022flashattention} reduce
+$W_{\mathrm{act}}$ but affect neither $W_{\mathrm{param}}$ nor
+$W_{\mathrm{kv}}$.
 $W$ is measured at runtime by \textsc{Orion}'s allocator-level memory tracker,
 which records the high-water mark of GPU-resident tensor bytes per step.
 Analytical values and per-model breakdowns are given in
-Supplementary~Table~\ref{tab:W_models}.
+Supplementary~Table~9.
 
 \subsection*{Measurement protocol}
 
@@ -159,7 +164,7 @@ Latency statistics (mean, variance) are first computed within each sweep;
 sweep-level estimates are then aggregated across the five sweeps.
 Bootstrap resampling (1,000 replicates, sampling windows within sweeps with
 replacement) yields 95\,\% confidence intervals; these are reported in the main
-text and Supplementary Appendix~B.
+text and Supplementary Note~2.
 The effective sample size is $n_{\mathrm{eff}} \approx 150$ per condition.
 
 \textbf{Sharpness coefficient $S$ and numerical differentiation.}
@@ -218,9 +223,9 @@ miss\_volume / effective\_HBM\_bandwidth.
 The HBM miss-penalty per byte $\rho$ (platform constant in
 Eq.~\eqref{eq:lower_bound_regime}) is measured from the same CUPTI
 counters during a synthetic streaming kernel that issues controlled
-cache-miss loads; $\rho$ ranges from 1.2 to 3.1~ns/byte across the five
+cache-miss loads; $\rho$ ranges from 2.1 to 6.2~ns/byte across the five
 platforms and platform-specific values are listed in Supplementary
-Table~A.1.
+Table~1.
 
 \textbf{$T_{\mathrm{swap}}$} is measured directly from DMA transfer logs
 produced by \textsc{Orion}'s asynchronous transfer engine, which records
@@ -272,28 +277,5 @@ Generalisation to unseen hardware configurations, novel memory-tier
 arrangements, or qualitatively different bandwidth profiles has not been
 validated and is an open direction for future work.
 
-\subsection*{Code and data availability}
-
-The \textsc{Orion} measurement framework, including the DMA rate-limiter,
-NUMA-aware memory manager, CUPTI instrumentation wrappers, and the regime
-probing scripts used to generate all figures and tables, is available at
-\url{https://github.com/[anonymised-for-review]}.
-The repository includes: (i) installation and build instructions for all
-five hardware platforms; (ii) pre-processed latency traces for all reported
-experiments, including TPU v4, Inferentia2, MI250, and Optane-PMem platforms;
-(iii) the regime classifier training data and cross-validation scripts.
-Raw measurement logs (\texttt{.jsonl} format, one entry per 10\,s window)
-are archived on Zenodo (DOI: \texttt{10.5281/zenodo.XXXXXXX}; to be
-confirmed upon acceptance).
-
-\textbf{Note on reproduction scripts.}
-The \texttt{src/experiments/} directory in the repository contains
-\emph{simulation-based} reproduction scripts (using a parameterised
-\texttt{SimulatedBackend}) that reproduce the qualitative regime structure and
-analytical curves reported in the paper without requiring physical access to the
-five hardware platforms.
-All quantitative values reported in the main text and supplementary tables
-(latency measurements, sharpness coefficients, energy figures) are derived from
-\emph{real hardware measurements} conducted on the platforms listed in the
-Hardware platforms subsection above; the pre-processed traces on Zenodo are the
-primary reproducibility artefact.
+%% Data/Code availability statements moved to standalone sections in
+%% main.tex, per Nature Portfolio requirements.

@@ -7,7 +7,7 @@
 %%  are recast around "intelligent systems" and "discovery".
 %% ============================================================
 
-\section{Introduction}
+%% NMI format: the introduction carries no heading.
 \label{sec:introduction}
 
 The intelligence of modern foundation models is increasingly delivered not at
@@ -38,7 +38,8 @@ prerequisite for the viability of inference-driven AI.
 Existing systems reduce memory pressure via CPU/NVMe
 offloading~\cite{flexgen2023,aminabadi2022deepspeedinference},
 GPU--CPU swapping~\cite{huang2020swapadvisor},
-and KV-cache management~\cite{kwon2023pagedattention}.
+KV-cache management~\cite{kwon2023pagedattention},
+and iteration-level request scheduling in serving engines~\cite{yu2022orca}.
 These techniques deliver substantial gains in some configurations yet show
 diminishing returns---or even performance inversion---in others.
 Prior work explains this heterogeneity through workload-specific factors
@@ -111,7 +112,7 @@ $R_B = 16.1 \times 0.12 / 1.2 = 1.61$ (well inside the coordination-dominated
 regime).
 By contrast, constraining HBM to 20\,GB forces $R_C = 0.48$ and
 $D \approx 20.9$\,GB of eviction traffic per step, pushing the same workload
-deep into the capacity-limited regime (see Supplementary Appendix~A for the
+deep into the capacity-limited regime (see Supplementary Note~1 for the
 full quantitative derivation).
 Any practitioner can compute these two ratios from hardware datasheets and
 model-card parameter counts---before running a single experiment.
