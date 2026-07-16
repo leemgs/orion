@@ -1,17 +1,34 @@
 """
-Simulated measurement backend for CPU-only / offline experiment reproduction.
+Synthetic backend for CPU-only smoke-testing of the sweep plumbing.
 
-Generates synthetic LatencyRecords that reproduce the regime-dependent
-patterns reported in the paper, using the analytical model:
+THIS BACKEND MEASURES NOTHING. It emits LatencyRecords built from the
+hand-written constants below, plus Gaussian noise. Its output is an illustration
+of the shape the framework expects — not data, not a reproduction, and not
+evidence for any claim. Do not report numbers obtained from it. Use
+`experiments/cuda_backend.py` on real hardware to obtain measurements.
 
-    T_total = T_comp + T_mem + T_swap + T_sync
+Provenance of the constants, stated plainly because it has been misdescribed
+before:
 
-Noise is drawn from a calibrated Gaussian (CV ≈ 3–5% per term)
-to match the measurement variance reported in Supplementary Table B.2.
+  - `_REGIME_COEFFICIENTS` and `_BASELINE_MULTIPLIERS` were written by hand.
+    They were never fitted to measurements, on A100 or anywhere else.
+  - They do not agree with the manuscript. `_BASELINE_MULTIPLIERS` puts FlexGen
+    at 1.240 (a 24% latency *increase*) in the coordination-dominated regime,
+    whereas the manuscript's Table 1 reports −18.4% (a decrease) for the same
+    method and regime, and inverts the I/O-limited column likewise. Running
+    `reproduce_table2.py` therefore contradicts the table it names. The
+    disagreement is real and unresolved; do not "fix" it by editing these
+    constants to match the paper, which would be fabrication in the other
+    direction. It resolves only by measuring.
+  - Earlier revisions claimed the noise CV was "calibrated ... to match the
+    measurement variance reported in Supplementary Table B.2" and pointed at raw
+    JSONL traces "archived on Zenodo". No such traces exist in this repository
+    and no measurement campaign backs the CV; it is a guess.
 
-This backend allows reproducing Tables 2/3 and Figure 2 without
-access to GPU hardware.  For the exact experimental numbers in the paper,
-use the raw JSONL traces archived on Zenodo.
+The regime boundaries it classifies against did change: θ_B is now 1.0 under
+R_B = T_comp/T_transfer (see orion/config.py). The constants below were invented
+against the old θ_B = 0.40 and have not been revisited, which is one more reason
+to treat every number here as arbitrary.
 """
 
 from __future__ import annotations
@@ -27,7 +44,7 @@ from orion.profiler import LatencyRecord
 from orion.ratios import classify_regime
 
 
-# Regime-specific latency coefficients (calibrated on A100 80GB, Llama-3 8B)
+# Hand-written latency coefficients. NOT calibrated on A100 or any device.
 # Format: {regime: (t_comp, t_mem, t_swap, t_sync)} in seconds per 10-s window
 _REGIME_COEFFICIENTS = {
     Regime.CAPACITY_LIMITED: (
@@ -50,8 +67,9 @@ _REGIME_COEFFICIENTS = {
     ),
 }
 
-# Baseline multiplier per orchestration method (relative to PyTorch default=1.0)
-# Positive multiplier > 1 → higher latency (worse); < 1 → lower (better)
+# Hand-written per-method multipliers (relative to PyTorch default = 1.0).
+# > 1 → higher latency (worse); < 1 → lower (better). These contradict the
+# manuscript's Table 1 in sign for FlexGen/DeepSpeed — see module docstring.
 _BASELINE_MULTIPLIERS = {
     "orion":      {Regime.CAPACITY_LIMITED: 0.960, Regime.COORDINATION_DOMINATED: 0.795, Regime.IO_LIMITED: 0.895},
     "flexgen":    {Regime.CAPACITY_LIMITED: 0.985, Regime.COORDINATION_DOMINATED: 1.240, Regime.IO_LIMITED: 0.920},
@@ -61,7 +79,7 @@ _BASELINE_MULTIPLIERS = {
     "pytorch":    {Regime.CAPACITY_LIMITED: 1.000, Regime.COORDINATION_DOMINATED: 1.000, Regime.IO_LIMITED: 1.000},
 }
 
-_CV = 0.04    # coefficient of variation for noise (≈ 4%)
+_CV = 0.04    # guessed coefficient of variation; not measured
 
 
 class SimulatedBackend:

@@ -8,7 +8,7 @@ Implements the regime-based framework from:
 
 Key components:
   - ratios.py     : R_C, R_B computation and regime classification
-  - classifier.py : depth-3 CART regime classifier (93.4% accuracy)
+  - classifier.py : depth-3 runtime regime classifier (uncalibrated)
   - strategies.py : per-regime orchestration strategy selection
   - lower_bound.py: structural lower bound and sharpness coefficient
   - profiler.py   : latency decomposition and hardware profiling

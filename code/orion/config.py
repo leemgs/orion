@@ -1,10 +1,37 @@
 """
 Orion configuration constants.
 
-Regime thresholds and physical constants derived from the paper:
+Regime thresholds:
   θ_C = 0.50  (majority-eviction threshold, hardware-independent)
-  θ_B = 0.40  (I/O saturation threshold, PCIe-calibrated)
+  θ_B = 1.00  (overlap threshold: transfer stops hiding behind compute)
   S*  = 2.0   (sharpness criterion for abrupt transition)
+
+θ_B was 0.40 in earlier revisions, under the definition R_B = B_slow·Δt/D with
+Δt the *step duration*. That definition is not well posed. Steady state requires
+the link to deliver D bytes every Δt seconds, so D/Δt ≤ B_slow and therefore
+
+    R_B = B_slow·Δt/D ≥ 1        always, on any hardware.
+
+R_B < 1 is not an operating point but a diverging queue: the backlog grows, Δt
+stretches, and R_B returns to 1. Under that definition θ_B = 0.40 named a state
+the system cannot occupy, and the whole I/O-limited regime was unreachable.
+
+Taking Δt := T_comp instead makes the ratio an overlap ratio,
+
+    R_B = B_slow·T_comp/D = T_comp / T_transfer
+
+which is well posed, reachable on both sides, and puts the boundary at exactly
+1.0 — the point where transfer stops fitting behind compute. That value is
+derived, not calibrated. See orion/ratios.py and README §Reachability.
+
+θ_C's status is weaker and is NOT resolved here. Its "derivation" from the
+majority-eviction condition (miss volume W(1-R_C) > W/2 ⟺ R_C < 1/2) is a
+restatement of the definition, not a physical argument: the miss volume is
+linear and continuous in R_C, so nothing distinguishes 1/2 as critical. The
+structural lower bound implies a sharpness S = ρW·R_C/T that increases
+monotonically in R_C and cannot exceed 1 at R_C = 0.50 — so the bound cannot
+produce an abrupt transition there. θ_C = 0.50 is retained as an empirical
+convention pending measurement; treat it as unvalidated.
 """
 
 from dataclasses import dataclass, field
@@ -17,8 +44,8 @@ class Regime(Enum):
     IO_LIMITED           = auto()   # R_B < θ_B
 
 
-THETA_C: float = 0.50   # fast-memory residency threshold
-THETA_B: float = 0.40   # transfer-pressure threshold
+THETA_C: float = 0.50   # fast-memory residency threshold (empirical convention)
+THETA_B: float = 1.00   # overlap threshold: T_comp == T_transfer (derived)
 S_STAR:  float = 2.0    # sharpness criterion (|d ln T / d ln R|)
 
 # Measurement protocol constants (Methods §)

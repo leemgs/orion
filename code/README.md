@@ -154,18 +154,138 @@ python experiments/run_regime_sweep.py \
     --output-dir results/a100_sweep
 ```
 
-The sweep varies R_C ∈ {0.10 … 2.00} and R_B ∈ {0.10 … 2.00} (14 grid points each).  
-A 60-second warm-up period precedes each operating point.  
-Total runtime: approximately 5–8 hours for the full grid.
+The sweep varies R_C ∈ {0.10 … 2.00} and R_B ∈ {0.10 … 2.00} (14 grid points each).
+A 60-second warm-up period precedes each operating point.
+Grid points that the hardware cannot realise are skipped and recorded, with a
+reason, under `rc_unreachable` / `rb_unreachable` in `summary.json` — see
+*Reachability* below, which affects far more of the grid than one might expect.
+
+### Live measurement caveats
+
+These are properties of the measurement, not bugs, and they constrain what the
+live backend can report.
+
+**Nothing is synthesised.** Every field of a live `LatencyRecord` is a device
+measurement. When a quantity cannot be measured the backend raises
+`MeasurementUnavailable` or records `NaN`. `--mode live` will *not* silently
+fall back to `--mode simulate`: simulated records are synthetic and must never
+be reported as measurements.
+
+**T_mem needs a separate pass.** Nsight Compute replays kernels to read HBM
+counters, which perturbs the very timings under study, so counters cannot be
+collected inside a timed window. Live windows carry `t_mem = NaN` until
+`CUDABackend.attach_mem_counters()` supplies a miss volume from an `ncu` pass at
+the same operating point. `ncu` also needs GPU performance-counter permissions
+(NVIDIA `ERR_NVGPUCTRPERM`).
+
+**T_comp and T_mem overlap.** Kernel time already contains the HBM stall cycles
+that T_mem quantifies, so `t_comp + t_mem` double-counts them. The additive
+four-term decomposition needs a compute-only definition of T_comp to be well
+posed. `LatencyRecord.completeness_error` surfaces this rather than hiding it.
+
+**T_swap is exposed stall, not transfer time.** Transfers that fully overlap
+compute cost nothing end-to-end, so the backend charges only the time the
+compute stream is *blocked* on a staging copy. This is what makes an additive
+decomposition physically meaningful.
+
+**ρ is measured, not assumed.** `calibrate_rho()` runs a streaming microbenchmark
+whose working set far exceeds L2 and derives ρ = 1/effective_HBM_bandwidth from
+the achieved rate. The `HardwareProfile.rho` constants in `config.py` are used
+only if calibration is explicitly disabled; they have not been reconciled with
+measured bandwidth.
+
+**Weights are random by default.** Latency depends on tensor shapes, dtypes and
+residency, not on weight values, so this is sound for regime characterisation —
+but such a run measures the architecture, not a specific checkpoint.
+
+### Reachability: which operating points exist
+
+Two hard limits bound the (R_C, R_B) grid, and both bite at realistic
+batch/sequence settings:
+
+**R_C floor.** Activations and the KV cache must be resident for a step to run,
+so only parameter bytes are tradeable. This puts a floor under R_C:
+
+```
+R_C ≥ (W_act + W_kv) / W
+```
+
+For Llama-3 8B at batch=8, seq=2048 (`config.py`: W=41.8 GB, W_act=17.2 GB,
+W_kv=8.6 GB) the floor is **0.617** — above θ_C = 0.50. The capacity-limited
+regime is not reachable at this configuration; reaching it requires a smaller
+batch or sequence length, or offloading activations too.
+
+**R_B ceiling.** The token bucket can only throttle *below* the link's sustained
+rate, so:
+
+```
+R_B ≤ B_hw · T_comp / D
+```
+
+Raising R_B past that requires shrinking D (more residency, smaller batch) —
+bandwidth cannot be added in software. The backend raises
+`MeasurementUnavailable` with the implied cap rather than silently running at a
+different R_B than requested.
+
+**R_C and R_B are coupled.** D grows as R_C falls, so R_B is a function of R_C.
+They decouple only via the throttle, and only downward: at each R_C the reachable
+set is R_B ≤ B_hw·T_comp/D(R_C). The probe region is a **triangle**, not the
+rectangle a naive grid sweep assumes.
+
+Run `python experiments/plan_reachable_grid.py` (no GPU needed) to see which
+(batch, seq) admit all three regimes on your platform before booking GPU time.
+For Llama-3 8B on an A100, batch=8/seq=2048 does **not** — batch=1/seq=512 does.
+
+### Correction to R_B (θ_B = 1.0, not 0.40)
+
+`config.THETA_B` is 1.0. The manuscript uses 0.40. The change is not a
+recalibration; the old definition was not well posed.
+
+The paper defines R_B = B_slow·Δt/D with Δt the **step duration**. Steady state
+requires the link to deliver D bytes every Δt seconds, so D/Δt ≤ B_slow and
+therefore:
+
+```
+R_B = B_slow·Δt/D ≥ 1        always, on any hardware
+```
+
+R_B < 1 is not an operating point but a diverging queue: the backlog grows, Δt
+stretches, and R_B returns to 1. R_B = 1 is an attractor, not a boundary. Under
+that definition θ_B = 0.40 named a state the system cannot occupy, and every
+I/O-limited operating point in the manuscript (R_B = 0.55, 0.18, 0.22, 0.26) sits
+in infeasible territory. The one self-consistent R_B in the paper is the
+Introduction's 1.61.
+
+Substituting Δt := T_comp makes it an **overlap ratio**:
+
+```
+R_B = B_slow·T_comp/D = T_comp / T_transfer
+```
+
+well posed, reachable on both sides, and with the boundary at exactly **1.0** —
+where transfer stops fitting behind compute. That value is derived, not fitted,
+and is identical across platforms. `ratios.predict_theta_b()`, which fitted θ_B
+per platform from free parameters α_wb and α_q, is correspondingly obsolete and
+now raises.
+
+θ_C = 0.50 is **not** repaired by this and remains unvalidated — its
+majority-eviction "derivation" restates the definition rather than arguing
+physics, and the structural lower bound implies sharpness S ≤ 1 at R_C = 0.50,
+so the bound cannot produce an abrupt transition there. See `orion/config.py`.
 
 ### Other platforms
 
-| Platform | Software stack | Notes |
-|----------|---------------|-------|
-| Google TPU v4 | JAX 0.4.26 | Regime boundaries consistent within ±0.05 |
-| AWS Inferentia2 | NeuronSDK 2.18 | θ_B error ~12.4% (proprietary interconnect) |
-| AMD MI250 | ROCm 6.0 | Verified via ROCm CUPTI equivalents |
-| Intel Xeon + Optane-PMem | PyTorch 2.4 | DRAM as fast tier; no GPU HBM |
+Backend adapters for these platforms are **not implemented**. Each needs a class
+exposing `measure(r_c, r_b) -> LatencyRecord` and `warmup(sec)`, registered via
+`HardwareProfiler.register_backend()`; `experiments/cuda_backend.py` is the
+reference implementation to port.
+
+| Platform | Software stack | Status |
+|----------|---------------|--------|
+| Google TPU v4 | JAX 0.4.26 | adapter not implemented |
+| AWS Inferentia2 | NeuronSDK 2.18 | adapter not implemented |
+| AMD MI250 | ROCm 6.0 | adapter not implemented; ROCm exposes rocm-smi and rocprof rather than NVML/CUPTI |
+| Intel Xeon + Optane-PMem | PyTorch 2.4 | adapter not implemented; DRAM as fast tier, no GPU HBM |
 
 Platform-specific backend adapters are not included (hardware unavailable for open release). Implement `measure(r_c, r_b) → LatencyRecord` and register via `HardwareProfiler.register_backend()`.
 

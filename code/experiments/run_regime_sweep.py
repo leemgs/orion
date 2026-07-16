@@ -32,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import statistics
 from orion.config import N_SWEEPS, N_WINDOWS, THETA_C, THETA_B, A100_80GB
+from orion.nvml_monitor import MeasurementUnavailable
 from orion.profiler import HardwareProfiler, validate_completeness
 from orion.ratios import classify_regime
 from orion.lower_bound import sharpness_coefficient
@@ -56,16 +57,28 @@ def run_rc_sweep(
 ) -> dict:
     """Sweep R_C at fixed R_B, return latency and sharpness statistics."""
     results = []
+    unreachable = []
     for rc in RC_GRID:
         sweep_means = []
-        for s in range(n_sweeps):
-            records = profiler.run_sweep(
-                r_c=rc, r_b=r_b_fixed, sweep_id=s, n_windows=n_windows,
-                warmup_sec=0,    # skip warmup in grid sweep for speed
-            )
-            valid = [r for r in records if r.is_valid()]
-            if valid:
-                sweep_means.append(statistics.mean(r.t_total for r in valid))
+        try:
+            for s in range(n_sweeps):
+                records = profiler.run_sweep(
+                    r_c=rc, r_b=r_b_fixed, sweep_id=s, n_windows=n_windows,
+                    warmup_sec=0,    # skip warmup in grid sweep for speed
+                )
+                valid = [r for r in records if r.is_valid()]
+                if valid:
+                    sweep_means.append(statistics.mean(r.t_total for r in valid))
+        except MeasurementUnavailable as exc:
+            unreachable.append({"r_c": rc, "r_b": r_b_fixed, "reason": str(exc)})
+            print(f"  R_C={rc:.2f}  SKIPPED — {exc}")
+            continue
+
+        if not sweep_means:
+            unreachable.append({"r_c": rc, "r_b": r_b_fixed,
+                                "reason": "no window passed the validity check"})
+            print(f"  R_C={rc:.2f}  SKIPPED — no valid window")
+            continue
 
         stats = SweepStats(sweep_means)
         regime = classify_regime(rc, r_b_fixed)
@@ -81,14 +94,25 @@ def run_rc_sweep(
         print(f"  R_C={rc:.2f}  regime={regime.name:24s}  "
               f"T={stats.grand_mean:.4f}s ± {stats.std:.4f}s")
 
+    if len(results) < 3:
+        raise MeasurementUnavailable(
+            f"only {len(results)} of {len(RC_GRID)} R_C grid points were "
+            f"reachable; a sharpness estimate needs at least three. The "
+            f"working set may leave no room to vary residency at this batch "
+            f"and sequence length."
+        )
+
     # Sharpness coefficient S across R_C boundary
     t_vals = [r["t_mean"] for r in results]
     r_vals = [r["r_c"] for r in results]
     s_boundary = sharpness_coefficient(t_vals, r_vals)
-    print(f"\n  Sharpness S at θ_C boundary: {s_boundary:.2f} "
-          f"(paper: 4.12, S* = 2.0)")
+    print(f"\n  Sharpness S at θ_C boundary: {s_boundary:.2f} (S* = 2.0)")
+    if unreachable:
+        print(f"  {len(unreachable)}/{len(RC_GRID)} grid points unreachable — "
+              f"see summary.json")
 
-    return {"rc_sweep": results, "s_at_theta_c": s_boundary}
+    return {"rc_sweep": results, "s_at_theta_c": s_boundary,
+            "rc_unreachable": unreachable}
 
 
 def run_rb_sweep(
@@ -99,16 +123,28 @@ def run_rb_sweep(
 ) -> dict:
     """Sweep R_B at fixed R_C, return latency and sharpness statistics."""
     results = []
+    unreachable = []
     for rb in RB_GRID:
         sweep_means = []
-        for s in range(n_sweeps):
-            records = profiler.run_sweep(
-                r_c=r_c_fixed, r_b=rb, sweep_id=s, n_windows=n_windows,
-                warmup_sec=0,
-            )
-            valid = [r for r in records if r.is_valid()]
-            if valid:
-                sweep_means.append(statistics.mean(r.t_total for r in valid))
+        try:
+            for s in range(n_sweeps):
+                records = profiler.run_sweep(
+                    r_c=r_c_fixed, r_b=rb, sweep_id=s, n_windows=n_windows,
+                    warmup_sec=0,
+                )
+                valid = [r for r in records if r.is_valid()]
+                if valid:
+                    sweep_means.append(statistics.mean(r.t_total for r in valid))
+        except MeasurementUnavailable as exc:
+            unreachable.append({"r_c": r_c_fixed, "r_b": rb, "reason": str(exc)})
+            print(f"  R_B={rb:.2f}  SKIPPED — {exc}")
+            continue
+
+        if not sweep_means:
+            unreachable.append({"r_c": r_c_fixed, "r_b": rb,
+                                "reason": "no window passed the validity check"})
+            print(f"  R_B={rb:.2f}  SKIPPED — no valid window")
+            continue
 
         stats = SweepStats(sweep_means)
         regime = classify_regime(r_c_fixed, rb)
@@ -124,12 +160,24 @@ def run_rb_sweep(
         print(f"  R_B={rb:.2f}  regime={regime.name:24s}  "
               f"T={stats.grand_mean:.4f}s ± {stats.std:.4f}s")
 
+    if len(results) < 3:
+        raise MeasurementUnavailable(
+            f"only {len(results)} of {len(RB_GRID)} R_B grid points were "
+            f"reachable; a sharpness estimate needs at least three. Note that "
+            f"R_B is capped at B_slow*dt/D — raising it requires shrinking D, "
+            f"not throttling."
+        )
+
     t_vals = [r["t_mean"] for r in results]
     r_vals = [r["r_b"] for r in results]
     s_boundary = sharpness_coefficient(t_vals, r_vals)
     print(f"\n  Sharpness S at θ_B boundary: {s_boundary:.2f}")
+    if unreachable:
+        print(f"  {len(unreachable)}/{len(RB_GRID)} grid points unreachable — "
+              f"see summary.json")
 
-    return {"rb_sweep": results, "s_at_theta_b": s_boundary}
+    return {"rb_sweep": results, "s_at_theta_b": s_boundary,
+            "rb_unreachable": unreachable}
 
 
 def main() -> None:
@@ -162,12 +210,24 @@ def main() -> None:
     else:
         try:
             from experiments.cuda_backend import CUDABackend
-            backend = CUDABackend(platform=args.platform)
-            profiler.register_backend(backend)
-            print(f"[Live CUDA] platform={args.platform}")
-        except ImportError:
-            print("ERROR: cuda_backend not available. Use --mode simulate.")
+            from orion.nvml_monitor import MeasurementUnavailable
+        except ImportError as exc:
+            print(f"ERROR: cannot import the live backend: {exc}")
             sys.exit(1)
+        try:
+            backend = CUDABackend(platform=args.platform)
+        except MeasurementUnavailable as exc:
+            print(f"ERROR: live measurement is not possible here:\n  {exc}")
+            print("\nRefusing to fall back to --mode simulate: simulated records "
+                  "are synthetic and must never be reported as measurements.")
+            sys.exit(1)
+        profiler.register_backend(backend)
+        print(f"[Live CUDA] platform={args.platform}  "
+              f"device={backend.nvml.device_name()}")
+        if backend.calibration is not None:
+            cal = backend.calibration
+            print(f"  measured HBM bandwidth: {cal.effective_bw_gbs:.0f} GB/s  "
+                  f"-> rho = {cal.rho_ps_per_byte:.3f} ps/byte")
 
     print("\n=== R_C sweep (R_B fixed at 1.61) ===")
     rc_results = run_rc_sweep(profiler, n_sweeps=args.n_sweeps,

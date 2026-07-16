@@ -11,8 +11,15 @@ scipy>=1.11
 # Optional: visualisation
 matplotlib>=3.8
 
-# Optional: hardware monitoring (live experiments only)
-# pynvml>=11.0        # NVML Python bindings (NVIDIA GPU)
+# Live measurement (--mode live). Install with: pip install -e '.[gpu]'
+# Both are hard requirements for the CUDA backend; it refuses to run without
+# them rather than falling back to synthetic records.
+# torch>=2.4          # CUDA events, streams, pinned host staging
+# pynvml>=11.0        # clock gate, power integration, PCIe throughput readback
+#
+# T_mem additionally needs Nsight Compute (`ncu`) on PATH for HBM counters.
+# It ships with the CUDA Toolkit and is not a pip dependency. Without it,
+# t_mem is recorded as NaN — never estimated.
 # pyamdgpu            # AMD ROCm monitoring (MI250)
 
 # Development

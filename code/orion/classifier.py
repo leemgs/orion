@@ -1,19 +1,36 @@
 """
 Regime classifier for Orion (Methods §Regime classifier).
 
-A depth-3 CART decision tree trained on 2,400 probing measurements
-covering all three regimes and five hardware platforms.
-Cross-validated accuracy: 93.4% ± 1.2%.
-Inference cost: < 0.1 ms per classification step.
+A depth-3 decision tree over runtime features, used when R_C and R_B are not
+directly available. When they are, `orion.ratios.classify_regime` decides
+analytically and this tree is bypassed.
 
-Runtime features used:
   - swap_to_comp_ratio:  T_swap / T_comp (DMA log vs. CUDA events)
   - cache_hit_rate:      L2 cache hit rate from CUPTI HBM counters
   - dma_utilisation:     fraction of token-bucket slots consumed per window
 
-The classifier runs every 100 ms during inference and triggers a
-strategy switch when regime changes for ≥ 2 consecutive windows
-(hysteresis guard to suppress transient misclassifications).
+The classifier runs every 100 ms during inference and triggers a strategy
+switch when the regime changes for ≥ 2 consecutive windows (hysteresis guard
+against transient misclassification).
+
+UNCALIBRATED — read before relying on this tree.
+
+Earlier revisions of this file described it as "a depth-3 CART tree trained on
+2,400 probing measurements across five hardware platforms" with a
+cross-validated accuracy of "93.4% ± 1.2%". No such training corpus exists in
+this repository, and no training or cross-validation code has ever existed here:
+the thresholds below were hand-written, not fitted, so the accuracy figure has
+no derivation and is not reproducible. It has been removed rather than restated.
+
+The thresholds are additionally stale. They were hand-set against θ_B = 0.40,
+i.e. against a definition of R_B under which the I/O-limited regime was
+unreachable in steady state (see config.py). `dma_utilisation > 0.78` in
+particular was meant to detect link saturation under that definition.
+
+Treat the tree as a placeholder. Establishing an error rate requires collecting
+labelled windows on real hardware — `experiments/cuda_backend.py` emits exactly
+the features needed — and fitting the splits against them. Until then, prefer
+the analytical path by passing r_c and r_b in RuntimeFeatures.
 """
 
 from __future__ import annotations
@@ -54,9 +71,8 @@ class ClassifierNode:
 
 def _build_default_tree() -> ClassifierNode:
     """
-    Hand-coded depth-3 CART tree calibrated on A100 training data.
-    Thresholds derived from cross-validated splits over the 2,400-sample
-    training corpus (Supplementary Table D.1).
+    Hand-written depth-3 tree. The thresholds are guesses, not fitted splits,
+    and they predate the θ_B correction — see the module docstring.
 
     Tree structure:
         Node 1: swap_to_comp_ratio < 0.15?
