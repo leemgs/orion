@@ -259,10 +259,19 @@ sudo apt-get install -y evince
 단일 시작파일 `main.tex` (Springer Nature 템플릿)를 빌드합니다.
 
 ```bash
-./run.sh
+./run.sh                # 리뷰용: Reference 섹션에 각 논문의 URL 출력 (열람용)
+./run.sh --submission   # 투고용: Reference 섹션에서 URL 제거
 ```
 
-`main.pdf` 파일이 생성됩니다. (이것이 NMI 투고본입니다.)
+`main.pdf` 파일이 생성됩니다. (투고 시에는 `--submission` 으로 빌드한 PDF를 사용합니다.)
+
+### Reference URL 토글 (`--submission`)
+
+- 기본 빌드는 `reference-data.bib`의 `url={...}` 필드를 그대로 출력하여,
+  참고문헌마다 원문을 바로 열람할 수 있는 링크가 Reference 섹션에 표시됩니다.
+- `--submission` 빌드는 bibtex 실행 전에 `url={...}` 필드만 임시로 제거하고
+  빌드 종료 시 `reference-data.bib`을 자동 복원합니다.
+- `note`/`howpublished` 안의 `\url{}` (웹 자료 자체가 출처인 항목)은 유지됩니다.
 
 ### `run.sh` 내부 동작 순서
 
