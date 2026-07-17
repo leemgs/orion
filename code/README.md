@@ -3,16 +3,26 @@
 Reference implementation for:
 
 > **"Hierarchical memory orchestration in AI inference exhibits intrinsic regime-dependent limits"**  
-> *Nature Computational Science* (under review)
+> Primary submission target: *Nature Machine Intelligence*
 
-This directory contains the Orion measurement framework and all scripts needed to reproduce the paper's results.
+This directory contains the Orion measurement framework and the scripts used to reproduce the manuscript's figures, tables, and regime-classification results. The code documentation follows the current Nature Machine Intelligence (NMI) framing: ORION is presented as evidence for a general principle of memory-bound machine intelligence, while preserving a strict distinction between simulated reproduction and real-hardware measurements.
+
+### NMI manuscript alignment
+
+- **Scientific claim:** hierarchical memory orchestration exhibits three intrinsic operating regimes separated by abrupt, phase-like transitions.
+- **Generality:** the framework uses dimensionless ratios, R_C and R_B, to compare hardware platforms and AI workloads.
+- **Strategy inversion:** an optimization that improves latency in one regime can degrade it in another.
+- **Reproducibility:** CPU-only simulation reproduces the qualitative regime structure; quantitative values reported as hardware measurements must come from live traces.
+- **Transparency:** unavailable counters are reported as `NaN` or `MeasurementUnavailable`; live mode never falls back silently to simulation.
+
+The NMI-framed manuscript sources are [`../paper/section/006_abstract_nmi.tex`](../paper/section/006_abstract_nmi.tex) and [`../paper/section/010_introduction_nmi.tex`](../paper/section/010_introduction_nmi.tex). Build and submission instructions are in [`../paper/README.md`](../paper/README.md).
 
 ---
 
 ## Directory structure
 
 ```
-src/
+code/
 ├── orion/                      # Core Orion framework
 │   ├── config.py               #   Thresholds, hardware profiles, model specs
 │   ├── ratios.py               #   R_C, R_B computation & regime classification
@@ -48,7 +58,7 @@ src/
 ### Install (simulated mode)
 
 ```bash
-cd src/
+cd code/
 pip install -e ".[plot]"
 # or without pip install:
 pip install numpy scipy matplotlib
@@ -69,12 +79,12 @@ pip install deepspeed>=0.14
 ## Quick start — verify installation
 
 ```python
-import sys; sys.path.insert(0, 'src')
+import sys; sys.path.insert(0, 'code')
 from orion import from_hardware_model, A100_80GB, LLAMA3_8B
 
 # Reproduce paper worked example (Introduction):
 # Llama-3 8B at batch=8 on 80 GB HBM server
-op = from_hardware_model(A100_80GB, LLAMA3_8B, delta_t_s=0.120, d_bytes=1.2e9)
+op = from_hardware_model(A100_80GB, LLAMA3_8B, t_comp_s=0.120, d_bytes=1.2e9)
 print(f"R_C = {op.r_c:.2f}   (paper: 1.91)")  # 1.92
 print(f"R_B = {op.r_b:.2f}   (paper: 1.61)")  # 1.61
 print(f"Regime: {op.regime.name}")              # COORDINATION_DOMINATED
@@ -82,15 +92,15 @@ print(f"Regime: {op.regime.name}")              # COORDINATION_DOMINATED
 
 ---
 
-## Reproducing paper results
+## Reproducing the NMI manuscript results
 
 All experiments can be reproduced **without GPU** using the simulated backend.  
-For exact numerical match to paper figures, use the raw JSONL traces on [Zenodo](https://doi.org/10.5281/zenodo.XXXXXXX).
+The simulated backend reproduces the qualitative regime structure and exercises the complete analysis pipeline; it must not be presented as real-hardware evidence. Exact quantitative reproduction requires the raw JSONL hardware traces. The Zenodo DOI remains a placeholder until the archive is published.
 
 ### Table 2 — Regime-dependent strategy inversion
 
 ```bash
-cd src/
+cd code/
 python experiments/reproduce_table2.py
 ```
 
@@ -238,7 +248,7 @@ For Llama-3 8B on an A100, batch=8/seq=2048 does **not** — batch=1/seq=512 doe
 
 ### Correction to R_B (θ_B = 1.0, not 0.40)
 
-`config.THETA_B` is 1.0. The manuscript uses 0.40. The change is not a
+`config.THETA_B` is 1.0. Some manuscript results still use 0.40. The change is not a
 recalibration; the old definition was not well posed.
 
 The paper defines R_B = B_slow·Δt/D with Δt the **step duration**. Steady state
@@ -299,7 +309,7 @@ Platform-specific backend adapters are not included (hardware unavailable for op
 from orion import compute_rc, compute_rb, classify_regime
 
 r_c = compute_rc(c_fast_bytes=80e9, w_bytes=41.8e9)   # 1.91
-r_b = compute_rb(b_slow_bps=16.1e9, delta_t_s=0.120, d_bytes=1.2e9)  # 1.61
+r_b = compute_rb(b_slow_bps=16.1e9, t_comp_s=0.120, d_bytes=1.2e9)  # 1.61
 regime = classify_regime(r_c, r_b)                    # COORDINATION_DOMINATED
 ```
 
@@ -354,10 +364,10 @@ print(f"Regime switches: {orc.metrics.n_regime_switches}")
 
 ## Data availability
 
-Raw measurement logs (JSONL format, one entry per 10-second window) for all reported experiments are archived on Zenodo:
+Raw measurement logs use JSONL format with one entry per 10-second window. The planned Zenodo record is:
 
 **DOI: [10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX)**  
-*(DOI to be confirmed upon acceptance)*
+*(Placeholder; replace with the deposited DOI before submission or publication.)*
 
 Each JSONL entry contains: `timestamp`, `r_c`, `r_b`, `t_comp`, `t_mem`, `t_swap`, `t_sync`, `t_wall`, `platform`, `model`, `sweep_id`, `window_id`.
 
@@ -430,8 +440,8 @@ python experiments/reproduce_figure2.py --save-csv
   title   = {Hierarchical memory orchestration in {AI} inference exhibits
              intrinsic regime-dependent limits},
   author  = {Lim, Geunsik and others},
-  journal = {Nature Computational Science},
+  journal = {Nature Machine Intelligence},
   year    = {2026},
-  note    = {Under review},
+  note    = {Manuscript in preparation},
 }
 ```
