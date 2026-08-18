@@ -12,8 +12,7 @@ set -e
 #                             resources whose URL *is* the reference — is kept.)
 #
 # main.tex is the single entry file, built on the Springer Nature template
-# for the Nature Machine Intelligence submission. The NMI reframing toggle
-# (\ifNMIframing, default on) lives in main.tex; see README.md §4 / §8.
+# for the Nature Communications submission. See README.md §4 / §8.
 
 MAIN="main"
 BIB="reference-data.bib"
@@ -39,7 +38,7 @@ pdflatex -interaction=nonstopmode "${MAIN}.tex"
 
 echo "Done: ${MAIN}.pdf"
 
-# Supplementary Information (separate NMI submission file)
+# Supplementary Information (separate Nature Communications submission file)
 SUPP="supplementary"
 echo "[SI] building ${SUPP}.pdf..."
 pdflatex -interaction=nonstopmode "${SUPP}.tex"

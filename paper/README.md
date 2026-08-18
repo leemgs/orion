@@ -1,6 +1,6 @@
 # ORION — Regime-Dependent Limits of Hierarchical Memory Orchestration in Large-Scale AI Inference
 
-LaTeX manuscript. **Primary submission target: Nature Machine Intelligence (confirmed)** — fallback: Nature Computational Science → Nature Communications → npj. See §§8–9 for the submission strategy.
+LaTeX manuscript. **Primary submission target: Nature Communications** — fallback: Nature Computational Science → npj. See §§8–9 for the submission strategy.
 
 ---
 
@@ -48,7 +48,7 @@ flowchart LR
 | **Regime-specific strategies** | Select orchestration | Applies the optimal strategy, which may invert across regimes | `src/orion/strategies.py` |
 | **Structural lower bound** | Establish theoretical limits | Identifies unattainable regions and the sharpness coefficient S | `src/orion/lower_bound.py` |
 | **Orchestrator** | Integrated control loop | Runs Orion_HW / Orion_Full | `src/orion/orchestrator.py` |
-| **Manuscript** | Present results | `main.tex` for NMI submission (Nature template) | `section/*.tex` |
+| **Manuscript** | Present results | `main.tex` for Nature Communications submission (Nature template) | `section/*.tex` |
 
 **What you can do with this repository**
 
@@ -146,14 +146,14 @@ sequenceDiagram
 
 ```
 .
-├── main.tex                    # Single entry file — Springer Nature sn-jnl template (NMI submission) ★
-│                               #   Includes the \ifNMIframing toggle (ON by default)
+├── main.tex                    # Single entry file — Springer Nature sn-jnl template (Nature Communications submission) ★
 ├── sn-jnl.cls                  # Official Springer Nature journal class
 ├── reference-data.bib          # Bibliography database (47 entries)
 ├── latexmkrc                   # latexmk configuration (timezone)
 ├── run.sh                      # Build script (./run.sh → main.pdf)
 ├── submission/                 # Submission support documents
-│   └── nmi_presubmission_inquiry.md  # NMI presubmission inquiry (cover letter + summary)
+│   ├── ncomms_compliance_report.md   # Nature Communications compliance report
+│   └── zenodo_deposit.md             # Zenodo data-deposit metadata + description
 ├── figures/                    # Figure files
 │   ├── orion_regime_map.png    # Figure 1 — Regime map (2059×1607 px)
 │   ├── orion_consolidated.png  # Figure 2 — Experimental probes (3568×2657 px)
@@ -183,10 +183,8 @@ sequenceDiagram
 └── section/                    # Per-section .tex files (★ = used by the current single build)
     ├── 001_title.tex           # ★
     ├── 005_author_nature.tex   # sn-jnl author block ★
-    ├── 006_abstract_nature.tex # Original abstract (used when NMI toggle is OFF)
-    ├── 006_abstract_nmi.tex    # NMI-reframed abstract (toggle ON by default) ★
-    ├── 010_introduction.tex    # Original introduction (used when NMI toggle is OFF)
-    ├── 010_introduction_nmi.tex # NMI-reframed introduction (toggle ON by default) ★
+    ├── 006_abstract_nature.tex # Abstract ★
+    ├── 010_introduction.tex    # Introduction ★
     ├── 025_results_ncs.tex     # Results (2 Figs + 4 Tables) ★
     ├── 060_discussion.tex      # Discussion ★
     ├── 070_methods.tex         # Methods (starred, URLs anonymized) ★
@@ -199,7 +197,7 @@ sequenceDiagram
        040_experimental_validation · 050_implications · 080_conclusion
 ```
 
-> ★ marks files actually used by the single entry file `main.tex` (Nature template for NMI submission).
+> ★ marks files actually used by the single entry file `main.tex` (Nature template for the Nature Communications submission).
 
 ---
 
@@ -277,16 +275,14 @@ This generates `main.pdf`. Use the PDF built with `--submission` when submitting
 pdflatex  →  bibtex  →  pdflatex  →  pdflatex
 ```
 
-### NMI Reframing Toggle (Primary Target = Nature Machine Intelligence)
+### Manuscript Framing
 
-The `main.tex` preamble contains a `\newif\ifNMIframing` switch, which is **enabled by default (`\NMIframingtrue`)**. When enabled, the NMI-reframed abstract and introduction are included automatically.
-
-| Switch | Abstract | Introduction |
-|--------|----------|--------------|
-| `\NMIframingtrue` (default) | `006_abstract_nmi.tex` (NMI narrative) | `010_introduction_nmi.tex` (NMI narrative) |
-| `\NMIframingfalse` | `006_abstract_nature.tex` (original) | `010_introduction.tex` (original) |
-
-To restore the original NCS narrative, simply change `\NMIframingtrue` to `\NMIframingfalse` in `main.tex`.
+The manuscript foregrounds a general, regime-dependent principle of memory-bound
+computing rather than a systems-engineering optimisation, which suits the
+multidisciplinary Nature Communications readership. The abstract and introduction
+live in a single canonical version each — [`section/006_abstract_nature.tex`](section/006_abstract_nature.tex)
+and [`section/010_introduction.tex`](section/010_introduction.tex) — and are
+included unconditionally by `main.tex`.
 
 ---
 
@@ -328,15 +324,14 @@ Springer Nature (publisher)
 │
 ├── Nature Research Journals (field-specific sister journals)
 │   ├── Nature Medicine
-│   ├── Nature Machine Intelligence     ← Third priority for this paper
-│   ├── Nature Computational Science   ← First priority for this paper
+│   ├── Nature Communications          ← Primary target for this paper
+│   ├── Nature Computational Science   ← Fallback for this paper
 │   ├── Nature Electronics
-│   ├── Nature Communications          ← Second priority for this paper
 │   ├── Nature Biotechnology
 │   ├── Nature Physics ... and around 50 others
 │
 └── npj (Nature Partner Journals) — co-published with external institutions
-    ├── npj Computational Intelligence ← Fourth priority for this paper
+    ├── npj Computational Intelligence ← Final safety net for this paper
     └── npj Digital Medicine ... and others
 ```
 
@@ -354,20 +349,34 @@ Springer Nature (publisher)
 
 ## 8. Recommended Journal Priorities
 
-> **✅ Final decision (2026-07): Primary submission target = Nature Machine Intelligence (NMI)**
+> **✅ Current decision (2026-08): Primary submission target = Nature Communications**
 >
-> The research team has **confirmed** NMI as the primary submission target for three reasons:
-> 1. **Institutional encouragement to submit to NMI**
-> 2. **Top-tier standing** — latest IF of approximately 29.8, released in June 2026 (JCR Q1)
-> 3. **AI-domain research** — this work examines fundamental, regime-dependent limits in large-scale AI inference
+> Nature Communications is the primary submission target for four reasons:
+> 1. **Multidisciplinary scope fit** — this work sits at the intersection of AI, systems, and physics-like regime transitions, exactly the cross-field profile Nature Communications favours.
+> 2. **Full Open Access** maximises citation accessibility (journal H-index above 300).
+> 3. **First-author precedent** — Samsung SAIT researchers have published as first authors in Nature Communications (2020, 2023).
+> 4. **A more realistic acceptance rate** than the most selective sister journals, with a broad, well-established review pipeline.
 >
-> **Reframing is critical to success.** To avoid desk rejection, the manuscript must be positioned not as "memory-system engineering optimization" but as the **"discovery of a general principle of machine intelligence."** Draft NMI reframing is available in [`section/006_abstract_nmi.tex`](section/006_abstract_nmi.tex) and [`section/010_introduction_nmi.tex`](section/010_introduction_nmi.tex).
+> **Framing.** The manuscript is positioned not as "memory-system engineering optimization" but as the **discovery of a general, regime-dependent principle of memory-bound computing**, validated across five hardware platforms and multiple workload classes. The canonical abstract and introduction are [`section/006_abstract_nature.tex`](section/006_abstract_nature.tex) and [`section/010_introduction.tex`](section/010_introduction.tex).
 >
-> Before formal submission, use a **presubmission inquiry** to confirm scope fit (inquiry: [`submission/nmi_presubmission_inquiry.md`](submission/nmi_presubmission_inquiry.md)). See **§9** for the sequence.
->
-> The ★ ranking below reflects **journal-scope fit** and provides the rationale for the **fallback order (NCS → Nature Communications → npj)** if NMI rejects the manuscript.
+> The ★ ranking below reflects **journal-scope fit** and provides the rationale for the **fallback order (Nature Computational Science → npj)** if Nature Communications rejects the manuscript.
 
-### First Priority: Nature Computational Science ★★★★★
+### First Priority: Nature Communications ★★★★★
+
+```
+Reasons:
+- Open Access maximizes citation accessibility (journal H-index above 300).
+- Clear precedent exists for first-author publications by Samsung SAIT researchers:
+  · Hyunseung Yoo (SAIT) → Nature Communications, 2023
+  · Jungkwon Ahn (SAIT) → Nature Communications, 2020
+- It is well suited to multidisciplinary work (AI + systems + physics-like phenomena).
+- A broad, well-established review pipeline makes acceptance more realistic than at
+  the most selective, single-field sister journals.
+- The 5,000-word main-text limit and up to 10 display items accommodate the
+  manuscript with less aggressive compression than Nature Computational Science.
+```
+
+### Second Priority: Nature Computational Science ★★★★
 
 ```
 Reasons:
@@ -376,56 +385,16 @@ Reasons:
 - The combination of computational science, mathematical modeling, and
   experimental validation matches the journal precisely.
 - Its reviewers are familiar with interdisciplinary language around phase transitions.
-- Compared with Nature Machine Intelligence, the computational-science readership
-  may offer better reach while AI remains centered on conferences and arXiv.
-- Prior Nature Communications publications by researchers at Samsung SAIT
-  provide relevant institutional precedent.
+- Caveat: the strict 3,500-word main-text limit and 6-display-item cap require
+  substantial compression relative to the current manuscript.
 ```
 
-### Second Priority: Nature Communications ★★★★
-
-```
-Reasons:
-- Open Access maximizes citation accessibility (journal H-index above 300).
-- Clear precedent exists for first-author publications by Samsung Electronics researchers:
-  · Hyunseung Yoo (SAIT) → Nature Communications, 2023
-  · Jungkwon Ahn (SAIT) → Nature Communications, 2020
-- The comparatively lower review barrier makes acceptance more realistic.
-- It is well suited to multidisciplinary work (AI + systems + physics-like phenomena).
-- After rejection, the same manuscript can be resubmitted quickly from
-  Nature Computational Science to Nature Communications.
-```
-
-### Third Priority: Nature Machine Intelligence ★★★★
-
-```
-Reasons:
-- A top-tier AI/ML journal (latest IF approximately 29.8, released June 2026; JCR Q1),
-  directly aligned with this study's LLM inference collapse and phase-transition topics.
-- The earlier claim that the journal is shunned because of an AI boycott is now
-  exaggerated and outdated (see the update below); its top-tier standing is well established.
-- Reasons for ranking it below NCS:
-  · The manuscript's computational-science and mathematical-modeling framing fits NCS better.
-  · Desk-rejection risk is high.
-  · The AI community still favors conferences (NeurIPS, ICML, ICLR) and arXiv as
-    primary publication channels, relatively limiting citation diffusion through journals.
-- Reasons for ranking it below Nature Communications:
-  · Nature Communications has stronger citation accessibility through full OA,
-    first-author precedent from Samsung Electronics, and a more realistic acceptance rate.
-```
-
-> **Information update (as of 2026):** The earlier description of the journal as "shunned because the entire AI community boycotts it" is **outdated**:
->
-> - **The 2018 boycott has ended.** Around May 2018, approximately 3,000 computer scientists signed a petition opposing the closed, subscription-based model before the journal launched in January 2019. The journal subsequently became established and grew.
-> - **Its current standing is top-tier.** It published approximately 195 papers in 2025, and its latest Impact Factor, released in June 2026, is **approximately 29.8 (JCR Q1)**. It has established a strong academic position through highly cited papers such as "Stop explaining black box machine learning models…" (over 1,200 citations).
-> - **Remaining nuance.** No active boycott campaign remains, but the AI community continues to favor conferences (NeurIPS, ICML, ICLR) and Open Access venues such as arXiv. It is fair to say the journal is not the first-choice channel for many AI researchers, but calling it "shunned" is now an exaggeration.
-
-### Fourth Priority: npj Computational Intelligence ★★★
+### Third Priority: npj Computational Intelligence ★★★
 
 ```
 Reasons:
 - A relatively new journal that accepts both AI and CS research.
-- A safety net after rejection from the first three choices.
+- A safety net after rejection from the first two choices.
 - Its Impact Factor is still developing, so early publication may gain citations
   as a pioneering contribution.
 ```
@@ -451,42 +420,41 @@ Professional English editing is essential before submission to a Nature journal.
 - Editage (editage.co.kr)
 ```
 
-### Step 3 — NMI Reframing + Presubmission Inquiry (Critical)
+### Step 3 — Deposit Data on Zenodo + (Optional) Presubmission Inquiry
 
 ```
-This is the key to success at NMI and a safeguard for validating scope
-without entering a full rejection cycle.
+3-1. Deposit the pre-processed traces (and, ideally, the raw .jsonl logs) on
+     Zenodo and obtain a DOI BEFORE submission. Nature Communications
+     increasingly expects data to be accessible during review, and a live DOI
+     removes the "data on request" caveat from the Data availability statement.
+     - Metadata + description: submission/zenodo_deposit.md
+     - After minting the DOI, replace the XXXXXXX placeholder in
+       070_methods.tex and update the Data availability statement in main.tex
 
-3-1. Reframe the narrative from an "engineering achievement" to the
-     "discovery of a fundamental principle of machine intelligence"
-     - Abstract: section/006_abstract_nmi.tex
-     - Introduction: section/010_introduction_nmi.tex
-     - Position industrial CPS and IEC 61508 safety material only as
-       supplementary validation
-
-3-2. Send a presubmission inquiry (cover letter + summary only; 1–2 week response)
-     - Inquiry: submission/nmi_presubmission_inquiry.md
-     - Positive editor response → formal NMI submission
-     - Negative editor response → switch the primary target to NCS
+3-2. (Optional) Send a presubmission inquiry to the Nature Communications
+     editors (cover letter + summary only; ~1–2 week response) to confirm
+     scope fit before formal submission.
+     - Positive editor response → formal submission
+     - Negative editor response → switch the primary target to
+       Nature Computational Science
 ```
 
-### Step 4 — Submission Order (NMI First)
+### Step 4 — Submission Order (Nature Communications First)
 
 ```
-[Before submission] arXiv preprint + NMI presubmission inquiry (Steps 1 and 3)
+[Before submission] arXiv preprint + Zenodo data DOI (Steps 1 and 3)
         │
-[First] Nature Machine Intelligence   ← institutional direction + top-tier standing;
-                                        reframe first
+[First] Nature Communications          ← OA accessibility + Samsung first-author
+                                         precedent + multidisciplinary scope fit
         ↓ (if rejected, transfer downward)
-[Second] Nature Computational Science  ← fallback closest to the current tone
+[Second] Nature Computational Science  ← closest single-field fit; requires
+                                         compression to 3,500 words
         ↓ (if rejected)
-[Third] Nature Communications          ← OA accessibility + Samsung first-author precedent
-        ↓ (if rejected)
-[Fourth] npj Computational Intelligence ← final safety net
+[Third] npj Computational Intelligence ← final safety net
 
-Note: Transfers within the Nature portfolio naturally move from higher-IF to
-      lower-IF journals. Trying NMI (29.8) first and then moving down through
-      fallback journals therefore provides a natural path.
+Note: The Nature manuscript-transfer service carries reviews and files to a
+      sister journal after rejection, so the ladder above is a single
+      continuous path rather than three independent submissions.
 ```
 
 ### Step 5 — Strengthen the Manuscript Framing
@@ -496,16 +464,17 @@ The "Here we show..." structure already follows Nature style.
 Emphasize the following points during review:
 
 1. State the analogy to a "phase transition"
-   → Present the abrupt regime transition as a principle of machine intelligence
+   → Present the abrupt regime transition as a general principle, not a
+     property of one orchestrator
 
 2. Emphasize the broad applicability of a
-   "general principle of memory-bound machine intelligence"
-   → Frame it as a law of large-scale AI inference rather than a property of
-     one orchestrator
+   "general principle of memory-bound computing"
+   → Frame it as a law of large-scale AI inference that spans hardware and
+     workload regimes
 
 3. Cite generality across platforms and workloads
    → Demonstrate a universal principle rather than hardware dependence
-     (critical for persuading NMI)
+     (five hardware platforms; language, vision, and retrieval workloads)
 ```
 
 ---
@@ -536,38 +505,7 @@ Emphasize the following points during review:
 
 ## 11. Detailed Information on Target Sister Journals
 
-### 11-1. Nature Computational Science (First Priority)
-
-| Item | Details |
-|------|---------|
-| **Launched** | January 2021 |
-| **Impact Factor (2024)** | **18.3** (five-year average: 17.6) |
-| **CiteScore (2024)** | 21.2 (Q1) |
-| **IF growth** | Approximately +29% over 2023 |
-| **Desk-rejection rate** | Approximately 75–80% (immediate rejection if out of scope) |
-| **Peer-review pass rate** | Approximately 25–30% after entering review |
-| **Effective acceptance rate** | Approximately **5–8%** of all submissions |
-| **Primary fields** | Computational science, HPC, data science, simulation, AI applications |
-| **Publication model** | Hybrid (subscription + optional OA) |
-
-#### Publication Fees (APC) and Manuscript Requirements
-
-| Item | Details |
-|------|---------|
-| **Subscription** | **Free** — no author charge regardless of page count |
-| **Open Access APC** | £9,390 / **$12,850** / €10,850 (2024 rate) |
-| **Page charges** | **None** — Nature journals do not charge per page |
-| **Main-text word limit** | **3,500 words** (excluding abstract, Methods, references, and figure legends) |
-| **Abstract limit** | 150 words (no citations) |
-| **Display items (figures + tables)** | **Maximum 6** |
-
-> **The subscription model is entirely free regardless of page count.** Nature journals do not use traditional page charges. The listed APC is payable only when choosing OA.
-
-> **Caution:** The 3,500-word main-text limit is strict. The current manuscript must be edited to meet it. Move Methods and detailed experiments to Supplementary Material, retaining only the central claims and major results in the main text.
-
----
-
-### 11-2. Nature Communications (Second Priority)
+### 11-1. Nature Communications (First Priority)
 
 | Item | Details |
 |------|---------|
@@ -595,16 +533,18 @@ Emphasize the following points during review:
 
 ---
 
-### 11-3. Nature Machine Intelligence (Third Priority)
+### 11-2. Nature Computational Science (Second Priority)
 
 | Item | Details |
 |------|---------|
-| **Launched** | January 2019 |
-| **Impact Factor (latest, June 2026)** | **Approximately 29.8** (JCR Q1) |
-| **Papers published in 2025** | Approximately 195 |
-| **Desk-rejection rate** | High (top Nature-journal level; immediate rejection if out of scope) |
-| **Effective acceptance rate** | Low (estimated single-digit percentage of all submissions) |
-| **Primary fields** | Machine learning, AI theory and methods, intelligent systems, AI applications |
+| **Launched** | January 2021 |
+| **Impact Factor (2024)** | **18.3** (five-year average: 17.6) |
+| **CiteScore (2024)** | 21.2 (Q1) |
+| **IF growth** | Approximately +29% over 2023 |
+| **Desk-rejection rate** | Approximately 75–80% (immediate rejection if out of scope) |
+| **Peer-review pass rate** | Approximately 25–30% after entering review |
+| **Effective acceptance rate** | Approximately **5–8%** of all submissions |
+| **Primary fields** | Computational science, HPC, data science, simulation, AI applications |
 | **Publication model** | Hybrid (subscription + optional OA) |
 
 #### Publication Fees (APC) and Manuscript Requirements
@@ -612,16 +552,19 @@ Emphasize the following points during review:
 | Item | Details |
 |------|---------|
 | **Subscription** | **Free** — no author charge regardless of page count |
-| **Open Access APC** | Upper Nature-journal range (approximately $12,000; verify official guidance at submission) |
-| **Page charges** | **None** |
-| **Main-text word limit** | Approximately 5,000 words for an Article (verify submission guidelines) |
-| **Abstract limit** | Approximately 150–200 words (no citations) |
+| **Open Access APC** | £9,390 / **$12,850** / €10,850 (2024 rate) |
+| **Page charges** | **None** — Nature journals do not charge per page |
+| **Main-text word limit** | **3,500 words** (excluding abstract, Methods, references, and figure legends) |
+| **Abstract limit** | 150 words (no citations) |
+| **Display items (figures + tables)** | **Maximum 6** |
 
-> Its **standing is top-tier**, and the earlier claim that it is "shunned because of a boycott" is exaggerated as of 2026 (see the update in §8). However, Nature Computational Science offers a better scope fit for this manuscript's computational-science and mathematical-modeling framing, so NMI is ranked third in this scope analysis.
+> **The subscription model is entirely free regardless of page count.** Nature journals do not use traditional page charges. The listed APC is payable only when choosing OA.
+
+> **Caution:** The 3,500-word main-text limit is strict. If the manuscript transfers here, it must be compressed — move Methods and detailed experiments to Supplementary Material, retaining only the central claims and major results in the main text.
 
 ---
 
-### 11-4. npj Computational Intelligence (Fourth Priority — Safety Net)
+### 11-3. npj Computational Intelligence (Third Priority — Safety Net)
 
 | Item | Details |
 |------|---------|
@@ -640,27 +583,27 @@ Emphasize the following points during review:
 | **Page charges** | **None** |
 | **Main-text word limit** | Not yet established (new journal; verify submission guidelines) |
 
-> This **new journal** does not yet have an IF, but it benefits from the Nature brand. Use it as the final safety net after rejection from the first three choices.
+> This **new journal** does not yet have an IF, but it benefits from the Nature brand. Use it as the final safety net after rejection from the first two choices.
 
 ---
 
-### 11-5. Comparison of the Four Journals
+### 11-5. Comparison of the Three Journals
 
-| Item | Nature Computational Science | Nature Communications | Nature Machine Intelligence | npj Comp. Intelligence |
-|------|------------------------------|----------------------|-----------------------------|------------------------|
-| **Priority** | First | Second | Third | Fourth |
-| **IF** | **18.3** (2024) | 14.7 (2024) | **Approx. 29.8** (latest 2026) | Not available |
-| **Acceptance rate** | 5–8% | 15–20% | Single digits (estimated) | 30–40% (estimated) |
-| **Subscription publication fee** | **Free** | Not available (OA only) | **Free** | — |
-| **OA APC** | $12,850 | $7,350 | Approx. $12,000 (verify) | Approx. $3,590 |
-| **Main-text word limit** | **3,500** | 5,000 | Approx. 5,000 (verify) | Not established |
-| **Maximum figures + tables** | **6** | 10 | Not established | Not established |
-| **Abstract limit** | 150 words | 200 words | 150–200 words | Not established |
-| **Page charges** | None | None | None | None |
-| **Submission difficulty** | ★★★★★ | ★★★☆☆ | ★★★★★ | ★★☆☆☆ |
+| Item | Nature Communications | Nature Computational Science | npj Comp. Intelligence |
+|------|----------------------|------------------------------|------------------------|
+| **Priority** | First | Second | Third |
+| **IF** | 14.7 (2024) | **18.3** (2024) | Not available |
+| **Acceptance rate** | 15–20% | 5–8% | 30–40% (estimated) |
+| **Subscription publication fee** | Not available (OA only) | **Free** | — |
+| **OA APC** | $7,350 | $12,850 | Approx. $3,590 |
+| **Main-text word limit** | 5,000 | **3,500** | Not established |
+| **Maximum figures + tables** | 10 | **6** | Not established |
+| **Abstract limit** | 200 words | 150 words | Not established |
+| **Page charges** | None | None | None |
+| **Submission difficulty** | ★★★☆☆ | ★★★★★ | ★★☆☆☆ |
 
 > **Key conclusions:**
-> - Nature Computational Science is **entirely free under the subscription model**, with no page limit.
-> - Its **3,500-word main-text limit** is the largest preparation challenge and requires substantial compression of the current manuscript.
-> - Nature Communications requires payment of the $7,350 APC.
+> - Nature Communications is the primary target: its 5,000-word limit and up to 10 display items fit the current manuscript with the least compression, and full OA maximises accessibility.
+> - Nature Communications is fully OA, so the **$7,350 APC is mandatory** (or an institutional Read & Publish waiver).
+> - Nature Computational Science is **free under the subscription model**, but its **3,500-word main-text limit** would require substantial compression if the manuscript transfers there.
 > - No Nature-family journal imposes **per-page charges**.

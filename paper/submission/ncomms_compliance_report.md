@@ -57,8 +57,7 @@ figure legends from the main-text count).
 These are **not** LaTeX/formatting issues; they are submission-system and
 policy items that only the author can satisfy.
 
-- **Cover letter** — write a Nature Communications cover letter (the existing
-  `submission/nmi_presubmission_inquiry.md` is NMI-specific). State the
+- **Cover letter** — write a Nature Communications cover letter. State the
   advance/significance for a broad audience and why it fits Nature Communications.
 - **Open-access APC** — Nature Communications is fully open access; the
   ~US$7,350 APC (or an institutional Read & Publish waiver) applies on

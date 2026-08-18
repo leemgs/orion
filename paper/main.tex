@@ -9,9 +9,9 @@
 %%
 %%  This is the single entry file for the paper. Build: ./run.sh
 %%  (pdflatex → bibtex → pdflatex × 2  →  main.pdf)
-%%  Broad-significance framing toggle \ifNMIframing (default on): foregrounds a
-%%  general principle rather than a systems-engineering optimisation, which
-%%  also suits the multidisciplinary Nature Communications readership.
+%%  The manuscript foregrounds a general, regime-dependent principle of
+%%  memory-bound computing rather than a systems-engineering optimisation,
+%%  which suits the multidisciplinary Nature Communications readership.
 %%  See README.md §4 / §8.
 %% ============================================================
 
@@ -101,17 +101,6 @@
 \newcommand{\anonymous}{0}
 
 %% =============================================================
-%% NMI framing toggle
-%% -------------------------------------------------------------
-%% 1차 투고 대상 = Nature Machine Intelligence.
-%% \NMIframingtrue  → NMI용 재프레이밍(초록·서론) 사용 (기본값).
-%% \NMIframingfalse → 기존 NCS/Nature 서사로 복귀.
-%% 근거·전략: README.md §8·§9 참조.
-\newif\ifNMIframing
-\NMIframingtrue
-%% =============================================================
-
-%% =============================================================
 \begin{document}
 %% =============================================================
 
@@ -125,22 +114,14 @@
 \input{./section/005_author_nature.tex}
 
 %% ---- Abstract & Keywords -----------------------------------
-\ifNMIframing
-  \input{./section/006_abstract_nmi.tex}      % NMI framing (Nature syntax)
-\else
-  \input{./section/006_abstract_nature.tex}   % original NCS/Nature abstract
-\fi
+\input{./section/006_abstract_nature.tex}
 
 %% sn-jnl emits the abstract inside \maketitle, so it must come after
 %% the \abstract{...} definition above.
 \maketitle
 
-%% ---- Main text (NCS structure: Intro → Results → Discussion) ---
-\ifNMIframing
-  \input{section/010_introduction_nmi}         % NMI-reframed introduction
-\else
-  \input{section/010_introduction}             % original introduction
-\fi
+%% ---- Main text (Intro → Results → Discussion) ---
+\input{section/010_introduction}
 \input{section/025_results_ncs}
 \input{section/060_discussion}
 
@@ -189,7 +170,7 @@ The author declares no competing interests.
 \input{section/095_reference_nature.tex}
 
 %% ---- Supplementary Information --------------------------------
-%% NMI: submitted as a SEPARATE file — see supplementary.tex
+%% Nature Communications: submitted as a SEPARATE file — see supplementary.tex
 %% (builds supplementary.pdf; Supplementary Notes 1–5, Tables 1–11).
 
 \end{document}

@@ -2,12 +2,12 @@
 
 Reference implementation for:
 
-> **"Hierarchical memory orchestration in AI inference exhibits intrinsic regime-dependent limits"**  
-> Primary submission target: *Nature Machine Intelligence*
+> **"Intrinsic regime-dependent limits govern hierarchical memory orchestration in large-scale AI inference"**  
+> Primary submission target: *Nature Communications*
 
-This directory contains the Orion measurement framework and the scripts used to reproduce the manuscript's figures, tables, and regime-classification results. The code documentation follows the current Nature Machine Intelligence (NMI) framing: ORION is presented as evidence for a general principle of memory-bound machine intelligence, while preserving a strict distinction between simulated reproduction and real-hardware measurements.
+This directory contains the Orion measurement framework and the scripts used to reproduce the manuscript's figures, tables, and regime-classification results. The code documentation follows the manuscript framing: ORION is presented as evidence for a general, regime-dependent principle of memory-bound computing, while preserving a strict distinction between simulated reproduction and real-hardware measurements.
 
-### NMI manuscript alignment
+### Manuscript alignment
 
 - **Scientific claim:** hierarchical memory orchestration exhibits three intrinsic operating regimes separated by abrupt, phase-like transitions.
 - **Generality:** the framework uses dimensionless ratios, R_C and R_B, to compare hardware platforms and AI workloads.
@@ -15,7 +15,7 @@ This directory contains the Orion measurement framework and the scripts used to 
 - **Reproducibility:** CPU-only simulation reproduces the qualitative regime structure; quantitative values reported as hardware measurements must come from live traces.
 - **Transparency:** unavailable counters are reported as `NaN` or `MeasurementUnavailable`; live mode never falls back silently to simulation.
 
-The NMI-framed manuscript sources are [`../paper/section/006_abstract_nmi.tex`](../paper/section/006_abstract_nmi.tex) and [`../paper/section/010_introduction_nmi.tex`](../paper/section/010_introduction_nmi.tex). Build and submission instructions are in [`../paper/README.md`](../paper/README.md).
+The manuscript sources are [`../paper/section/006_abstract_nature.tex`](../paper/section/006_abstract_nature.tex) and [`../paper/section/010_introduction.tex`](../paper/section/010_introduction.tex). Build and submission instructions are in [`../paper/README.md`](../paper/README.md).
 
 ---
 
@@ -92,7 +92,7 @@ print(f"Regime: {op.regime.name}")              # COORDINATION_DOMINATED
 
 ---
 
-## Reproducing the NMI manuscript results
+## Reproducing the manuscript results
 
 All experiments can be reproduced **without GPU** using the simulated backend.  
 The simulated backend reproduces the qualitative regime structure and exercises the complete analysis pipeline; it must not be presented as real-hardware evidence. Exact quantitative reproduction requires the raw JSONL hardware traces. The Zenodo DOI remains a placeholder until the archive is published.
@@ -437,10 +437,10 @@ python experiments/reproduce_figure2.py --save-csv
 
 ```bibtex
 @article{orion2026nature,
-  title   = {Hierarchical memory orchestration in {AI} inference exhibits
-             intrinsic regime-dependent limits},
+  title   = {Intrinsic regime-dependent limits govern hierarchical memory
+             orchestration in large-scale {AI} inference},
   author  = {Lim, Geunsik and others},
-  journal = {Nature Machine Intelligence},
+  journal = {Nature Communications},
   year    = {2026},
   note    = {Manuscript in preparation},
 }
