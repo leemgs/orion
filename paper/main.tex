@@ -2,11 +2,17 @@
 %%  Springer Nature / Nature-family journal template
 %%  Class file required: sn-jnl.cls
 %%  Download: https://www.springernature.com/gp/authors/campaigns/latex-author-support
-%%  Target journal: Nature Machine Intelligence  (primary submission target)
+%%  Target journal: Nature Communications (primary submission target).
+%%    Article limits complied with: abstract <=150 words, main text
+%%    <=5,000 words (Intro+Results+Discussion), <=10 display items,
+%%    ~<=70 references, continuous line numbers for the review version.
 %%
 %%  This is the single entry file for the paper. Build: ./run.sh
 %%  (pdflatex → bibtex → pdflatex × 2  →  main.pdf)
-%%  NMI reframing toggle \ifNMIframing (default on); see README.md §4 / §8.
+%%  Broad-significance framing toggle \ifNMIframing (default on): foregrounds a
+%%  general principle rather than a systems-engineering optimisation, which
+%%  also suits the multidisciplinary Nature Communications readership.
+%%  See README.md §4 / §8.
 %% ============================================================
 
 \documentclass[
@@ -39,6 +45,31 @@
 \usepackage{placeins}
 \usepackage{ifthen}
 \usepackage{diagbox}
+
+%% ---- Continuous line numbers (Nature Communications review copy) ---------
+%% Nature Communications requests continuous line numbering on the submitted
+%% manuscript to help reviewers. The patch below keeps line numbers running
+%% through amsmath display equations (align/equation/gather/...), which lineno
+%% otherwise skips. Comment out \linenumbers (issued after \begin{document})
+%% to produce a clean copy without line numbers.
+\usepackage{lineno}
+\newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+  \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+  \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+  \renewenvironment{#1}%
+    {\linenomath\csname old#1\endcsname}%
+    {\csname oldend#1\endcsname\endlinenomath}}%
+\newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+  \patchAmsMathEnvironmentForLineno{#1}%
+  \patchAmsMathEnvironmentForLineno{#1*}}%
+\AtBeginDocument{%
+  \patchBothAmsMathEnvironmentsForLineno{equation}%
+  \patchBothAmsMathEnvironmentsForLineno{align}%
+  \patchBothAmsMathEnvironmentsForLineno{flalign}%
+  \patchBothAmsMathEnvironmentsForLineno{alignat}%
+  \patchBothAmsMathEnvironmentsForLineno{gather}%
+  \patchBothAmsMathEnvironmentsForLineno{multline}%
+}
 
 %% ---- Experiment-reporting helpers (kept from original) ---
 \newcommand{\ntrials}{5}
@@ -83,6 +114,9 @@
 %% =============================================================
 \begin{document}
 %% =============================================================
+
+%% Continuous line numbers for the Nature Communications review copy.
+\linenumbers
 
 %% ---- Title -------------------------------------------------
 \input{./section/001_title.tex}
