@@ -92,6 +92,15 @@ print(f"Regime: {op.regime.name}")              # COORDINATION_DOMINATED
 
 ---
 
+## Real-hardware measurement (GPU/TPU/CPU)
+
+Two scripts perform **real** measurements (wall-clock / CUDA-event timing, nothing synthesised):
+
+- `experiments/colab_regime_measurement.py` — varies R_C (residency) and R_B (overlap) on real hardware; auto-detects a CUDA GPU, a TPU (via XLA), or a CPU. Run it on a free Colab GPU/TPU to obtain real traces (see [`results/colab_probe/README.md`](results/colab_probe/README.md) for the one-click Colab recipe). Validated locally on CPU: a **2.15×** capacity-limited crossover (R_C<0.5 vs resident).
+- `experiments/cpu_hierarchy_probe.py` — pointer-chasing latency sweep over this machine's real cache hierarchy (L2/L3/DRAM); measures a **2.20×** cache-resident→DRAM-bound crossover (see [`results/cpu_probe/README.md`](results/cpu_probe/README.md)).
+
+Both are single-platform, qualitative confirmations of the capacity crossover; they do **not** substitute the five-accelerator quantitative campaign.
+
 ## Reproducing the manuscript results
 
 All experiments can be reproduced **without GPU** using the simulated backend.  

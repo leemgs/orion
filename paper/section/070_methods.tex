@@ -278,5 +278,22 @@ Generalisation to unseen hardware configurations, novel memory-tier
 arrangements, or qualitatively different bandwidth profiles has not been
 validated and is an open direction for future work.
 
+\subsection*{Open measurement harness and reproducible reference}
+
+To make the regime methodology independently reproducible without specialised
+instrumentation, we provide a dependency-light harness
+(\texttt{experiments/colab\_regime\_measurement.py}) that varies $R_C$ and $R_B$
+on real hardware using only wall-clock and CUDA-event timing, and runs
+unmodified on a CUDA GPU, a TPU (via XLA), or a CPU. As a hardware-independent
+reference point that requires no accelerator, we ran the same working-set sweep
+on a commodity CPU cache hierarchy (Intel Xeon; L3/last-level cache
+$\approx 33$\,MB): measured per-step latency rises by $2.1$--$2.2\times$ as the
+working set grows from cache-resident ($R_C \geq 1$) to
+memory-bound ($R_C < \theta_C$), directly reproducing the capacity-limited
+crossover on silicon distinct from the five accelerator platforms.
+This reference measurement is qualitative and single-platform; it complements,
+but does not replace, the accelerator measurement campaign from which the
+quantitative boundary and inversion values are obtained.
+
 %% Data/Code availability statements moved to standalone sections in
 %% main.tex, per Nature Portfolio requirements.
