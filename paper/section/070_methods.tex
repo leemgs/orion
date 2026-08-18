@@ -59,7 +59,8 @@ At each target $R_C$ value, weights are partitioned layer-by-layer using
 \texttt{cudaMemcpy} to host, leaving a controlled $C_{\mathrm{fast}}$
 of HBM resident.
 
-\textit{(ii) Transfer-pressure ratio $R_B = B_{\mathrm{slow}} \cdot \Delta t / D$:}
+\textit{(ii) Overlap ratio $R_B = B_{\mathrm{slow}} \cdot T_{\mathrm{comp}} / D
+= T_{\mathrm{comp}}/T_{\mathrm{transfer}}$:}
 host-to-GPU PCIe bandwidth is throttled using a software token-bucket
 rate-limiter integrated into \textsc{Orion}'s DMA engine.
 The limiter wraps each \texttt{cuMemcpyHtoDAsync} call with a counting semaphore
@@ -88,8 +89,8 @@ artefact of \textsc{Orion}'s instrumentation.
 Regime boundaries are identified as the values of $R_C$ and $R_B$ at which the
 dominant latency term changes by more than one standard deviation across five
 independent sweeps, each comprising 30 measurement windows, consistent with the
-empirically calibrated thresholds $\theta_C \approx 0.50$ and
-$\theta_B \approx 0.40$ (see Supplementary Note~1).
+derived thresholds $\theta_C = 0.50$ (majority-residency convention) and
+$\theta_B = 1.0$ (overlap boundary; see Supplementary Note~1).
 
 \subsection*{Scientific computing workload details}
 

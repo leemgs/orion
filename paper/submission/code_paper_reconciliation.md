@@ -146,6 +146,34 @@ resolve that.
 
 ---
 
+## 3a. Applied in this revision (paper → code, definitions only)
+
+Per the decision to align the manuscript to the corrected code, the following
+**definitional/derivational** edits were applied to the main-build sources
+(the manuscript builds cleanly, 20 pp.):
+
+- `R_B` redefined as `T_comp/T_transfer` (overlap ratio) in
+  `025_results_ncs.tex` (Eq. 2) and `070_methods.tex`; the degeneracy of the
+  old `B_slow·Δt/D` form is stated explicitly.
+- `θ_B` set to `1.0` (**derived** overlap boundary) and `θ_C = 0.50`
+  reframed as a **majority-residency convention** (not analytically forced) in
+  Results, Methods, Introduction, Discussion, and the abstract.
+- The abstract's "structural lower bounds proving transitions are inevitable"
+  softened to bounds on irreducible costs with boundaries derived from the
+  ratios; the capacity "transition" is described as a finite-size crossover.
+- Numeric regime-condition captions (`R_B ≥ 0.4`) symbolised to `R_B ≥ θ_B`;
+  claims that hardware "shifts θ_B" rewritten as operating points moving
+  relative to the fixed, derived boundary.
+
+**Not changed (still pending real measurement — not fabricated):** every
+empirical magnitude (`S = 4.12 ± 0.31`, 41.2%, 8–14%, 78–84%, per-platform
+values, the specific `R_B = 0.75/0.55/0.18/…` operating points, Table 2
+inversion magnitudes, 93.4% classifier accuracy) and **Figures 1–2**. These
+were produced under the superseded definition and must be recomputed from the
+measurement campaign. A visible revision note flags this at the boundary
+subsection and in the Figure 1 caption; Figure 1 still renders the old
+`θ_B = 0.40` axis.
+
 ## 4. Note for the submission decision
 
 Formatting is submission-ready (`submission/ncomms_compliance_report.md`), but

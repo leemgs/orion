@@ -77,11 +77,11 @@ fast-memory residency: increase HBM capacity, reduce batch size, or apply
 weight quantisation or one-shot pruning~\cite{frantar2023sparsegpt} to shrink
 $W$; additional coordination overhead has
 negligible return ($\leq 5\%$ in our experiments, Table~\ref{tab:regime_inversion}).
-In the \emph{coordination-dominated} regime ($R_C \geq 0.50$, $R_B \geq 0.40$),
+In the \emph{coordination-dominated} regime ($R_C \geq 0.50$, $R_B \geq 1.0$),
 pipelining, KV-cache management, and cross-tier overlap all provide measurable
 gains (18--27\%); this is the regime for which existing orchestration tools
 are effectively designed.
-In the \emph{I/O-limited} regime ($R_B < 0.40$), the correct intervention is
+In the \emph{I/O-limited} regime ($R_B < 1.0$), the correct intervention is
 to reduce compulsory transfer volume---via smaller swap granularity, selective
 layer offloading, or on-device quantisation---rather than adding scheduling
 complexity; aggressive offloading strategies (FlexGen, DeepSpeed-Inference)
@@ -89,14 +89,14 @@ can \emph{worsen} latency by 8--12\% in this regime by amplifying an already
 saturated transfer path.
 These prescriptions are immediately actionable from two ratios computable
 before deployment.
-Crucially, both thresholds are predictable a priori without exhaustive
-sweeps: $\theta_C = 0.50$ follows analytically from the majority-eviction
-condition (analytically derived, not dependent on specific hardware constants;
-consistent within $\pm 0.02$ across five platforms, mean error $\leq 2.4\%$), and $\theta_B$ is estimable from three measurements---sustained
-bandwidth $B_{\mathrm{slow}}$, single-run computation time $T_{\mathrm{comp}}$,
-and DMA log-derived amplification factors---obtainable in a 10-minute
-profiling session (mean error $\leq 4.7\%$ on PCIe-based platforms;
-Supplementary Table~4).
+Crucially, both thresholds are fixed a priori without exhaustive sweeps:
+$\theta_B = 1.0$ is the derived overlap boundary
+($R_B = T_{\mathrm{comp}}/T_{\mathrm{transfer}} = 1$), and $\theta_C = 0.50$ is
+the majority-residency convention ($C_{\mathrm{miss}} = W/2$), neither
+depending on hardware constants. For any operating point, the two ratios are
+computable from three measurements---sustained bandwidth $B_{\mathrm{slow}}$,
+single-run computation time $T_{\mathrm{comp}}$, and DMA log-derived transfer
+volume $D$---obtainable in a 10-minute profiling session.
 
 The framework applies to any workload whose active working set cannot fully
 reside in fast memory, including the scientific computing cases validated above,
@@ -107,8 +107,10 @@ Several limitations motivate future work.
 The classifier's 93.4\% accuracy is in-distribution: training and evaluation
 used the same five platforms; generalisation to unseen hardware
 (e.g., CXL-pooled memory) is an open direction.
-Multi-node clusters shift $\theta_B$ (4-node experiments: $\Delta\theta_B \approx +0.05$),
-but regime fragmentation at scale is uncharacterised.
+Because $\theta_B = 1.0$ is a derived boundary, it does not move with hardware;
+multi-node clusters instead shift where operating points fall relative to it by
+adding inter-node synchronisation to $T_{\mathrm{comp}}$, and regime
+fragmentation at scale is uncharacterised.
 Hysteresis when workloads traverse boundaries in both directions suggests
 nonlinear cache-reuse effects exploitable in adaptive scheduling.
 For mixture-of-experts models, $W_{\mathrm{eff}} = W_{\mathrm{param}} \times (k/N_{\mathrm{exp}}) + W_{\mathrm{act}} + W_{\mathrm{kv}}$ shifts $R_C$ relative to

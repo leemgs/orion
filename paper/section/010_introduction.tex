@@ -68,10 +68,12 @@ We make four contributions:
     phase-like transitions, and that strategy rankings invert across
     regime boundaries.
   \item \textbf{Minimal analytical model.}
-    A structural lower bound proving regime transitions are inevitable;
-    $\theta_C = 0.50$ derived analytically from the majority-eviction condition
-    (consistent within $\pm 0.02$ across five platforms);
-    $\theta_B$ estimable from three measurements in a 10-minute profiling session.
+    A structural lower bound on the irreducible memory-access and transfer
+    costs, with regime boundaries following directly from the two ratios:
+    $\theta_B = 1.0$ derived as the overlap boundary
+    ($R_B = T_{\mathrm{comp}}/T_{\mathrm{transfer}} = 1$), and $\theta_C = 0.50$
+    as the majority-residency crossover; both computable from a 10-minute
+    profiling session without exhaustive sweeps.
   \item \textbf{Multi-platform validation.}
     Transitions confirmed on NVIDIA A100, TPU v4, AWS Inferentia2, AMD MI250,
     and Intel Optane-PMem, with boundaries consistent to within $\pm 0.05$.
