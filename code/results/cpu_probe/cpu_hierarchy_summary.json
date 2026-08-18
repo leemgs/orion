@@ -1,0 +1,117 @@
+{
+  "c_fast_bytes": 34603008,
+  "points": [
+    {
+      "w_mib": 0.5,
+      "r_c": 66.0,
+      "regime": "resident/coord",
+      "lat_ns_mean": 84.59738892857143,
+      "lat_ns_sd": 5.111890463988951,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 1,
+      "r_c": 33.0,
+      "regime": "resident/coord",
+      "lat_ns_mean": 83.51246970040458,
+      "lat_ns_sd": 2.3329737345889936,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 2,
+      "r_c": 16.5,
+      "regime": "resident/coord",
+      "lat_ns_mean": 88.3417752129691,
+      "lat_ns_sd": 3.874245257742227,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 4,
+      "r_c": 8.25,
+      "regime": "resident/coord",
+      "lat_ns_mean": 105.31975514548165,
+      "lat_ns_sd": 8.253742211116602,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 8,
+      "r_c": 4.125,
+      "regime": "resident/coord",
+      "lat_ns_mean": 152.8185757857143,
+      "lat_ns_sd": 8.753097556351504,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 16,
+      "r_c": 2.0625,
+      "regime": "resident/coord",
+      "lat_ns_mean": 175.7084177857143,
+      "lat_ns_sd": 12.311178840061826,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 24,
+      "r_c": 1.375,
+      "regime": "resident/coord",
+      "lat_ns_mean": 163.41813207142857,
+      "lat_ns_sd": 4.380925869591592,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 32,
+      "r_c": 1.03125,
+      "regime": "resident/coord",
+      "lat_ns_mean": 169.73569835714287,
+      "lat_ns_sd": 6.332208036234253,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 48,
+      "r_c": 0.6875,
+      "regime": "resident/coord",
+      "lat_ns_mean": 176.4791705357143,
+      "lat_ns_sd": 7.104484085991931,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 64,
+      "r_c": 0.515625,
+      "regime": "resident/coord",
+      "lat_ns_mean": 169.9513584642857,
+      "lat_ns_sd": 6.4922279733791,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 96,
+      "r_c": 0.34375,
+      "regime": "capacity-limited",
+      "lat_ns_mean": 186.92729450000002,
+      "lat_ns_sd": 12.129768204630848,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 128,
+      "r_c": 0.2578125,
+      "regime": "capacity-limited",
+      "lat_ns_mean": 178.40828964285714,
+      "lat_ns_sd": 6.334285440328518,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 192,
+      "r_c": 0.171875,
+      "regime": "capacity-limited",
+      "lat_ns_mean": 186.21792435714286,
+      "lat_ns_sd": 8.437765254594808,
+      "n_trials": 7
+    },
+    {
+      "w_mib": 256,
+      "r_c": 0.12890625,
+      "regime": "capacity-limited",
+      "lat_ns_mean": 190.63846339285715,
+      "lat_ns_sd": 9.65748404371752,
+      "n_trials": 7
+    }
+  ]
+}
