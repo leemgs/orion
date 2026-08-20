@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Resolve all manuscript paths relative to this script so the documented
+# `./paper/run.sh` invocation also works from the repository root.
+cd "$(dirname "$0")"
+
 # Usage:
 #   ./run.sh                → build main.pdf + supplementary.pdf (review copy:
 #                             reference URLs are printed so reviewers can open

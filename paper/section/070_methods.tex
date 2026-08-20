@@ -43,8 +43,10 @@ across the seven repeated trials exactly as stored in the JSON summary.
 
 \subsection*{Software and provenance}
 
-Both probes were run with Python 3.11 and NumPy. Seeds, grids, timing code, raw
-records, summaries, and commands are version controlled. The analytical regime
+The compiled pointer-chain run used Python 3.12.13, NumPy 2.5.2, and GCC 13.3;
+the earlier layered-matrix harness check used Python 3.11.15, but that summary
+did not capture the NumPy version. Seeds, grids, timing code, raw records, summaries, and
+commands are version controlled. The analytical regime
 map reads threshold constants from the same module as the classifier. The
 simulated backend is provided solely for software testing and qualitative
 exploration; its outputs are excluded from the reported measurements.
