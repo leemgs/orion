@@ -168,11 +168,13 @@ Per the decision to align the manuscript to the corrected code, the following
 **Not changed (still pending real measurement — not fabricated):** every
 empirical magnitude (`S = 4.12 ± 0.31`, 41.2%, 8–14%, 78–84%, per-platform
 values, the specific `R_B = 0.75/0.55/0.18/…` operating points, Table 2
-inversion magnitudes, 93.4% classifier accuracy) and **Figures 1–2**. These
+inversion magnitudes, 93.4% classifier accuracy) and the **empirical panels of
+Figure 2**. These
 were produced under the superseded definition and must be recomputed from the
-measurement campaign. A visible revision note flags this at the boundary
-subsection and in the Figure 1 caption; Figure 1 still renders the old
-`θ_B = 0.40` axis.
+measurement campaign. The analytical regime-map asset has now been regenerated
+from the released `THETA_C=0.50` and `THETA_B=1.0` constants; it contains no
+empirical measurements and is reproducible with
+`experiments/reproduce_regime_map.py`.
 
 ## 4. Note for the submission decision
 

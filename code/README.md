@@ -37,6 +37,7 @@ code/
 │   ├── reproduce_table2.py     #   Table 2: regime-dependent strategy inversion
 │   ├── reproduce_table3.py     #   Table 3: workload generality (BLIP2/RAG/YOLOv8)
 │   ├── reproduce_figure2.py    #   Figure 2: regime map + latency decomposition
+│   ├── reproduce_regime_map.py #   analytical regime-map asset (no empirical data)
 │   └── reproduce_classifier_ablation.py  # Table D.1: Orion_HW vs Orion_Full
 ├── utils/
 │   ├── stats.py                #   Bootstrap CI, Wilcoxon test, SweepStats
@@ -122,6 +123,13 @@ python experiments/reproduce_table3.py
 ```
 
 ### Figure 2 — Regime map and latency decomposition
+
+Regenerate the analytical regime-map asset used in the manuscript directly
+from `orion.config` (this schematic contains no measured values):
+
+```bash
+python experiments/reproduce_regime_map.py
+```
 
 ```bash
 # Save as PDF (requires matplotlib):

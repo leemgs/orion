@@ -182,7 +182,7 @@ def plot_figure(save_pdf: str = "") -> None:
             t_list.append(statistics.mean(r.t_total for r in valid) if valid else 0)
         ax.plot(RB_GRID, t_list, "o-", label=method, color=colors_m[method])
     ax.axvline(THETA_B, color="red", linestyle="--", label=f"θ_B={THETA_B}")
-    ax.set_xlabel("R_B = B_slow·Δt / D"); ax.set_ylabel("T_total [s]")
+    ax.set_xlabel("R_B = T_comp / T_transfer"); ax.set_ylabel("T_total [s]")
     ax.set_title("(c) I/O-limited → Coord-dominated (ranking inversion)")
     ax.legend()
 

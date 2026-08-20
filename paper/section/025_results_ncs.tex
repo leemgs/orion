@@ -41,12 +41,8 @@ Dashed lines mark the regime boundaries at $R_C = \theta_C = 0.50$
 boundary). Shaded zones indicate the capacity- and I/O-limited regions; the
 coordination-dominated region is the sole regime in which orchestration can
 meaningfully reduce end-to-end latency.
-The two operating-point examples (filled markers) correspond to the
-Llama-3\,8B configurations quantified in the Introduction.
-\emph{Note (revision): this figure asset still renders the superseded
-$\theta_B = 0.40$ axis and must be regenerated from the measurement campaign
-against the corrected definitions; see
-\texttt{submission/code\_paper\_reconciliation.md}.}}
+This analytical schematic is generated directly from the threshold constants
+used by the released classifier and contains no empirical data.}
 \label{fig:regime_map}
 \end{figure}
 
@@ -155,11 +151,12 @@ constant.
 %% REVISION NOTE (code/paper reconciliation, 2026-08): the definitions above
 %% were realigned to code/orion/{ratios,config}.py (R_B = T_comp/T_transfer,
 %% theta_B = 1.0 derived, theta_C = 0.50 convention). The empirical magnitudes,
-%% per-platform shifts, operating-point regime labels, and Figures 1-2 below
+%% per-platform shifts, operating-point regime labels, and empirical panels below
 %% were produced under the SUPERSEDED definition (R_B = B_slow*dt/D, theta_B
 %% = 0.40) and MUST be recomputed from the real-hardware measurement campaign
 %% against the corrected definitions before submission. They are retained here
-%% only as placeholders; see submission/code_paper_reconciliation.md.
+%% only as placeholders; see submission/code_paper_reconciliation.md. The
+%% analytical regime map above has been regenerated from the corrected constants.
 %% Under theta_B = 1.0, operating points cited below as coordination-dominated
 %% at R_B < 1 (e.g. R_B = 0.75, 0.55) require re-derivation.
 %% ------------------------------------------------------------------
