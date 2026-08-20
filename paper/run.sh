@@ -42,7 +42,6 @@ echo "Done: ${MAIN}.pdf"
 SUPP="supplementary"
 echo "[SI] building ${SUPP}.pdf..."
 pdflatex -interaction=nonstopmode "${SUPP}.tex"
-bibtex "${SUPP}" || true
 pdflatex -interaction=nonstopmode "${SUPP}.tex"
 pdflatex -interaction=nonstopmode "${SUPP}.tex"
 

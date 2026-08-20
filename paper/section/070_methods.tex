@@ -1,299 +1,55 @@
-\section*{Methods}
+\section{Methods}
 \label{sec:methods}
 
-\subsection*{Experimental framework: \textsc{Orion}}
+\subsection*{Definitions and classification}
 
-\textsc{Orion} is a lightweight experimental framework for coordinating
-accelerator memory, host DRAM, and NVMe storage as a unified hierarchy during
-AI inference.
-It is used here as a \emph{measurement instrument} rather than a production
-serving engine: its role is to enable controlled traversal of the regime space
-by making the latency components $T_{\mathrm{comp}}$, $T_{\mathrm{mem}}$,
-$T_{\mathrm{swap}}$, and $T_{\mathrm{sync}}$ individually observable at
-runtime.
+We calculate $R_C=C_{\mathrm{fast}}/W$ from a declared usable fast-tier
+capacity and active working-set size. We calculate
+$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$, with compute and transfer timed
+separately. Classification gives capacity precedence: $R_C<0.5$ is
+capacity-limited; otherwise $R_B<1$ is I/O-limited; all remaining points are
+coordination-dominated. This rule is implemented in the released Python code.
 
-\textsc{Orion} comprises three instrumented subsystems, borrowing the OS notion
-of memory ballooning~\cite{waldspurger2002ballooning} to manage the whole
-VRAM--DRAM--NVMe hierarchy together.
+\subsection*{Pointer-chain capacity probe}
 
-(1)~\textbf{GPU Process Allocator}: In multi-model serving, GPU context loading
-conflicts and VRAM interference dominate. The GPU Process Allocator reserves
-GPU execution resources up front---context IDs, memory pools, and kernel queues
-are pre-assigned---keeps memory segments separated across models to limit cache
-pollution, and co-schedules I/O-intensive and compute-intensive models so the
-GPU does not idle. It runs three policies: pre-defined execution slot
-reservation, context separation with fixed memory pools, and priority-based
-scheduling between I/O-bound and compute-bound models.
+The dependency-light CPU probe allocates a NumPy array, constructs a seeded
+random permutation, and traverses it as a dependent pointer chain. Dependence
+between successive indices limits vectorisation and hardware prefetching. We
+measured working sets of 0.5, 1, 2, 4, 8, 16, 24, 32, 48, 64, 96, 128, 192,
+and 256~MiB. Each point used seven timed trials after warm-up. The output stores
+working-set size, $R_C$, mean nanoseconds per dependent load, standard
+deviation, and trial count. The nominal fast-tier capacity was 33~MiB, matching
+the reported last-level cache of the test environment. No outlier was removed.
 
-(2)~\textbf{Task Memory Manager}: This module pairs task-level memory control
-with NUMA-aware policies~\cite{milic2017beyond}: aligning processes with the
-right memory nodes via
-\texttt{mbind()} and \texttt{numa\_alloc\_onnode()} reduces remote-access delay,
-and a \texttt{jemalloc}-based custom heap separates small objects from large
-tensors to keep fragmentation manageable. Memory access latency is modelled as
-$T_{\mathrm{access}} = T_{\mathrm{local}} + \gamma \cdot T_{\mathrm{remote}}$,
-where $\gamma$ is the penalty factor for a remote NUMA access. A lightweight
-memory pressure prediction model reads live utilisation and I/O queue depth to
-predict shortages and trigger mitigation early.
+\subsection*{Layered matrix and copy probe}
 
-(3)~\textbf{GPU Booster with Swap Support}: This module walks the execution
-graph to spot inactive tensors and overlaps their movement with computation via
-direct PCIe DMA and asynchronous I/O, aligning swap units to 4\,MB boundaries
-to avoid wasted transfers. Selective tensor offloading uses execution-graph
-analysis to flag tensors not immediately needed---inactive attention KV caches,
-intermediate checkpoints---as swap candidates. Priority-aware, block-aligned
-swapping weighs both tensor size and reuse frequency; on a cache miss, partial
-reloads keep transfer volume small. With these mechanisms, \textsc{Orion} served
-models up to 17B parameters on GPUs with less than 80\,GB of VRAM without
-observed instability.
+The second probe allocates 12 square, float32 layer matrices with $d=512$ and
+batch size 8. A selected fraction remains resident; non-resident matrices are
+copied before multiplication. NumPy's wall-clock path was used on the CPU, with
+five windows per point. Matrix entries are deterministically seeded and scaled
+by $1/\sqrt{d}$ to prevent numerical overflow during repeated multiplication.
+The script also supports CUDA-event timing and XLA synchronisation, but no GPU
+or TPU result is reported here.
 
-\subsection*{Regime probing methodology}
+For the reported capacity ratio, we averaged total latency at the three sampled
+points below $R_C=0.5$ and divided by latency at $R_C=1$. This endpoint summary
+is descriptive; no hypothesis test or population-level confidence interval is
+claimed. The pointer-chain table reports mean and population standard deviation
+across the seven repeated trials exactly as stored in the JSON summary.
 
-To expose regime-dependent behaviour empirically, we vary two system parameters
-independently:
+\subsection*{Software and provenance}
 
-\textit{(i) Capacity ratio $R_C = C_{\mathrm{fast}}/W$:} the fraction of model
-weights pinned in GPU HBM versus spilled to host DRAM is adjusted
-programmatically via \textsc{Orion}'s tensor-placement API.
-At each target $R_C$ value, weights are partitioned layer-by-layer using
-\texttt{cudaMemcpy} to host, leaving a controlled $C_{\mathrm{fast}}$
-of HBM resident.
+Both probes were run with Python 3.11 and NumPy. Seeds, grids, timing code, raw
+records, summaries, and commands are version controlled. The analytical regime
+map reads threshold constants from the same module as the classifier. The
+simulated backend is provided solely for software testing and qualitative
+exploration; its outputs are excluded from the reported measurements.
 
-\textit{(ii) Overlap ratio $R_B = B_{\mathrm{slow}} \cdot T_{\mathrm{comp}} / D
-= T_{\mathrm{comp}}/T_{\mathrm{transfer}}$:}
-host-to-GPU PCIe bandwidth is throttled using a software token-bucket
-rate-limiter integrated into \textsc{Orion}'s DMA engine.
-The limiter wraps each \texttt{cuMemcpyHtoDAsync} call with a counting semaphore
-that caps outstanding transfer bytes per 10\,ms window.
-Target bandwidth levels are validated against NVIDIA NVML
-\texttt{nvmlDeviceGetPcieThroughput} readings; achieved bandwidth deviates from
-target by $\leq 3\%$.
-All other variables (model architecture, tokenisation, batch size, sequence
-length) are held constant within each probing sweep.
+\subsection*{Statistics and reporting}
 
-\textbf{Cross-validation of circularity.}
-Because \textsc{Orion}'s software token-bucket controls $R_B$ on the same
-system where $S$ is measured, we explicitly address the circularity concern
-by cross-validating sharpness coefficients on two platforms where sustained
-bandwidth is hardware-limited and the software throttle is \emph{inactive}:
-AMD MI250 (HBM2e bus, peak 3.2\,TB/s) and Intel Optane-PMem
-(hardware-governed PMem bandwidth ceiling).
-On both platforms, $S > 2.0$ at $\theta_B$ is confirmed without any
-software bandwidth manipulation: $S = 3.61 \pm 0.29$ on MI250 and
-$S = 3.88 \pm 0.33$ on Optane-PMem (bootstrap 95\,\% CI,
-$n_{\mathrm{sweep}} = 5$).
-These measurements establish that the sharpness of the I/O-limited
-transition is a property of the physical bandwidth constraint, not an
-artefact of \textsc{Orion}'s instrumentation.
-
-Regime boundaries are identified as the values of $R_C$ and $R_B$ at which the
-dominant latency term changes by more than one standard deviation across five
-independent sweeps, each comprising 30 measurement windows, consistent with the
-derived thresholds $\theta_C = 0.50$ (majority-residency convention) and
-$\theta_B = 1.0$ (overlap boundary; see Supplementary Note~1).
-
-\subsection*{Scientific computing workload details}
-
-ESMFold protein structure prediction experiments used the production
-690\,M-parameter evoformer model (ESMFold v1.0 weights, Meta AI)
-under realistic inference conditions: variable-length sequence batches
-(lengths 512--1024, batch size 8) on NVIDIA A100\,(80\,GB), matching
-the memory-pressure profile of production structural biology pipelines.
-Pangu-Weather climate downscaling experiments used the full 3D Earth
-System Model (64.5\,M parameters, production weights from Bi
-et al.~\cite{bi2023pangu}) with full-resolution ERA5 input tensors
-($1440 \times 721$ horizontal grid, 13 pressure levels), representing
-the spatial tensor volumes encountered in operational medium-range
-forecasting.
-Both workloads ran on the same NVIDIA A100\,(80\,GB) hardware environment
-as all other experiments; no surrogate models or reduced-scale proxies
-were used.
-$W$ and $D$ for each workload were measured via \textsc{Orion}'s
-allocator-level tracker under the batch configurations described above;
-$R_C$ and $R_B$ values reported in Table~\ref{tab:generality} are
-step-averaged over 30 contiguous 10\,s windows per sweep.
-
-\subsection*{Baselines and workloads}
-
-Orchestration baselines span four categories: CPU offloading
-(FlexGen~\cite{flexgen2023}, DeepSpeed-Inference~\cite{aminabadi2022deepspeedinference}),
-GPU--CPU swapping (SwapAdvisor~\cite{huang2020swapadvisor}),
-KV-cache management (vLLM~\cite{kwon2023pagedattention}),
-and a PyTorch default serving baseline.
-Language workloads use Llama-3~8B, GPT-J~6B, Llama-4~17B, and
-Mixtral~8$\times$7B; the vision workload uses ViT-H/14.
-
-\subsection*{Hardware platforms}
-
-Primary experiments use two NVIDIA A100 (80~GB HBM) GPUs, 512~GB DDR5 host
-DRAM, and an NVMe Gen4 SSD (software stack: PyTorch 2.4, CUDA 12.2, vLLM 0.5.3).
-Cross-platform validation uses \emph{real hardware} on four additional platforms:
-Google TPU v4 pods (JAX 0.4.26), AWS Inferentia2 endpoints (NeuronSDK 2.18),
-AMD MI250 GPUs (ROCm 6.0), and Intel Xeon + Optane-PMem servers.
-All five platforms executed the identical probing sweep described above;
-no platform results are simulated or emulated.
-Reported transition points vary by $\leq 0.05$ from A100-based values across
-all platforms, confirming cross-architecture consistency of the regime structure.
-Pre-processed latency traces for all five platforms are included in the Zenodo
-data archive.
-
-\subsection*{Operational definition of working-set size $W$}
-
-The active working-set size per inference step is defined as
-$W = W_{\mathrm{param}} + W_{\mathrm{act}} + W_{\mathrm{kv}}$,
-where $W_{\mathrm{param}}$ is the parameter byte footprint,
-$W_{\mathrm{act}}$ is the peak activation memory over a prefill+decode cycle
-($B \cdot \ell \cdot L \cdot 4 d_{\mathrm{model}} \cdot s_{\mathrm{dtype}}$),
-and $W_{\mathrm{kv}}$ is the KV-cache footprint
-($2 B L H d_h \ell \, s_{\mathrm{dtype}}$).
-FlashAttention-style fused kernels~\cite{dao2022flashattention} reduce
-$W_{\mathrm{act}}$ but affect neither $W_{\mathrm{param}}$ nor
-$W_{\mathrm{kv}}$.
-$W$ is measured at runtime by \textsc{Orion}'s allocator-level memory tracker,
-which records the high-water mark of GPU-resident tensor bytes per step.
-Analytical values and per-model breakdowns are given in
-Supplementary~Table~9.
-
-\subsection*{Measurement protocol}
-
-\textbf{Replication structure.}
-Each experimental condition consists of $n_{\mathrm{sweep}} = 5$ independent
-probing sweeps.
-Within each sweep, 30 contiguous 10\,s measurement windows are collected at
-a fixed operating point ($R_C$, $R_B$).
-Latency statistics (mean, variance) are first computed within each sweep;
-sweep-level estimates are then aggregated across the five sweeps.
-Bootstrap resampling (1,000 replicates, sampling windows within sweeps with
-replacement) yields 95\,\% confidence intervals; these are reported in the main
-text and Supplementary Note~2.
-The effective sample size is $n_{\mathrm{eff}} \approx 150$ per condition.
-
-\textbf{Sharpness coefficient $S$ and numerical differentiation.}
-The sharpness coefficient $S = |d\ln T_{\mathrm{total}} / d\ln R|$ is estimated
-at each operating point via symmetric finite differences over adjacent
-$R$ grid steps ($\Delta R = 0.05$):
-\begin{equation*}
-S(R_i) = \left|\frac{\ln T(R_{i+1}) - \ln T(R_{i-1})}{\ln R_{i+1} - \ln R_{i-1}}\right|,
-\end{equation*}
-where $T(R_j)$ is the sweep-mean latency at grid point $j$.
-No additional smoothing is applied; the grid spacing $\Delta R = 0.05$ is fine
-enough to resolve the $\pm 0.05$ boundary width identified empirically.
-Reported $S$ values (e.g.\ $S = 4.12 \pm 0.31$ near $\theta_C$) are means and
-bootstrap 95\,\% CIs over the five sweep-level estimates of $S(R_i)$.
-
-\textbf{Statistical significance.}
-For the primary claim that $S > S^* = 2.0$ near regime boundaries, we apply
-a pre-specified one-sided Wilcoxon signed-rank test (null: $S \leq 2.0$;
-alternative: $S > 2.0$) to the five sweep-level $S$ estimates.
-The one-sided framing is pre-specified: the directional alternative follows
-directly from the a priori definition of abruptness---$S^* = 2.0$ was fixed
-before data collection, corresponding to a 10\% change in $R$ producing
-$>$20\% latency change, a threshold chosen on physical grounds independent
-of the data.
-With $n_{\mathrm{sweep}} = 5$, the minimum achievable one-sided $p$-value
-under the Wilcoxon signed-rank distribution is $p = 0.031$ (exact; achieved
-when all five sweep estimates exceed $S^*$).
-All reported near-boundary conditions meet this criterion; interior conditions
-yield $p > 0.40$, consistent with $H_0$.
-\emph{Statistical power.}
-Because the observed effect is large relative to its dispersion
-($S = 4.12 \pm 0.31$ at $\theta_C$, i.e.\ the boundary $S^* = 2.0$ lies
-$\approx\!6.8$ sweep-level standard deviations below the mean), every
-sweep estimate exceeds $S^*$ with near-certainty; a Monte Carlo power
-analysis (10{,}000 draws from the empirical sweep distribution) gives
-power $> 0.99$ at $n_{\mathrm{sweep}} = 5$ for the observed effect size.
-The test is therefore not underpowered for effects of this magnitude---the
-small $n_{\mathrm{sweep}}$ limits the \emph{minimum reportable} $p$-value
-($0.031$), not the ability to detect the transition.
-
-\textbf{Warm-up and steady-state.}
-Each sweep is preceded by a 60\,s warm-up period (discarded) to reach thermal
-and memory-allocation steady state.
-GPU temperature and clock frequency are monitored via NVML; measurements where
-GPU clock deviates $> 5\%$ from base are discarded ($< 2\%$ of windows).
-
-\textbf{$T_{\mathrm{comp}}$} is isolated via asynchronous CUDA events
-inserted immediately before and after each matrix-multiplication kernel
-batch; event synchronisation is performed off the critical path to avoid
-serialisation overhead.
-
-\textbf{$T_{\mathrm{mem}}$} is derived from NVIDIA Performance Counters
-(CUPTI) sampling HBM read bandwidth and L2 cache-miss rate at
-per-kernel granularity; the memory-access latency is computed as
-miss\_volume / effective\_HBM\_bandwidth.
-The HBM miss-penalty per byte $\rho$ (platform constant in
-Eq.~\eqref{eq:lower_bound_regime}) is measured from the same CUPTI
-counters during a synthetic streaming kernel that issues controlled
-cache-miss loads; $\rho$ ranges from 2.1 to 6.2~ns/byte across the five
-platforms and platform-specific values are listed in Supplementary
-Table~1.
-
-\textbf{$T_{\mathrm{swap}}$} is measured directly from DMA transfer logs
-produced by \textsc{Orion}'s asynchronous transfer engine, which records
-start and end timestamps for every host$\leftrightarrow$device copy.
-
-\textbf{$T_{\mathrm{sync}}$} is measured \emph{directly} via explicit
-synchronisation-barrier profiling rather than as a residual.
-Specifically, CUDA barrier events (\texttt{cudaStreamSynchronize} and
-\texttt{cudaDeviceSynchronize}) are wrapped with high-resolution
-\texttt{clock\_gettime(CLOCK\_MONOTONIC)} calls;
-NCCL collective operations are instrumented at the \texttt{ncclAllReduce}
-boundary using CUPTI callback APIs.
-The sum of all barrier and collective durations is reported as
-$T_{\mathrm{sync}}$.
-To validate this measurement, we verify that the four-term sum
-$\hat{T}_{\mathrm{total}} = T_{\mathrm{comp}} + T_{\mathrm{mem}}
-+ T_{\mathrm{swap}} + T_{\mathrm{sync}}$ agrees with wall-clock latency
-within $\leq 3\%$ across all configurations;
-the residual $|T_{\mathrm{wall}} - \hat{T}_{\mathrm{total}}|$
-averages $1.8\%$ (s.d.\ $0.6\%$), confirming measurement completeness.
-
-Energy consumption is measured using NVML power sampling at 100~ms
-intervals and integrated over each inference request.
-
-\subsection*{Ablation methodology}
-
-To confirm that observed regime-dependent behaviour is not driven by any single
-\textsc{Orion} subsystem, we perform a component ablation by disabling each
-subsystem independently (process allocation, NUMA binding, GPU-tailored
-swapping) and repeating the full regime probing sweep.
-Regime boundaries shift by $\leq 0.03$ across ablation variants, confirming
-that the abrupt regime transitions are intrinsic to the hierarchical memory system
-rather than artefacts of \textsc{Orion}'s implementation.
-
-\subsection*{Regime classifier}
-
-A depth-3 CART decision tree is trained on runtime statistics
-(swap-to-computation ratio, cache hit rate, DMA utilisation) collected from
-2,400 probing measurements covering all three regimes and five hardware
-platforms.
-The classifier is evaluated via stratified five-fold cross-validation; mean
-accuracy is 93.4\% (s.d.\ 1.2\%).
-Inference cost is $<$0.1~ms per classification step, negligible relative to
-request latency.
-\textbf{Important caveat:} the 93.4\% accuracy figure is an
-\emph{in-distribution} result---training and evaluation use measurements from
-the same five hardware platforms.
-Generalisation to unseen hardware configurations, novel memory-tier
-arrangements, or qualitatively different bandwidth profiles has not been
-validated and is an open direction for future work.
-
-\subsection*{Open measurement harness and reproducible reference}
-
-To make the regime methodology independently reproducible without specialised
-instrumentation, we provide a dependency-light harness
-(\texttt{experiments/colab\_regime\_measurement.py}) that varies $R_C$ and $R_B$
-on real hardware using only wall-clock and CUDA-event timing, and runs
-unmodified on a CUDA GPU, a TPU (via XLA), or a CPU. As a hardware-independent
-reference point that requires no accelerator, we ran the same working-set sweep
-on a commodity CPU cache hierarchy (Intel Xeon; L3/last-level cache
-$\approx 33$\,MB): measured per-step latency rises by $2.1$--$2.2\times$ as the
-working set grows from cache-resident ($R_C \geq 1$) to
-memory-bound ($R_C < \theta_C$), directly reproducing the capacity-limited
-crossover on silicon distinct from the five accelerator platforms.
-This reference measurement is qualitative and single-platform; it complements,
-but does not replace, the accelerator measurement campaign from which the
-quantitative boundary and inversion values are obtained.
-
-%% Data/Code availability statements moved to standalone sections in
-%% main.tex, per Nature Portfolio requirements.
+This proof-of-concept study did not use random assignment, blinding, or a
+sample-size calculation. Trial counts were fixed before summarisation. We
+report all measured grid points in the machine-readable data, selected points
+in Table~\ref{tab:cpu_probe}, arithmetic means, and one standard deviation. No
+claim of statistical significance is made. Hardware-platform generalisation
+requires independent machines and is left for future work.

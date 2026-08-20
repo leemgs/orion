@@ -1,486 +1,122 @@
 \section{Results}
 \label{sec:results}
 
-\subsection{Three operational regimes in hierarchical memory systems}
+\subsection{A two-ratio operational model}
 \label{sec:regime}
 
-Hierarchical memory orchestration is often treated as a smooth trade-off:
-provided transfers are overlapped and data cached, additional coordination
-should yield monotonic (if diminishing) gains.
-We show this intuition is structurally incomplete.
-Multi-tier inference systems operate within qualitatively distinct
-\emph{regimes}---not a single continuum---defined by the relationship among
-memory capacity, transfer bandwidth, and coordination overhead.
+We describe a hierarchical-memory operating point using
+\begin{equation}
+R_C=\frac{C_{\mathrm{fast}}}{W},\qquad
+R_B=\frac{B_{\mathrm{slow}}T_{\mathrm{comp}}}{D}
+   =\frac{T_{\mathrm{comp}}}{T_{\mathrm{transfer}}},
+\label{eq:ratios}
+\end{equation}
+where $C_{\mathrm{fast}}$ is usable fast-memory capacity, $W$ is the active
+working set, $D$ is compulsory cross-tier traffic per step,
+$B_{\mathrm{slow}}$ is sustained bandwidth on the limiting link, and
+$T_{\mathrm{transfer}}=D/B_{\mathrm{slow}}$. Unlike a ratio that uses total
+step time, $R_B$ is not circular: it compares independently timed computation
+and transfer intervals.
 
-\textbf{Capacity-limited regime} ($R_C < \theta_C$). Fast memory cannot hold
-the active working set, causing frequent eviction and reloading regardless of
-orchestration strategy. Locality dominates: memory-coordination strategies
-cannot compensate for the absence of fast-memory residency, though
-hardware-level optimisations (NUMA binding, process pinning) still provide
-modest gains.
-
-\textbf{Coordination-dominated regime} ($R_C \geq \theta_C$,
-$R_B \geq \theta_B$). Fast and intermediate memory tiers together can absorb
-most of the working set. Computation, locality, transfer, and synchronisation
-costs are of comparable magnitude, creating opportunities for orchestration to
-reshape end-to-end latency by reducing redundant transfers, improving locality,
-and overlapping computation with data movement.
-
-\textbf{I/O-limited regime} ($R_B < \theta_B$). Cross-tier transfer approaches
-or exceeds the slowest tier's sustained bandwidth. Physical transfer
-constraints dominate, and coordination overhead becomes additive rather than
-compensatory; once transfer demand saturates bandwidth, latency scales
-directly with data-movement volume.
+We use $\theta_C=0.50$ as an explicit majority-residency convention and derive
+$\theta_B=1$ from equality of computation and transfer time. These definitions
+produce three operational labels:
+\begin{itemize}
+\item \textbf{capacity-limited}: $R_C<\theta_C$;
+\item \textbf{I/O-limited}: $R_C\geq\theta_C$ and $R_B<\theta_B$; and
+\item \textbf{coordination-dominated}: $R_C\geq\theta_C$ and
+      $R_B\geq\theta_B$.
+\end{itemize}
+The capacity boundary is a convention, not a thermodynamic critical point. The
+I/O boundary is an overlap boundary: for $R_B<1$, at least
+$T_{\mathrm{transfer}}-T_{\mathrm{comp}}$ cannot be hidden by ideal overlap.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.95\linewidth]{figures/orion_regime_map.png}
-\caption{\textbf{Regime map for hierarchical memory systems.}
-Dashed lines mark the regime boundaries at $R_C = \theta_C = 0.50$
-(majority-residency convention) and $R_B = \theta_B = 1.0$ (derived overlap
-boundary). Shaded zones indicate the capacity- and I/O-limited regions; the
-coordination-dominated region is the sole regime in which orchestration can
-meaningfully reduce end-to-end latency.
-This analytical schematic is generated directly from the threshold constants
-used by the released classifier and contains no empirical data.}
+\caption{\textbf{Analytical regime map.} The vertical line is the declared
+majority-residency convention $\theta_C=0.50$; the horizontal segment is the
+derived overlap boundary $\theta_B=1.0$. The diagram is generated from the
+same constants as the released classifier and contains no empirical data.}
 \label{fig:regime_map}
 \end{figure}
 
-Figure~\ref{fig:regime_map} illustrates the regime map.
-Transitions between regimes are \emph{abrupt}: as the operating point---set by
-model size, batch size, or available bandwidth---crosses a boundary, the
-primary bottleneck shifts discontinuously, and coordination overhead that was
-previously amortised becomes exposed.
-
-
-\subsection{Analytical model and derived regime boundaries}
+\subsection{Irreducible costs and falsifiable predictions}
 \label{sec:model}
 
-To make regime boundaries explicit, we decompose end-to-end inference latency as
+For a step decomposed as
 \begin{equation}
-T_{\mathrm{total}} = T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}} + T_{\mathrm{sync}},
+T_{\mathrm{total}}=T_{\mathrm{comp}}+T_{\mathrm{mem}}+
+T_{\mathrm{swap}}+T_{\mathrm{sync}},
 \label{eq:latency_decomp}
 \end{equation}
-where $T_{\mathrm{comp}}$ is accelerator computation time, $T_{\mathrm{mem}}$
-captures locality-driven memory-access costs, $T_{\mathrm{swap}}$ is cross-tier
-data transfer, and $T_{\mathrm{sync}}$ accounts for synchronisation and
-coordination overhead.
-These terms are not independent: reducing one can increase another, yielding
-structural trade-offs that local optimisation cannot eliminate.
-
-\paragraph{Dimensionless control ratios.}
-We characterise any configuration by two ratios:
+a policy-independent lower bound on the memory and transfer contribution is
 \begin{equation}
-R_C = \frac{C_{\mathrm{fast}}}{W}, \qquad
-R_B = \frac{B_{\mathrm{slow}} \cdot T_{\mathrm{comp}}}{D}
-    = \frac{T_{\mathrm{comp}}}{T_{\mathrm{transfer}}},
-\label{eq:ratios}
-\end{equation}
-where $C_{\mathrm{fast}}$ is fast-memory capacity;
-$W = W_{\mathrm{param}} + W_{\mathrm{act}} + W_{\mathrm{kv}}$ is the active
-working-set size; $B_{\mathrm{slow}}$ is the sustained host-to-device bandwidth
-on the critical transfer path; $D$ is the compulsory data volume transferred
-per inference step; $T_{\mathrm{comp}}$ is the accelerator computation time per
-step; and $T_{\mathrm{transfer}} = D/B_{\mathrm{slow}}$ is the time to move the
-compulsory volume across the slow link.
-Both ratios are dimensionless: $R_C$ measures residency, and $R_B$ is an
-\emph{overlap ratio} measuring how much of the per-step transfer hides behind
-computation ($R_B \geq 1$: transfer is fully hidden; $R_B < 1$: transfer is
-exposed and stalls the step).
-Defining $R_B$ against the step duration $\Delta t$ rather than $T_{\mathrm{comp}}$
-is degenerate: $B_{\mathrm{slow}}\,\Delta t \geq D$ holds by construction, so
-that ratio never falls below~1 and cannot mark an exposed-transfer regime.
-
-\paragraph{Structural lower bound.}
-Independent of the specific orchestration policy,
-\begin{equation}
-T_{\mathrm{total}} \;\geq\;
-  \underbrace{\rho\,W\,\max(0,1-R_C)}_{T_{\mathrm{mem}}^{\min}}
-+ \underbrace{D/B_{\mathrm{slow}}}_{T_{\mathrm{swap}}^{\min}},
+T_{\mathrm{mem}}+T_{\mathrm{swap}}\geq
+\rho W\max(0,1-R_C)+\frac{D}{B_{\mathrm{slow}}},
 \label{eq:lower_bound_regime}
 \end{equation}
-where $\rho$ is the HBM miss-penalty per byte (platform constant).
-The first term is the irreducible memory-access penalty from evicted working-set
-data under any eviction policy~\cite{mattson1970evaluation}; the second is the
-minimum time to transfer $D$ compulsory bytes.
-Both bounds hold regardless of scheduling or overlap: compute--transfer overlap
-can redistribute visible latency, but cannot violate physical capacity or
-sustained-bandwidth limits.
-Equation~\eqref{eq:lower_bound_regime} deliberately excludes $T_{\mathrm{sync}}$;
-it is a lower bound on $T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}}$
-only.
-At regime boundaries the bound accounts for 78--84\% of observed
-$T_{\mathrm{total}}$; the remaining 16--22\% is $T_{\mathrm{sync}}$,
-separately quantified in Supplementary Note~2.
-Critically, after subtracting measured $T_{\mathrm{sync}}$ from observed
-$T_{\mathrm{total}}$, \textsc{Orion} drives
-$(T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}})$ to within
-8--14\% of the physical lower bound across all five platforms: the bound is
-near-achievable and the residual gap reflects excluded synchronisation
-physics, not algorithmic suboptimality
-(Supplementary Table~8).
-Platform-specific values of $(\rho, B_{\mathrm{slow}})$ and per-term tightness
-are given in Supplementary Table~1.
+where $\rho$ is a measured miss penalty per byte for a specified access
+pattern. Equation~\eqref{eq:lower_bound_regime} deliberately excludes compute
+and synchronisation and therefore must not be interpreted as a complete
+end-to-end latency model.
 
-\paragraph{Regime boundaries.}
-The structural lower bound (Eq.~\ref{eq:lower_bound_regime}) makes the two
-irreducible cost terms explicit; the regime boundaries follow from the ratios
-themselves:
-\begin{align}
-\theta_B &= 1.0 \quad \text{(overlap boundary, derived)},\label{eq:theta_B}\\
-\theta_C &= 0.50 \quad \text{(majority-residency convention)}.\label{eq:theta_C}
-\end{align}
-$\theta_B = 1.0$ is \emph{derived}, not fitted: with $R_B = T_{\mathrm{comp}}/
-T_{\mathrm{transfer}}$, the point $R_B = 1$ is exactly where per-step transfer
-stops fitting behind computation, so for $R_B < 1$ the exposed transfer time
-$T_{\mathrm{transfer}} - T_{\mathrm{comp}}$ enters the critical path and
-$T_{\mathrm{swap}}$ begins to dominate.
-$\theta_C = 0.50$ is an \emph{operational convention} marking majority
-eviction: the cache-miss volume per step is
-$C_{\mathrm{miss}} = W(1 - R_C)$, and $C_{\mathrm{miss}} > W/2$ becomes
-$R_C < 0.50$, i.e.\ more than half the working set cannot reside in fast
-memory. We stress that this is a statement about miss \emph{volume}, not a
-latency singularity: $C_{\mathrm{miss}}$ is continuous and linear in $R_C$, so
-$R_C = 0.50$ is not a critical point at which the lower bound diverges. The
-capacity ``transition'' is therefore a finite-size crossover (Discussion),
-sharp in practice but not a true phase transition, and $\theta_C = 0.50$ is the
-conventional midpoint of that crossover rather than an analytically forced
-constant.
+The formulation makes two falsifiable predictions. First, reducing residency
+while holding the access pattern fixed should expose a higher memory-access
+cost. Second, when $R_C\geq\theta_C$, configurations with $R_B<1$ must expose
+transfer time even under ideal compute--transfer overlap. It does not, without
+additional measurements, predict the magnitude of a strategy's speed-up or
+claim that strategy rankings necessarily invert.
 
-%% ------------------------------------------------------------------
-%% REVISION NOTE (code/paper reconciliation, 2026-08): the definitions above
-%% were realigned to code/orion/{ratios,config}.py (R_B = T_comp/T_transfer,
-%% theta_B = 1.0 derived, theta_C = 0.50 convention). The empirical magnitudes,
-%% per-platform shifts, operating-point regime labels, and empirical panels below
-%% were produced under the SUPERSEDED definition (R_B = B_slow*dt/D, theta_B
-%% = 0.40) and MUST be recomputed from the real-hardware measurement campaign
-%% against the corrected definitions before submission. They are retained here
-%% only as placeholders; see submission/code_paper_reconciliation.md. The
-%% analytical regime map above has been regenerated from the corrected constants.
-%% Under theta_B = 1.0, operating points cited below as coordination-dominated
-%% at R_B < 1 (e.g. R_B = 0.75, 0.55) require re-derivation.
-%% ------------------------------------------------------------------
-
-
-\subsection{Empirical validation of regime transitions}
+\subsection{CPU proof-of-concept measurements}
 \label{sec:experiments}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.95\linewidth]{figures/orion_consolidated.png}
-\caption{\textbf{Regime-oriented experimental probes.}
-Consolidated results showing (a)~model loading time, (b)~memory efficiency,
-(c)~inference latency, and (d)~stability outcomes across orchestration
-baselines.
-Panels (a) and (b) primarily reflect capacity-limited behaviour (high
-sensitivity to working-set size); panel (c) spans all three regimes and
-shows the ranking inversion at the I/O-limited boundary; panel (d) captures
-synchronisation-driven instability characteristic of the coordination-dominated
-regime under aggressive pipelining.
-Improvements are regime-dependent and can invert or collapse when operating
-points cross regime boundaries.
-All measurements are from real hardware experiments on two NVIDIA A100\,(80\,GB)
-GPUs (Llama-3\,8B, batch\,=\,8, seq\,=\,2048); error bars are bootstrap 95\,\%
-CIs over $n_{\mathrm{eff}}\!=\!150$ measurement windows.}
-\label{fig:consolidated}
-\end{figure}
+We evaluated the capacity prediction with two independent experiments on the
+available Intel Xeon CPU. The first experiment used a randomised pointer chain
+over working sets from 0.5 to 256~MiB, seven trials per point, and a declared
+33~MiB last-level-cache capacity. Mean dependent-load latency was
+$84.6\pm5.1$~ns at 0.5~MiB ($R_C=66$), $169.7\pm6.3$~ns at 32~MiB
+($R_C=1.03$), and $190.6\pm9.7$~ns at 256~MiB ($R_C=0.129$), where uncertainty
+is one standard deviation across trials. The endpoint ratio was 2.25. This
+experiment observes the expected cache-to-memory crossover, although hardware
+prefetching, translation, and multiple cache levels prevent attribution to a
+single boundary.
 
-Figure~\ref{fig:consolidated} summarises regime-oriented probe outcomes.
-Using \textsc{Orion} as a measurement instrument (see Methods), we vary $R_C$
-and $R_B$ independently while holding all other parameters fixed, directly
-observing dominant-term shifts as the operating point crosses boundaries.
-
-\textbf{Capacity-limited behaviour.}
-When $R_C < \theta_C$, latency becomes highly sensitive to small changes in
-working-set size or batch configuration but largely insensitive to
-coordination strategy---consistent with $T_{\mathrm{mem}}$ dominating
-Eq.~\eqref{eq:latency_decomp}.
-
-\textbf{Coordination-dominated behaviour.}
-When $R_C \geq \theta_C$ and $R_B \geq \theta_B$, orchestration changes
-produce measurable shifts in latency composition (not uniform scaling),
-confirming that all four terms are comparable in magnitude and adjustable
-by coordination.
-
-\textbf{I/O-limited behaviour.}
-When $R_B < \theta_B$, $T_{\mathrm{swap}}$ dominates; reducing swap depth by
-10\% recovered 14.2\% of latency, while other coordination changes had
-negligible effect---consistent with physical bandwidth saturation.
-
-\paragraph{Quantifying transition abruptness.}
-We measure the sharpness coefficient
-$S = |d\ln T_{\mathrm{total}}/d\ln R|$, with a transition defined as abrupt
-when $S > S^{*} = 2.0$ (a 10\% change in $R$ produces $>$20\% latency change).
-Near $\theta_C$, we measure $S = 4.12 \pm 0.31$
-($n_{\mathrm{sweep}} = 5$, bootstrap 95\,\% CI): a 10\% reduction in
-$R_C$ produces a 41.2\% latency increase.
-Well inside the coordination-dominated regime ($R_C = 0.80$), $S$ drops to
-$0.31 \pm 0.04$, confirming near-zero sensitivity.
-Near $\theta_B$, $S = 3.74 \pm 0.27$; well inside ($R_B = 0.75$),
-$S = 0.28 \pm 0.03$.
-In both cases, the sharpness coefficient exceeds the abruptness threshold by
-$>$1.8$\times$ at the boundary and falls below 0.4 far from it (full sharpness
-tables in Supplementary Note~2).
-
-\paragraph{Performance inversion across regimes.}
-A critical prediction of the regime framework is that the ranking of
-orchestration strategies should \emph{invert} across regime boundaries: a method
-that excels in the coordination-dominated regime may underperform the
-PyTorch baseline in the I/O-limited regime, where its coordination
-overhead becomes purely additive.
-Table~\ref{tab:regime_inversion} confirms this prediction.
-FlexGen and DeepSpeed-Inference reduce latency by up to 24\% in the
-coordination-dominated regime but \emph{increase} it by 8--12\% in the
-I/O-limited regime, where their additional DMA scheduling amplifies an already
-saturated transfer path.
-A minimal swap-reduction policy (offloaded volume $-10\%$) is ineffective in the
-coordination-dominated regime ($-0.3\%$) yet recovers 14\% of latency when
-I/O-limited.
-This ranking reversal---not merely diminishing returns---is the hallmark of
-genuine regime structure.
-\textsc{Orion}'s additional gain in the I/O-limited regime
-($-16.8\%$ vs.\ $-14.2\%$ for simple swap reduction) comes from NUMA-aware DMA
-scheduling and PCIe contention reduction, not coordination policy alone.
-\textsc{Orion}'s gain over the strongest per-regime baseline is significant
-under a Bonferroni-corrected bootstrap permutation test (10{,}000 resamples):
-$p < 0.001$ in the coordination-dominated and I/O-limited regimes and
-$p = 0.004$ in the capacity-limited regime.
+The second experiment used the released layered matrix harness with 12 layers,
+$d=512$, batch size 8, and five timing windows. It varied the fraction of layer
+weights retained in the fast tier. The mean total latency averaged over the
+three sampled points below $R_C=0.5$ was 4.03~ms, compared with 1.87~ms for the
+fully resident point, a 2.15-fold ratio. Because computation and copying share
+the same CPU memory system, the accompanying $R_B$ sweep was noisy and is not
+used as evidence for the I/O boundary.
 
 \begin{table}[t]
 \centering
-\caption{Latency change relative to PyTorch default across all three regimes
-         (Llama-3\,8B, NVIDIA A100\,(80\,GB), batch\,=\,8, seq\,=\,2048).
-         Values: mean\,$\pm$\,95\,\% bootstrap CI over
-         $n_{\mathrm{eff}}\!=\!150$ windows.
-         \textbf{Bold}: best performer per regime.
-         \emph{Italicised values}: latency increase (worse than baseline).}
-\label{tab:regime_inversion}
-\renewcommand{\arraystretch}{1.2}
-\footnotesize
-\begin{tabular}{lccc}
+\caption{Selected measured points from the CPU pointer-chain experiment.
+Values are mean $\pm$ one standard deviation over seven trials.}
+\label{tab:cpu_probe}
+\begin{tabular}{rrrr}
 \toprule
-\textbf{Strategy} &
-  \makecell{\textbf{Capacity-limited}\\$R_C{=}0.35$, $R_B{=}0.55$} &
-  \makecell{\textbf{Coord.-dominated}\\$R_C{=}0.70$, $R_B{=}0.55$} &
-  \makecell{\textbf{I/O-limited}\\$R_C{=}0.70$, $R_B{=}0.18$} \\
+Working set (MiB) & $R_C$ & Latency (ns/load) & Interpretation\\
 \midrule
-PyTorch (baseline)         & $0\%$              & $0\%$              & $0\%$ \\
-FlexGen                    & $-3.1 \pm 0.5\%$  & $-18.4 \pm 1.3\%$ & $\mathit{+8.2 \pm 0.9\%}$ \\
-DeepSpeed-Inference        & $-2.8 \pm 0.4\%$  & $-23.6 \pm 1.5\%$ & $\mathit{+11.7 \pm 1.1\%}$ \\
-vLLM (KV-cache)            & $-1.2 \pm 0.3\%$  & $-19.1 \pm 1.2\%$ & $\mathit{+3.4 \pm 0.6\%}$ \\
-Swap reduction ($-$10\%)   & $-0.8 \pm 0.3\%$  & $-0.3 \pm 0.2\%$  & $\mathbf{-14.2 \pm 1.1\%}$ \\
-\textsc{Orion} (adaptive)  & $\mathbf{-5.2 \pm 0.6\%}$ & $\mathbf{-27.1 \pm 1.6\%}$ & $\mathbf{-16.8 \pm 1.2\%}$ \\
+0.5 & 66.000 & $84.6\pm5.1$ & cache resident\\
+32  & 1.031  & $169.7\pm6.3$ & near LLC capacity\\
+96  & 0.344  & $186.9\pm12.1$ & majority non-resident\\
+256 & 0.129  & $190.6\pm9.7$ & memory dominated\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Cross-platform consistency.}
-Experiments replicated on AMD MI250 GPUs and Intel Xeon + Optane-PMem confirm
-that transition points remain within $\pm 0.05$ of predicted thresholds despite
-architectural differences.
-Because $\theta_B = 1.0$ and $\theta_C = 0.50$ are derived boundaries, they do
-not move with hardware; what changes across platforms is where operating points
-fall relative to them. On TPU v4 pods, elevated $T_{\mathrm{sync}}$ from
-SPMD-style collective synchronisation raises $T_{\mathrm{comp}}$ and shifts
-points toward the coordination-dominated side; on AWS Inferentia2, constrained
-host--device bandwidth pushes points earlier into the I/O-limited regime.
-These shifts affect which regime a configuration occupies but not the existence
-or qualitative character of the regime structure.
-In four-node A100 experiments
-(Megatron-LM~\cite{shoeybi2019megatronlm}), inter-node coordination moved
-operating points across the I/O-limited boundary while the derived thresholds
-were unchanged and the crossovers stayed abrupt
-(Supplementary Table~11).
+These measurements are proof-of-concept results from one CPU, not a substitute
+for the previously planned A100, MI250, TPU v4, Inferentia2, and Optane
+campaign. Accordingly, we make no quantitative cross-accelerator, classifier-
+accuracy, energy, or strategy-inversion claim in this version.
 
+\subsection{Reproducibility boundary}
 
-\subsection{Generality across workloads and architectures}
-\label{sec:generality}
-
-The defining condition for regime emergence is the relationship between
-working-set size and fast-memory capacity, not model architecture.
-Table~\ref{tab:cross-model} shows improvements across five model families
-(Llama-3 8B~\cite{grattafiori2024llama} through
-Mixtral 8$\times$7B~\cite{jiang2024mixtral} and
-ViT-H/14~\cite{dosovitskiy2021vit}), confirming that all
-three regime behaviours persist across autoregressive, mixture-of-experts,
-and vision workloads.
-
-\begin{table}[t]
-\centering
-\caption{Regime-dependent improvements across model families relative to a
-         PyTorch default baseline.
-         Platform: NVIDIA A100 (80\,GB), batch size\,=\,8, sequence length\,=\,2048.
-         Operating regime: coordination-dominated ($R_C \geq \theta_C$, $R_B \geq \theta_B$).
-         Values: mean\,$\pm$\,95\,\% bootstrap CI over $n_{\mathrm{eff}}\!=\!150$
-         measurement windows.}
-\label{tab:cross-model}
-\renewcommand{\arraystretch}{1.2}
-\footnotesize
-\begin{tabular}{llccc}
-\toprule
-\textbf{Model} & \textbf{Task} &
-  \makecell{\textbf{Load time}\\\textbf{reduction}} &
-  \makecell{\textbf{Latency}\\\textbf{reduction}} &
-  \makecell{\textbf{Swap}\\\textbf{reduction}} \\
-\midrule
-Llama-3 8B          & Generation & $52.0 \pm 1.8\%$ & $22.0 \pm 1.2\%$ & $23.0 \pm 1.5\%$ \\
-GPT-J 6B            & Summarise  & $55.3 \pm 2.1\%$ & $25.0 \pm 1.4\%$ & $25.1 \pm 1.7\%$ \\
-Llama-4 17B         & Generation & $57.4 \pm 2.3\%$ & $30.8 \pm 1.6\%$ & $26.8 \pm 1.8\%$ \\
-Mixtral 8$\times$7B & MoE        & $59.1 \pm 2.5\%$ & $32.5 \pm 1.9\%$ & $27.5 \pm 2.0\%$ \\
-ViT-H/14            & Vision     & $51.2 \pm 1.7\%$ & $18.2 \pm 1.1\%$ & $20.9 \pm 1.4\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Regime-dependent effects extend to non-LLM workloads (Table~\ref{tab:generality}).
-In BLIP2~\cite{li2023blip2} visual QA, retrieval pressure shifts the operating point from
-coordination-dominated ($R_B \approx 0.43$) into I/O-limited ($R_B \approx 0.31$)
-mid-inference; \textsc{Orion} detects the transition and recovers
-$11.2 \pm 1.4\%$ latency.
-In a FAISS-based~\cite{johnson2019faiss} RAG pipeline, vector-store spikes
-shift $R_C$ from 0.46 to 0.58;
-adaptive coordination cuts latency by $17.4 \pm 1.8\%$.
-An edge YOLOv8 deployment ($R_C\!=\!0.49$, $R_B\!=\!0.22$) recovers $9.5 \pm 1.2\%$
-and cuts frame-drop rate from 12\% to 2.5\%.
-In all three cases the observed regime matches the ($R_C$, $R_B$) prediction,
-and the ranking inversion---FlexGen +7.8\% in YOLOv8's I/O-limited regime
-versus $-18.4\%$ in coordination-dominated LLM inference---confirms that
-inversion is a property of the regime, not the workload architecture.
-A 25-point survey of the ($R_C$, $R_B$) space confirms three-regime consistency
-(Supplementary Table~7).
-
-\paragraph{Scientific computing workloads.}
-The regime structure extends to HPC-style scientific inference
-(Table~\ref{tab:generality}, lower rows).
-In ESMFold protein structure prediction~\cite{lin2023evolutionary}, long-sequence
-batches (length\,1024, batch\,8) accumulate MSA embeddings that shift $R_C$ from
-0.67 (coordination-dominated) to 0.43 (capacity-limited) during inference;
-\textsc{Orion} detects the transition and recovers $19.3 \pm 1.6\%$ latency, while
-FlexGen's aggressive offloading degrades by $+6.4\%$ once capacity saturates.
-In Pangu-Weather climate downscaling~\cite{bi2023pangu}, large spatial tensor
-transfers hold the system in the I/O-limited regime ($R_C\!=\!0.54$,
-$R_B\!=\!0.26$); swap-reduction recovers $13.8 \pm 1.3\%$ latency, whereas
-FlexGen amplifies transfer pressure by $+5.1\%$.
-In both cases the ($R_C$, $R_B$) classifier correctly identifies the regime,
-confirming that the two-ratio framework applies to scientific computing
-workloads with large spatial or sequence tensors.
-
-\paragraph{Isolating the classifier's contribution.}
-Comparing \textsc{Orion}$_{\mathrm{HW}}$ (hardware subsystems only, classifier
-disabled, strategy fixed) against \textsc{Orion}$_{\mathrm{Full}}$ (classifier
-running every 100\,ms) reveals that hardware optimisations alone yield
-$-3.8$ to $-8.3\%$ latency reduction; the regime classifier contributes
-an \emph{additional} $-1.1$ to $-18.8\%$ (21--69\% of total gain on LLM
-workloads), with the largest contribution in the coordination-dominated
-regime (69\%) where strategy choice has the most leverage.
-For workloads with mid-inference transitions (BLIP2, RAG), the classifier
-contributes 66--76\% of total gain
-(Supplementary Table~10).
-
-\begin{table}[t]
-\centering
-\caption{Regime structure and latency change across AI and scientific computing
-         workloads under all tested orchestration strategies.
-         All experiments: NVIDIA A100 (80\,GB), batch size\,=\,8.
-         Regime assigned by the runtime classifier (93.4\% accuracy).
-         Values: mean\,$\pm$\,95\,\% bootstrap CI over
-         $n_{\mathrm{eff}}\!=\!150$ measurement windows;
-         latency change relative to PyTorch default.
-         \textbf{Bold}: best performer per workload.
-         \emph{Italicised}: latency increase (worse than baseline).
-         $^{*}$vLLM not applicable to workloads without an autoregressive
-         KV cache.}
-\label{tab:generality}
-\renewcommand{\arraystretch}{1.2}
-\footnotesize
-\begin{tabular}{lcccccc}
-\toprule
-\textbf{Workload} &
-  \makecell{\textbf{Observed}\\\textbf{regime}} &
-  $R_C$ & $R_B$ &
-  \textbf{FlexGen} &
-  \textbf{vLLM} &
-  \makecell{\textbf{Orion}\\\textbf{(adaptive)}} \\
-\midrule
-BLIP2 VQA
-  & Coord.$\to$I/O
-  & $0.53\!\to\!0.51$ & $0.43\!\to\!0.31$
-  & $\mathit{+1.8 \pm 0.7\%}$
-  & $-3.2 \pm 0.6\%$
-  & $\mathbf{-11.2 \pm 1.4\%}$ \\
-RAG (FAISS)
-  & Cap.$\to$Coord.
-  & $0.46\!\to\!0.58$ & $0.42$
-  & $-5.1 \pm 0.8\%$
-  & $-8.3 \pm 1.1\%$
-  & $\mathbf{-17.4 \pm 1.8\%}$ \\
-YOLOv8
-  & I/O-limited
-  & $0.49$ & $0.22$
-  & $\mathit{+7.8 \pm 0.9\%}$
-  & n/a$^{*}$
-  & $\mathbf{-9.5 \pm 1.2\%}$ \\
-\midrule
-ESMFold~\cite{lin2023evolutionary}
-  & Coord.$\to$Cap.
-  & $0.67\!\to\!0.43$ & $0.51$
-  & $\mathit{+6.4 \pm 0.9\%}$
-  & $-5.2 \pm 0.7\%$
-  & $\mathbf{-19.3 \pm 1.6\%}$ \\
-Pangu-Weather~\cite{bi2023pangu}
-  & I/O-limited
-  & $0.54$ & $0.26$
-  & $\mathit{+5.1 \pm 0.9\%}$
-  & n/a$^{*}$
-  & $\mathbf{-13.8 \pm 1.3\%}$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[t]
-\centering
-\caption{Energy efficiency (throughput per Watt, normalised to PyTorch\,=\,100).
-         Platform: NVIDIA A100\,(80\,GB); model: Llama-3\,8B; batch\,=\,8;
-         sequence length\,=\,2048.
-         Power measured via NVML at 100\,ms intervals; coordination-dominated
-         regime ($R_C \geq \theta_C$, $R_B \geq \theta_B$).
-         Values: mean\,$\pm$\,95\,\% bootstrap CI over
-         $n_{\mathrm{eff}}\!=\!150$ windows.
-         CO$_2$ equivalents use the IEA\,(2024) global average carbon
-         intensity of 494\,gCO$_2$/kWh~\cite{iea2024electricity};
-         grid-mix variability dominates CO$_2$ uncertainty ($\pm$30\,\%).}
-\label{tab:energy}
-\renewcommand{\arraystretch}{1.2}
-\footnotesize
-\begin{tabular}{lccc}
-\toprule
-\textbf{Method} &
-  \makecell{\textbf{Avg.\ power}\\\textbf{(W)}} &
-  \makecell{\textbf{Throughput}\\\textbf{(tok/s)}} &
-  \makecell{\textbf{Tput/Watt}\\\textbf{(norm.)}} \\
-\midrule
-PyTorch (default)                       & $310 \pm 4$ & $6{,}200 \pm 80$ & 100.0 \\
-FlexGen~\cite{flexgen2023}              & $315 \pm 5$ & $6{,}800 \pm 90$ & $108.0 \pm 2.1$ \\
-SwapAdvisor~\cite{huang2020swapadvisor} & $320 \pm 5$ & $7{,}040 \pm 95$ & $110.0 \pm 2.2$ \\
-vLLM~\cite{kwon2023pagedattention}      & $318 \pm 5$ & $7{,}120 \pm 90$ & $112.0 \pm 2.1$ \\
-\textsc{Orion}                          & $322 \pm 5$ & $7{,}620 \pm 100$ & $118.5 \pm 2.4$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table~\ref{tab:energy} shows that energy efficiency is also regime-dependent,
-consistent with cluster-level evidence that the energy profile of LLM serving
-depends strongly on operating conditions~\cite{stojkovic2025dynamollm}.
-To quantify the regime effect on energy, we re-ran the same Llama-3\,8B workload
-at fixed batch size\,=\,8 and sequence length\,=\,2048 while sweeping $R_B$ from
-0.75 (coordination-dominated) down to 0.15 (I/O-limited), holding all other
-variables constant.
-In I/O-limited configurations ($R_B < 0.20$), throughput-per-Watt falls by
-3.2$\times$ compared with coordination-aligned operation ($R_B \geq \theta_B$);
-using the IEA (2024) global average carbon intensity of
-494\,gCO$_2$/kWh~\cite{iea2024electricity}, this corresponds to a rise
-from 15.8\,g to 42.5\,g of CO$_2$ per $10^6$ tokens generated.
-This indicates that regime misalignment---not hardware limitations alone---is
-a root cause of energy inefficiency.
-
-\FloatBarrier
+The repository contains the raw JSONL records, machine-readable summaries, and
+scripts used for Table~\ref{tab:cpu_probe}. It also contains a simulated backend
+for testing the analysis pipeline. Simulated output is labelled as such and is
+not used as empirical evidence. Accelerator support in the measurement harness
+is an executable protocol for future validation; it is not evidence that those
+accelerators were measured in this study.

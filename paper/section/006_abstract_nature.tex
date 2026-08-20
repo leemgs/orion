@@ -1,29 +1,20 @@
-%% ============================================================
-%%  Abstract & Keywords — sn-jnl / Nature Computational Science
-%%  Target length: ≤150 words (NCS strict guideline)
-%%  Style: "Here we show..." declarative opening
-%% ============================================================
-
 \abstract{%
-Here we show that hierarchical memory orchestration for AI inference
-is not continuously optimisable but exhibits intrinsic, abrupt regime
-transitions.
-Characterising any system by two dimensionless ratios---the fast-memory
-residency ratio ($R_C$) and the transfer-pressure ratio ($R_B$)---we
-identify three operationally distinct regimes: capacity-limited,
-coordination-dominated, and I/O-limited.
-Beyond capacity or bandwidth thresholds, regime-agnostic strategies fail
-predictably and their rankings \emph{invert}: methods reducing latency by
-24\% in favourable regimes increase it by 8--12\% once bandwidth saturates.
-We establish structural lower bounds on irreducible memory-access and transfer
-costs, derive the regime boundaries directly from the two ratios ($\theta_B=1.0$,
-the overlap boundary; $\theta_C=0.50$, the majority-residency crossover), and
-validate the resulting regime structure across language and vision workloads on
-GPU, TPU, and Inferentia2.
-These results reframe hierarchical memory optimisation as regime-aware
-design, with broad implications for memory-bound computing.
+Hierarchical-memory inference is commonly optimised as though additional
+coordination always improves performance. Here we formulate a testable
+alternative based on two dimensionless ratios: fast-memory residency
+$R_C=C_{\mathrm{fast}}/W$ and compute--transfer overlap
+$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$. These ratios define a
+capacity-limited region ($R_C<0.5$), an I/O-limited region
+($R_C\geq0.5$, $R_B<1$), and a coordination-dominated region
+($R_C\geq0.5$, $R_B\geq1$). We derive irreducible capacity and transfer-cost
+bounds and release a measurement harness that evaluates the ratios using
+wall-clock or device-event timing. Two CPU experiments provide an initial
+proof of concept: a pointer-chasing sweep shows mean access latency increasing
+from 84.6~ns at 0.5~MiB to 190.6~ns at 256~MiB, while an independent layered
+matrix probe shows a 2.15-fold latency ratio between low-residency and fully
+resident configurations. These single-platform results support the capacity
+prediction but do not establish accelerator or workload generality.
 }
 
 \keywords{hierarchical memory systems, memory orchestration, AI inference,
-regime transitions, regime-dependent behaviour, large language models,
-computational systems}
+working-set residency, compute--transfer overlap, reproducible measurement}

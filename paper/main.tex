@@ -130,28 +130,22 @@
 
 %% ---- Data availability (Nature Portfolio: standalone statement) ----
 \section*{Data availability}
-Pre-processed latency traces for all reported experiments---including the
-NVIDIA A100, Google TPU v4, AWS Inferentia2, AMD MI250, and Intel
-Optane-PMem platforms---together with the regime-classifier training data
-are available at \url{https://github.com/leemgs/orion}.
-Raw measurement logs (\texttt{.jsonl} format, one entry per 10\,s
-measurement window) will be archived with a DOI on Zenodo upon acceptance;
-they are available from the corresponding author on reasonable request
-during review.
+All data supporting the reported CPU measurements are included in the public
+repository at \url{https://github.com/leemgs/orion}, under
+\texttt{code/results/cpu\_probe/} and
+\texttt{code/results/colab\_probe/}. These directories contain the raw JSONL
+records and machine-readable JSON summaries used in the text and table. No
+accelerator data are reported in this article.
 
 %% ---- Code availability (Nature Portfolio: standalone statement) ----
 \section*{Code availability}
-The \textsc{Orion} measurement framework---including the DMA rate-limiter,
-NUMA-aware memory manager, CUPTI instrumentation wrappers, and the regime
-probing scripts used to generate all figures and tables---is openly
-available at \url{https://github.com/leemgs/orion}, with installation and
-build instructions for all five hardware platforms.
-The \texttt{src/experiments/} directory additionally provides
-simulation-based reproduction scripts (a parameterised
-\texttt{SimulatedBackend}) that reproduce the qualitative regime structure
-without physical access to the five platforms; all quantitative values
-reported in this paper derive from the real-hardware measurements described
-in Methods.
+The analysis and measurement code is available at
+\url{https://github.com/leemgs/orion}. The \texttt{code/experiments/}
+directory contains the CPU probes, analytical-figure generator, and optional
+CUDA/XLA measurement paths. Exact reproduction commands are provided in the
+README and Supplementary Information. A separately labelled simulated backend
+is supplied for software testing; simulated output is not used as evidence in
+this article.
 
 %% ---- Author Contributions ---------------------------------
 \section*{Author Contributions}
@@ -171,6 +165,6 @@ The author declares no competing interests.
 
 %% ---- Supplementary Information --------------------------------
 %% Nature Communications: submitted as a SEPARATE file — see supplementary.tex
-%% (builds supplementary.pdf; Supplementary Notes 1–5, Tables 1–11).
+%% (builds supplementary.pdf with derivations and reproduction details).
 
 \end{document}
