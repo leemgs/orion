@@ -18,7 +18,7 @@ completed accelerator or cross-workload validation.
   instructions.
 - `figures/orion_regime_map.png` — analytical, not empirical, regime map.
 - `check_submission.py` — guard against known draft-only claims and markers.
-- `submission/` — reconciliation and pre-submission audit notes.
+- `submission/` — reconciliation, pre-submission audit, and cover-letter draft.
 
 The CPU data and code live under `../code/`. In particular:
 
@@ -48,12 +48,13 @@ From the repository root:
 ```bash
 python code/experiments/cpu_hierarchy_probe.py
 python code/experiments/colab_regime_measurement.py --backend numpy --quick
+python code/experiments/export_paper_results.py
 python code/experiments/reproduce_regime_map.py
 ```
 
 The first two commands execute real CPU measurements. Exact timings vary by
-machine. The third command generates an analytical schematic from the released
-threshold constants and does not execute an experiment.
+machine. The third exports reported values from JSON into LaTeX macros. The
+fourth generates an analytical schematic and does not execute an experiment.
 
 ## Evidence boundary
 

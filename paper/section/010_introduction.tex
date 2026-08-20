@@ -54,12 +54,13 @@ We make three contributions:
     ($R_B = T_{\mathrm{comp}}/T_{\mathrm{transfer}} = 1$), and $\theta_C = 0.50$
     as the majority-residency crossover.
   \item \textbf{Open proof of concept.}
-    Two independently implemented CPU probes test the capacity prediction, and
-    the released harness provides CUDA and XLA paths for a future accelerator
-    campaign. We distinguish those unexecuted paths from reported evidence.
+    A compiled dependent-load CPU probe illustrates working-set sensitivity,
+    and a separate layered-matrix harness exercises the measurement protocol.
+    We distinguish these CPU observations and unexecuted CUDA/XLA paths from
+    accelerator evidence.
 \end{itemize}
 
-Together, the formulation and proof-of-concept data provide a reproducible
+Together, the formulation and CPU data provide a reproducible
 starting point for testing when hierarchical-memory coordination is constrained
 by residency or exposed transfer. They do not establish effect sizes or
 strategy rankings on accelerators.

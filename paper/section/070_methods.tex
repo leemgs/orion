@@ -12,14 +12,18 @@ coordination-dominated. This rule is implemented in the released Python code.
 
 \subsection*{Pointer-chain capacity probe}
 
-The dependency-light CPU probe allocates a NumPy array, constructs a seeded
-random permutation, and traverses it as a dependent pointer chain. Dependence
-between successive indices limits vectorisation and hardware prefetching. We
+The CPU probe allocates a NumPy array and constructs a seeded random
+permutation. A C11 kernel compiled with \texttt{-O3} traverses it as a dependent
+pointer chain; each loaded index determines the address of the next load,
+limiting vectorisation, instruction-level parallelism, and prefetching. We
 measured working sets of 0.5, 1, 2, 4, 8, 16, 24, 32, 48, 64, 96, 128, 192,
 and 256~MiB. Each point used seven timed trials after warm-up. The output stores
 working-set size, $R_C$, mean nanoseconds per dependent load, standard
-deviation, and trial count. The nominal fast-tier capacity was 33~MiB, matching
-the reported last-level cache of the test environment. No outlier was removed.
+deviation, and trial count. The fast-tier capacity was read from Linux sysfs
+and was 48~MiB. The host exposed three logical CPUs of an Intel Xeon Platinum
+8370C under KVM; the summary records the kernel, Python, and NumPy versions.
+Timing used \texttt{clock\_gettime(CLOCK\_MONOTONIC\_RAW)} inside the compiled
+loop. No outlier was removed and CPU affinity or frequency was not controlled.
 
 \subsection*{Layered matrix and copy probe}
 

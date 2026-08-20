@@ -10,10 +10,11 @@ $\theta_C=0.5$ is a declared midpoint that makes ``majority resident'' precise.
 A different application may choose another residency threshold without
 changing Equation~\eqref{eq:lower_bound_regime}.
 
-Both CPU probes support the qualitative capacity prediction. Their agreement
-is useful because they stress different mechanisms: dependent pointer loads
-probe the cache hierarchy directly, while the layered matrix harness combines
-weight copying with computation. Neither test emulates accelerator DMA,
+The CPU probes show that latency depends strongly on working-set residency, but
+they do not validate a sharp boundary at $R_C=0.5$. They stress different
+mechanisms: dependent pointer loads probe cache and translation effects, while
+the layered matrix harness combines weight copying with computation. Neither
+test emulates accelerator DMA,
 asynchronous streams, HBM, or collective communication. The data therefore do
 not establish the I/O crossover on a GPU or the generality of the three labels
 across model families.
@@ -32,9 +33,10 @@ requests, accelerator energy measurements, strategy comparisons, or unseen-
 hardware classifier tests. The standard deviations describe repeated trials on
 one machine and are not confidence intervals over a population of platforms.
 The pointer-chain endpoints also span several hierarchy transitions, so their
-ratio should not be interpreted as a universal effect size. Finally, the
-additive decomposition in Equation~\eqref{eq:latency_decomp} is an accounting
-model; overlap and contention couple its terms in real systems.
+ratio should not be interpreted as a universal effect size. Finally,
+Equation~\eqref{eq:latency_decomp} is an accounting identity only when its
+terms are defined as non-overlapping critical-path contributions; the
+max-form lower bound avoids assuming that decomposition in measured systems.
 
 A decisive follow-up should preregister operating-point grids around
 $R_C=0.5$ and $R_B=1$, collect raw event traces on at least two accelerator

@@ -24,6 +24,8 @@ FORBIDDEN = {
     r"across five hardware": "unsupported five-platform claim",
     r"upon acceptance": "deferred data promise",
     r"reasonable request": "data-on-request wording",
+    r"phase-like": "unsupported phase-transition framing",
+    r"strategy rankings? invert": "unsupported strategy-inversion claim",
 }
 
 

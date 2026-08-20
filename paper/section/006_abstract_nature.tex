@@ -1,19 +1,18 @@
 \abstract{%
-Hierarchical-memory inference is commonly optimised as though additional
-coordination always improves performance. Here we formulate a testable
-alternative based on two dimensionless ratios: fast-memory residency
+We formulate hierarchical-memory inference using two dimensionless ratios:
+fast-memory residency
 $R_C=C_{\mathrm{fast}}/W$ and compute--transfer overlap
 $R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$. These ratios define a
 capacity-limited region ($R_C<0.5$), an I/O-limited region
 ($R_C\geq0.5$, $R_B<1$), and a coordination-dominated region
 ($R_C\geq0.5$, $R_B\geq1$). We derive irreducible capacity and transfer-cost
-bounds and release a measurement harness that evaluates the ratios using
-wall-clock or device-event timing. Two CPU experiments provide an initial
-proof of concept: a pointer-chasing sweep shows mean access latency increasing
-from 84.6~ns at 0.5~MiB to 190.6~ns at 256~MiB, while an independent layered
-matrix probe shows a 2.15-fold latency ratio between low-residency and fully
-resident configurations. These single-platform results support the capacity
-prediction but do not establish accelerator or workload generality.
+bounds and release a measurement harness using wall-clock or device-event
+timing. A compiled dependent-load microbenchmark on
+one Intel Xeon CPU shows mean access time increasing from \CpuSmallMean~ns for a
+0.5~MiB working set to \CpuLargeMean~ns for 256~MiB. The increase spans several cache
+and translation levels and does not identify a discontinuity at $R_C=0.5$.
+These measurements illustrate why residency must be reported, but do not
+establish the labels on accelerators or production workloads.
 }
 
 \keywords{hierarchical memory systems, memory orchestration, AI inference,

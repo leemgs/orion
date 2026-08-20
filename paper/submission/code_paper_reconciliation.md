@@ -14,8 +14,9 @@ The analytical regime-map asset is generated from these constants by
 
 ## Evidence boundary
 
-The submitted claims are restricted to the two CPU experiments whose raw JSONL
-records and JSON summaries are committed under `code/results/`. Simulated
+The submitted claims are restricted to the compiled CPU pointer-chain
+measurement and the separate CPU harness check whose raw JSONL records and JSON
+summaries are committed under `code/results/`. Simulated
 backend outputs are not empirical evidence. CUDA and XLA paths are available as
 future measurement protocols, but the manuscript does not claim that GPU, TPU,
 Inferentia, MI250, or Optane experiments were performed.
@@ -31,4 +32,4 @@ raw traces are not present.
 2. Confirm that the PDFs contain no draft notes or unresolved references.
 3. Upload the exact repository commit cited in the submission system.
 4. Archive the committed CPU data and code with a DOI if the journal requests a
-   persistent repository before review.
+persistent repository before review.

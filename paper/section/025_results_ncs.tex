@@ -44,22 +44,24 @@ same constants as the released classifier and contains no empirical data.}
 \subsection{Irreducible costs and falsifiable predictions}
 \label{sec:model}
 
-For a step decomposed as
+For accounting purposes, write a step as
 \begin{equation}
 T_{\mathrm{total}}=T_{\mathrm{comp}}+T_{\mathrm{mem}}+
 T_{\mathrm{swap}}+T_{\mathrm{sync}},
 \label{eq:latency_decomp}
 \end{equation}
-a policy-independent lower bound on the memory and transfer contribution is
+a conservative service-time lower bound is
 \begin{equation}
-T_{\mathrm{mem}}+T_{\mathrm{swap}}\geq
-\rho W\max(0,1-R_C)+\frac{D}{B_{\mathrm{slow}}},
+T_{\mathrm{total}}\geq
+\max\!\left\{T_{\mathrm{comp}},
+\rho W\max(0,1-R_C),\frac{D}{B_{\mathrm{slow}}}\right\},
 \label{eq:lower_bound_regime}
 \end{equation}
-where $\rho$ is a measured miss penalty per byte for a specified access
-pattern. Equation~\eqref{eq:lower_bound_regime} deliberately excludes compute
-and synchronisation and therefore must not be interpreted as a complete
-end-to-end latency model.
+where $\rho$ is a lower bound on service time per non-resident byte for a
+specified access pattern. Taking the maximum permits ideal overlap and avoids
+double-counting bytes that contribute to both a cache miss and a cross-tier
+transfer. Synchronisation and contention can only increase observed time, so
+Equation~\eqref{eq:lower_bound_regime} is not a performance predictor.
 
 The formulation makes two falsifiable predictions. First, reducing residency
 while holding the access pattern fixed should expose a higher memory-access
@@ -71,38 +73,44 @@ claim that strategy rankings necessarily invert.
 \subsection{CPU proof-of-concept measurements}
 \label{sec:experiments}
 
-We evaluated the capacity prediction with two independent experiments on the
-available Intel Xeon CPU. The first experiment used a randomised pointer chain
-over working sets from 0.5 to 256~MiB, seven trials per point, and a declared
-33~MiB last-level-cache capacity. Mean dependent-load latency was
-$84.6\pm5.1$~ns at 0.5~MiB ($R_C=66$), $169.7\pm6.3$~ns at 32~MiB
-($R_C=1.03$), and $190.6\pm9.7$~ns at 256~MiB ($R_C=0.129$), where uncertainty
-is one standard deviation across trials. The endpoint ratio was 2.25. This
-experiment observes the expected cache-to-memory crossover, although hardware
-prefetching, translation, and multiple cache levels prevent attribution to a
-single boundary.
+We evaluated working-set sensitivity on an Intel Xeon Platinum 8370C CPU
+exposed through a virtualised Linux environment. The experiment used a
+randomised pointer chain over working sets from 0.5 to 256~MiB and seven trials
+per point. A compiled C loop performed dependent loads and timed them with
+\texttt{CLOCK\_MONOTONIC\_RAW}; Python was used only to construct the chain and
+summarise trials. Linux sysfs reported a 48~MiB last-level cache, which we used
+as $C_{\mathrm{fast}}$. Mean dependent-load time was
+$\CpuSmallMean\pm\CpuSmallSd$~ns at 0.5~MiB ($R_C=96$),
+$\CpuLlcMean\pm\CpuLlcSd$~ns at 48~MiB ($R_C=1$),
+$\CpuBoundaryMean\pm\CpuBoundarySd$~ns at 96~MiB ($R_C=0.5$), and
+$\CpuLargeMean\pm\CpuLargeSd$~ns at 256~MiB
+($R_C=0.188$), where uncertainty is one standard deviation across trials.
+The non-monotonic intermediate points show that cache level, translation,
+virtualisation, and system noise matter. In particular, these data do not show
+a discontinuity at the conventional $R_C=0.5$ label.
 
-The second experiment used the released layered matrix harness with 12 layers,
+As a separate harness check, we used the layered matrix program with 12 layers,
 $d=512$, batch size 8, and five timing windows. It varied the fraction of layer
 weights retained in the fast tier. The mean total latency averaged over the
-three sampled points below $R_C=0.5$ was 4.03~ms, compared with 1.87~ms for the
-fully resident point, a 2.15-fold ratio. Because computation and copying share
+three sampled points below $R_C=0.5$ was \MatrixLowMeanMs~ms, compared with
+\MatrixFullMeanMs~ms for the fully resident point, a
+\MatrixLatencyRatio-fold descriptive ratio. Because computation and copying share
 the same CPU memory system, the accompanying $R_B$ sweep was noisy and is not
 used as evidence for the I/O boundary.
 
 \begin{table}[t]
 \centering
-\caption{Selected measured points from the CPU pointer-chain experiment.
+\caption{Selected measured points from the compiled CPU pointer-chain experiment.
 Values are mean $\pm$ one standard deviation over seven trials.}
 \label{tab:cpu_probe}
 \begin{tabular}{rrrr}
 \toprule
 Working set (MiB) & $R_C$ & Latency (ns/load) & Interpretation\\
 \midrule
-0.5 & 66.000 & $84.6\pm5.1$ & cache resident\\
-32  & 1.031  & $169.7\pm6.3$ & near LLC capacity\\
-96  & 0.344  & $186.9\pm12.1$ & majority non-resident\\
-256 & 0.129  & $190.6\pm9.7$ & memory dominated\\
+0.5 & 96.000 & $\CpuSmallMean\pm\CpuSmallSd$ & small working set\\
+48  & 1.000  & $\CpuLlcMean\pm\CpuLlcSd$ & reported LLC capacity\\
+96  & 0.500  & $\CpuBoundaryMean\pm\CpuBoundarySd$ & residency convention\\
+256 & 0.188  & $\CpuLargeMean\pm\CpuLargeSd$ & largest working set\\
 \bottomrule
 \end{tabular}
 \end{table}

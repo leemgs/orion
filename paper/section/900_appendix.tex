@@ -11,6 +11,12 @@ T_{\mathrm{exposed}}\geq
 Thus $R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}=1$ is the equality boundary.
 This is a definition-derived boundary, not a fitted constant.
 
+The manuscript uses a maximum, rather than a sum, for the service-time lower
+bound. This permits perfect overlap among compute, memory service, and transfer
+and avoids counting the same data movement twice. Any synchronisation,
+contention, or incomplete overlap increases latency above that conservative
+bound.
+
 \subsection{Residency convention}
 The non-resident fraction under the aggregate-capacity approximation is
 $\max(0,1-R_C)$. We label $R_C<0.5$ capacity-limited because more than half of

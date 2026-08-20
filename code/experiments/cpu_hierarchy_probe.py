@@ -22,12 +22,73 @@ capacity-limited 레짐으로 급격히 전환된다)을 *실제 실리콘*에�
 from __future__ import annotations
 
 import argparse
+import ctypes
+import hashlib
 import json
+import os
+import platform
+import subprocess
 import statistics
-import time
+import tempfile
 from pathlib import Path
 
 import numpy as np
+
+
+def load_chase_kernel():
+    """Compile and load the small C kernel that removes Python-loop overhead."""
+    source = Path(__file__).with_name("cpu_pointer_chase.c")
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()[:12]
+    library = Path(tempfile.gettempdir()) / f"orion_pointer_chase_{digest}.so"
+    if not library.exists():
+        subprocess.run(
+            ["cc", "-O3", "-std=c11", "-fPIC", "-shared", str(source),
+             "-o", str(library)], check=True
+        )
+    lib = ctypes.CDLL(str(library))
+    fn = lib.chase_latency_ns
+    fn.argtypes = [ctypes.POINTER(ctypes.c_uint64), ctypes.c_size_t]
+    fn.restype = ctypes.c_double
+    return fn
+
+
+def detect_llc_bytes() -> int:
+    """Read the last-level unified/data cache size exposed by Linux sysfs."""
+    cache_root = Path("/sys/devices/system/cpu/cpu0/cache")
+    candidates: list[tuple[int, int]] = []
+    for index in cache_root.glob("index*"):
+        try:
+            cache_type = (index / "type").read_text().strip()
+            level = int((index / "level").read_text().strip())
+            raw_size = (index / "size").read_text().strip().upper()
+            multiplier = 1024 if raw_size.endswith("K") else 1024**2
+            size = int(raw_size[:-1]) * multiplier
+        except (OSError, ValueError):
+            continue
+        if cache_type in {"Unified", "Data"}:
+            candidates.append((level, size))
+    if not candidates:
+        raise RuntimeError("LLC size unavailable in Linux sysfs; pass --c-fast-mib")
+    return max(candidates)[1]
+
+
+def cpu_model() -> str:
+    try:
+        for line in Path("/proc/cpuinfo").read_text().splitlines():
+            if line.startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    except OSError:
+        pass
+    return platform.processor() or "unknown"
+
+
+def compiler_version() -> str:
+    try:
+        result = subprocess.run(["cc", "--version"], check=True, text=True,
+                                capture_output=True)
+        return result.stdout.splitlines()[0]
+    except (OSError, subprocess.SubprocessError, IndexError):
+        return "unknown"
 
 
 def make_chase(n_elems: int, rng: np.random.Generator) -> np.ndarray:
@@ -40,21 +101,15 @@ def make_chase(n_elems: int, rng: np.random.Generator) -> np.ndarray:
     return nxt
 
 
-def chase_latency_ns(nxt: np.ndarray, n_hops: int) -> float:
+def chase_latency_ns(kernel, nxt: np.ndarray, n_hops: int) -> float:
     """n_hops 번 포인터 체이싱하고 hop 당 평균 지연(ns)을 반환한다."""
-    idx = 0
-    t0 = time.perf_counter_ns()
-    for _ in range(n_hops):
-        idx = nxt[idx]           # 데이터 의존 접근 — 프리페처 무력화
-    t1 = time.perf_counter_ns()
-    # idx 를 소비해 루프가 최적화로 사라지지 않게 한다
-    if idx == -1:                # 절대 참
-        raise RuntimeError
-    return (t1 - t0) / n_hops
+    pointer = nxt.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64))
+    return float(kernel(pointer, n_hops))
 
 
 def run(c_fast_bytes: int, out_dir: Path, n_trials: int = 7) -> dict:
     rng = np.random.default_rng(20260818)
+    kernel = load_chase_kernel()
     bytes_per_elem = 8  # int64
 
     # 작업집합 크기를 L2(수 MiB) 아래부터 DRAM(수백 MiB)까지 스윕
@@ -74,8 +129,8 @@ def run(c_fast_bytes: int, out_dir: Path, n_trials: int = 7) -> dict:
         n_hops = min(4_000_000, max(400_000, n_elems * 4))
 
         # 워밍업 1회 후 n_trials 회 측정
-        chase_latency_ns(nxt, min(n_hops, 200_000))
-        trials = [chase_latency_ns(nxt, n_hops) for _ in range(n_trials)]
+        chase_latency_ns(kernel, nxt, min(n_hops, 200_000))
+        trials = [chase_latency_ns(kernel, nxt, n_hops) for _ in range(n_trials)]
 
         r_c = c_fast_bytes / w_bytes
         regime = "resident/coord" if r_c >= 0.5 else "capacity-limited"
@@ -97,8 +152,23 @@ def run(c_fast_bytes: int, out_dir: Path, n_trials: int = 7) -> dict:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "cpu_hierarchy_records.jsonl").write_text(
         "\n".join(json.dumps(r) for r in records) + "\n")
+    metadata = {
+        "cpu_model": cpu_model(),
+        "logical_cpus_visible": os.cpu_count(),
+        "platform": platform.platform(),
+        "python": platform.python_version(),
+        "numpy": np.__version__,
+        "c_compiler": compiler_version(),
+        "timer": "clock_gettime(CLOCK_MONOTONIC_RAW) inside compiled C kernel",
+        "seed": 20260818,
+        "warmup_hops_max": 200_000,
+        "c_fast_bytes": c_fast_bytes,
+        "c_fast_source": "Linux sysfs LLC auto-detection or --c-fast-mib override",
+        "n_trials": n_trials,
+    }
     (out_dir / "cpu_hierarchy_summary.json").write_text(
-        json.dumps({"c_fast_bytes": c_fast_bytes, "points": summary}, indent=2))
+        json.dumps({"metadata": metadata, "c_fast_bytes": c_fast_bytes,
+                    "points": summary}, indent=2))
 
     # 계단 전환(crossover) 정량화: LLC 상주 구간 대비 DRAM 바운드 구간의 지연 비
     resident = [s["lat_ns_mean"] for s in summary if s["r_c"] >= 1.0]
@@ -114,14 +184,15 @@ def run(c_fast_bytes: int, out_dir: Path, n_trials: int = 7) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    # 이 CPU 의 실측 LLC(L3) = 33 MiB
-    ap.add_argument("--c-fast-mib", type=float, default=33.0,
-                    help="빠른 메모리(LLC) 용량 MiB — 이 머신의 실측 L3")
+    ap.add_argument("--c-fast-mib", type=float,
+                    help="빠른 메모리(LLC) 용량 MiB (기본값: Linux sysfs 자동 감지)")
     ap.add_argument("--out", type=Path,
                     default=Path(__file__).resolve().parent.parent / "results" / "cpu_probe")
     ap.add_argument("--trials", type=int, default=7)
     args = ap.parse_args()
-    run(int(args.c_fast_mib * 2**20), args.out, args.trials)
+    c_fast_bytes = (int(args.c_fast_mib * 2**20)
+                    if args.c_fast_mib is not None else detect_llc_bytes())
+    run(c_fast_bytes, args.out, args.trials)
 
 
 if __name__ == "__main__":

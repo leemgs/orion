@@ -1,116 +1,130 @@
 {
-  "c_fast_bytes": 34603008,
+  "metadata": {
+    "cpu_model": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+    "logical_cpus_visible": 3,
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.39",
+    "python": "3.12.13",
+    "numpy": "2.5.2",
+    "c_compiler": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "timer": "clock_gettime(CLOCK_MONOTONIC_RAW) inside compiled C kernel",
+    "seed": 20260818,
+    "warmup_hops_max": 200000,
+    "c_fast_bytes": 50331648,
+    "c_fast_source": "Linux sysfs LLC auto-detection or --c-fast-mib override",
+    "n_trials": 7
+  },
+  "c_fast_bytes": 50331648,
   "points": [
     {
       "w_mib": 0.5,
-      "r_c": 66.0,
+      "r_c": 96.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 84.59738892857143,
-      "lat_ns_sd": 5.111890463988951,
+      "lat_ns_mean": 6.842065357142857,
+      "lat_ns_sd": 0.09166762158578079,
       "n_trials": 7
     },
     {
       "w_mib": 1,
-      "r_c": 33.0,
+      "r_c": 48.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 83.51246970040458,
-      "lat_ns_sd": 2.3329737345889936,
+      "lat_ns_mean": 10.78363309587751,
+      "lat_ns_sd": 2.0063563214023215,
       "n_trials": 7
     },
     {
       "w_mib": 2,
-      "r_c": 16.5,
+      "r_c": 24.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 88.3417752129691,
-      "lat_ns_sd": 3.874245257742227,
+      "lat_ns_mean": 26.494486536298478,
+      "lat_ns_sd": 5.3666796946249775,
       "n_trials": 7
     },
     {
       "w_mib": 4,
-      "r_c": 8.25,
+      "r_c": 12.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 105.31975514548165,
-      "lat_ns_sd": 8.253742211116602,
+      "lat_ns_mean": 30.490921837942942,
+      "lat_ns_sd": 3.98700160061955,
       "n_trials": 7
     },
     {
       "w_mib": 8,
-      "r_c": 4.125,
+      "r_c": 6.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 152.8185757857143,
-      "lat_ns_sd": 8.753097556351504,
+      "lat_ns_mean": 91.08585475,
+      "lat_ns_sd": 12.31403832052529,
       "n_trials": 7
     },
     {
       "w_mib": 16,
-      "r_c": 2.0625,
+      "r_c": 3.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 175.7084177857143,
-      "lat_ns_sd": 12.311178840061826,
+      "lat_ns_mean": 116.58404814285714,
+      "lat_ns_sd": 8.374471653159803,
       "n_trials": 7
     },
     {
       "w_mib": 24,
-      "r_c": 1.375,
+      "r_c": 2.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 163.41813207142857,
-      "lat_ns_sd": 4.380925869591592,
+      "lat_ns_mean": 131.30113696428572,
+      "lat_ns_sd": 11.035651277337026,
       "n_trials": 7
     },
     {
       "w_mib": 32,
-      "r_c": 1.03125,
+      "r_c": 1.5,
       "regime": "resident/coord",
-      "lat_ns_mean": 169.73569835714287,
-      "lat_ns_sd": 6.332208036234253,
+      "lat_ns_mean": 130.91624710714285,
+      "lat_ns_sd": 20.05621815329856,
       "n_trials": 7
     },
     {
       "w_mib": 48,
-      "r_c": 0.6875,
+      "r_c": 1.0,
       "regime": "resident/coord",
-      "lat_ns_mean": 176.4791705357143,
-      "lat_ns_sd": 7.104484085991931,
+      "lat_ns_mean": 118.49125042857143,
+      "lat_ns_sd": 6.560649112030516,
       "n_trials": 7
     },
     {
       "w_mib": 64,
-      "r_c": 0.515625,
+      "r_c": 0.75,
       "regime": "resident/coord",
-      "lat_ns_mean": 169.9513584642857,
-      "lat_ns_sd": 6.4922279733791,
+      "lat_ns_mean": 119.40399478571429,
+      "lat_ns_sd": 7.166061749911127,
       "n_trials": 7
     },
     {
       "w_mib": 96,
-      "r_c": 0.34375,
-      "regime": "capacity-limited",
-      "lat_ns_mean": 186.92729450000002,
-      "lat_ns_sd": 12.129768204630848,
+      "r_c": 0.5,
+      "regime": "resident/coord",
+      "lat_ns_mean": 132.47570149999999,
+      "lat_ns_sd": 14.334128417862168,
       "n_trials": 7
     },
     {
       "w_mib": 128,
-      "r_c": 0.2578125,
+      "r_c": 0.375,
       "regime": "capacity-limited",
-      "lat_ns_mean": 178.40828964285714,
-      "lat_ns_sd": 6.334285440328518,
+      "lat_ns_mean": 183.28688596428572,
+      "lat_ns_sd": 31.102781925475583,
       "n_trials": 7
     },
     {
       "w_mib": 192,
-      "r_c": 0.171875,
+      "r_c": 0.25,
       "regime": "capacity-limited",
-      "lat_ns_mean": 186.21792435714286,
-      "lat_ns_sd": 8.437765254594808,
+      "lat_ns_mean": 159.75788607142857,
+      "lat_ns_sd": 6.794657588979609,
       "n_trials": 7
     },
     {
       "w_mib": 256,
-      "r_c": 0.12890625,
+      "r_c": 0.1875,
       "regime": "capacity-limited",
-      "lat_ns_mean": 190.63846339285715,
-      "lat_ns_sd": 9.65748404371752,
+      "lat_ns_mean": 169.74714282142858,
+      "lat_ns_sd": 10.390878375836653,
       "n_trials": 7
     }
   ]
