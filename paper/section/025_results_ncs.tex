@@ -44,24 +44,29 @@ same constants as the released classifier and contains no empirical data.}
 \subsection{Irreducible costs and falsifiable predictions}
 \label{sec:model}
 
-For accounting purposes, write a step as
+For accounting purposes, define non-overlapping critical-path contributions so
+that a step can be written as
 \begin{equation}
 T_{\mathrm{total}}=T_{\mathrm{comp}}+T_{\mathrm{mem}}+
 T_{\mathrm{swap}}+T_{\mathrm{sync}},
 \label{eq:latency_decomp}
 \end{equation}
-a conservative service-time lower bound is
+Independently of that accounting decomposition, a conservative service-time
+lower bound that allows the underlying services to overlap is
 \begin{equation}
 T_{\mathrm{total}}\geq
 \max\!\left\{T_{\mathrm{comp}},
 \rho W\max(0,1-R_C),\frac{D}{B_{\mathrm{slow}}}\right\},
 \label{eq:lower_bound_regime}
 \end{equation}
-where $\rho$ is a lower bound on service time per non-resident byte for a
-specified access pattern. Taking the maximum permits ideal overlap and avoids
+where $W$ denotes bytes accessed in the step and $\rho$ is a lower bound on
+service time per non-resident byte for the specified access pattern. Taking the
+maximum permits ideal overlap and avoids
 double-counting bytes that contribute to both a cache miss and a cross-tier
 transfer. Synchronisation and contention can only increase observed time, so
-Equation~\eqref{eq:lower_bound_regime} is not a performance predictor.
+Equation~\eqref{eq:lower_bound_regime} is not a performance predictor. The
+residual above it cannot be assigned to one latency component without
+event-level measurements.
 
 The formulation makes two falsifiable predictions. First, reducing residency
 while holding the access pattern fixed should expose a higher memory-access

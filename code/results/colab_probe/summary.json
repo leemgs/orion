@@ -79,7 +79,7 @@
       "t_comp_s": 0.0018426450000163185,
       "t_transfer_s": 0.0,
       "t_total_s": 0.0018746686000042701,
-      "r_b": NaN,
+      "r_b": null,
       "t_total_sd": 0.00013876847689585047,
       "sweep": "R_C",
       "regime": "coordination-dominated",

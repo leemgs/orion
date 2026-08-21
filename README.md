@@ -1,11 +1,16 @@
 # ORION
 
-**Regime-Dependent Limits of Hierarchical Memory Orchestration in Large-Scale AI Inference**
-*Hierarchical memory orchestration in AI inference exhibits intrinsic regime-dependent limits*
+**Two dimensionless ratios define operational limits in hierarchical-memory inference**
 
-ORION demonstrates that hierarchical memory orchestration in large-scale AI inference has **fundamentally different limits across hardware and workload regimes**. The optimal orchestration strategy is determined by only two dimensionless ratios: **R_C** (compute-to-memory ratio) and **R_B** (bandwidth-to-capacity ratio). In certain regimes, the optimal strategy **inverts**.
+ORION is an analytical formulation and open measurement protocol for describing
+hierarchical-memory operating points with two dimensionless ratios:
+**R_C** (fast-memory capacity / active working set) and **R_B** (isolated compute
+time / compulsory-transfer time). The submitted evidence is deliberately
+limited to two proof-of-concept measurements on one CPU. It does not establish
+accelerator generality, policy rankings, or sharp regime transitions.
 
-Target journal: **Nature Communications** (primary submission target) — fallback: Nature Computational Science → npj. See §§8–9 of [paper/README.md](paper/README.md) for the detailed submission strategy.
+Target journal: **Nature Communications**. See [paper/README.md](paper/README.md)
+for the build, evidence boundary, and final author checks.
 
 ---
 
@@ -16,7 +21,7 @@ The repository is organized into three areas for easier maintenance.
 | Directory | Contents | Documentation |
 |-----------|----------|---------------|
 | [`code/`](code/) | ORION measurement framework and scripts for reproducing the paper's results (Python) | [code/README.md](code/README.md) |
-| [`paper/`](paper/) | LaTeX manuscript (IEEE and Nature templates), figures, references, and build scripts | [paper/README.md](paper/README.md) |
+| [`paper/`](paper/) | Nature Communications manuscript, supplementary information, figures, references, and build scripts | [paper/README.md](paper/README.md) |
 | [`ppt/`](ppt/) | Presentation materials (Korean and English slides, including the NCS presentation) | — |
 
 ---

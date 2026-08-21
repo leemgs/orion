@@ -14,7 +14,8 @@ ORION 레짐 실측 스크립트 (Colab GPU/TPU · 로컬 CPU 겸용)
   - GPU: torch.cuda.Event 로 커널/복사 구간을 실측(synchronize 포함).
   - TPU: torch_xla + time.perf_counter (mark_step 동기화).
   - CPU: numpy + time.perf_counter (torch 불필요, 로컬 검증용).
-합성·모델링 값은 없다. 측정 불가한 항목은 NaN 으로 남긴다.
+합성·모델링 값은 없다. 측정 불가한 항목은 메모리에서 NaN으로 다루되,
+결과 파일에는 표준 JSON의 null로 기록한다.
 가중치는 무작위 초기화한다 — 메모리 계층 프로브의 지연은 텐서 shape/dtype/
 잔류 상태에 좌우되지, 가중치 '값'에 좌우되지 않으므로 레짐 특성화에 타당하다
 (cuda_backend.py 의 동일 원칙).
@@ -248,6 +249,17 @@ def classify(r_c, r_b, theta_c=0.50, theta_b=1.0):
     return "coordination-dominated"
 
 
+def json_safe(value):
+    """Recursively replace non-finite floats so output is strict JSON."""
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, dict):
+        return {key: json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [json_safe(item) for item in value]
+    return value
+
+
 # ----------------------------------------------------------------------------
 # 스윕 드라이버
 # ----------------------------------------------------------------------------
@@ -286,11 +298,13 @@ def run(be: Backend, d, n_layers, batch, n_windows, quick):
     out = Path(__file__).resolve().parent.parent / "results" / "colab_probe"
     out.mkdir(parents=True, exist_ok=True)
     (out / "records.jsonl").write_text(
-        "\n".join(json.dumps(r) for r in records) + "\n")
-    (out / "summary.json").write_text(json.dumps(
+        "\n".join(json.dumps(json_safe(r), allow_nan=False) for r in records)
+        + "\n")
+    (out / "summary.json").write_text(json.dumps(json_safe(
         {"device": be.device, "backend": be.name, "d": d,
          "n_layers": n_layers, "batch": batch, "python": platform.python_version(),
-         "theta_C": 0.50, "theta_B": 1.0, "points": summary}, indent=2))
+         "theta_C": 0.50, "theta_B": 1.0, "points": summary}),
+         indent=2, allow_nan=False))
 
     # --- 논문 붙여넣기용 요약 ---
     a = [s for s in summary if s["sweep"] == "R_C"]

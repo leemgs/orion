@@ -1,16 +1,13 @@
 """
-Structural lower bound on inference latency (Eq. 3 in paper).
+Conservative service-time lower bound on inference latency.
 
-    T_total ≥ ρ·W·max(0, 1 − R_C) + D / B_slow
+    T_total ≥ max(T_comp, ρ·W·max(0, 1 − R_C), D / B_slow)
 
-The first term is the irreducible memory-access penalty from evicted
-working-set data under any eviction policy (Mattson et al. 1970).
-The second term is the minimum DMA transfer time for D compulsory bytes.
-
-T_sync is excluded from the bound: it represents physical coordination
-overhead that Orion can reduce but cannot eliminate at zero.
-The residual gap between the measured T_total and the lower bound
-(8–14% in our experiments) corresponds to the irreducible T_sync floor.
+Taking the maximum permits ideal overlap and avoids double-counting traffic
+represented by both the non-resident-byte and compulsory-transfer terms.
+Contention, synchronization, and incomplete overlap may increase observed
+latency, so the bound is not a performance predictor and its residual must not
+be attributed to a single mechanism without additional measurements.
 """
 
 from __future__ import annotations
@@ -24,9 +21,10 @@ from orion.ratios import OperatingPoint
 
 @dataclass
 class LowerBoundResult:
+    t_comp_min_s: float    # isolated computation time
     t_mem_min_s: float     # ρ·W·max(0, 1−R_C)
     t_swap_min_s: float    # D / B_slow
-    t_lower_bound_s: float # sum of above two terms
+    t_lower_bound_s: float # max of compute, memory, and transfer terms
     # Comparison with measured value (optional)
     t_measured_s: float = 0.0
 
@@ -39,7 +37,7 @@ class LowerBoundResult:
 
     @property
     def residual_fraction(self) -> float:
-        """Residual gap fraction = 1 − achievability ≈ T_sync contribution."""
+        """Unattributed fraction above the conservative lower bound."""
         return 1.0 - self.achievability
 
 
@@ -63,13 +61,15 @@ def compute_lower_bound(
     d_bytes = op.d_gb * 1e9
     b_slow  = op.b_slow_gbs * 1e9
 
+    t_comp_min = max(0.0, op.t_comp_s)
     t_mem_min  = rho * w_bytes * max(0.0, 1.0 - op.r_c)
     t_swap_min = d_bytes / b_slow if b_slow > 0 else 0.0
 
     return LowerBoundResult(
+        t_comp_min_s=t_comp_min,
         t_mem_min_s=t_mem_min,
         t_swap_min_s=t_swap_min,
-        t_lower_bound_s=t_mem_min + t_swap_min,
+        t_lower_bound_s=max(t_comp_min, t_mem_min, t_swap_min),
         t_measured_s=t_measured_s,
     )
 
@@ -79,16 +79,19 @@ def compute_lower_bound_from_hw(
     w_bytes: float,
     d_bytes: float,
     r_c: float,
+    t_comp_s: float = 0.0,
     t_measured_s: float = 0.0,
 ) -> LowerBoundResult:
     """Convenience wrapper that takes raw hardware and workload parameters."""
     b_slow = hw.b_slow_bps
+    t_comp_min = max(0.0, t_comp_s)
     t_mem_min  = hw.rho * w_bytes * max(0.0, 1.0 - r_c)
     t_swap_min = d_bytes / b_slow if b_slow > 0 else 0.0
     return LowerBoundResult(
+        t_comp_min_s=t_comp_min,
         t_mem_min_s=t_mem_min,
         t_swap_min_s=t_swap_min,
-        t_lower_bound_s=t_mem_min + t_swap_min,
+        t_lower_bound_s=max(t_comp_min, t_mem_min, t_swap_min),
         t_measured_s=t_measured_s,
     )
 
@@ -100,9 +103,9 @@ def sharpness_coefficient(
     """
     Empirical sharpness coefficient S = |d ln T_total / d ln R| at boundary.
 
-    Estimated by finite differences over log-log coordinates around the
-    regime boundary.  S > S* = 2.0 indicates abrupt (phase-like) transition.
-    S = 4.12 reported at θ_C in the paper.
+    Estimated by finite differences over log-log coordinates. Interpretation
+    requires a prespecified neighbourhood and uncertainty analysis; this helper
+    does not establish a transition or a universal decision threshold.
 
     Args:
         t_values: T_total measurements at consecutive R values.

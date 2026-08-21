@@ -5,7 +5,7 @@ setup(
     version="1.0.0",
     description=(
         "Hierarchical Memory Orchestration for AI Inference — "
-        "regime-based framework from Nature Computational Science"
+        "two-ratio hierarchical-memory measurement framework"
     ),
     packages=find_packages(exclude=["tests*", "experiments*"]),
     python_requires=">=3.9",

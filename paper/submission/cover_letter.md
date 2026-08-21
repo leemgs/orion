@@ -22,7 +22,7 @@ public repository separates measured from simulated output.
 
 All reported data and analysis code are available during review at
 https://github.com/leemgs/orion. The work is original, is not under
-consideration elsewhere, and all authors have approved the submission.
+consideration elsewhere, and the author has approved the submission.
 
 Sincerely,
 
