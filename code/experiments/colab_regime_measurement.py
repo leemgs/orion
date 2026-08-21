@@ -41,6 +41,7 @@ import platform
 import statistics
 import time
 from pathlib import Path
+import math
 
 NAN = float("nan")
 
