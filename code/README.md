@@ -381,10 +381,11 @@ print(f"Regime switches: {orc.metrics.n_regime_switches}")
 
 ## Data availability
 
-Raw measurement logs use JSONL format with one entry per 10-second window. The planned Zenodo record is:
-
-**DOI: [10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX)**  
-*(Placeholder; replace with the deposited DOI before submission or publication.)*
+Raw measurement logs use JSONL format with one entry per timing window. The
+records supporting the submitted manuscript are committed under
+`results/cpu_probe/` and `results/colab_probe/`. No archive DOI has been
+assigned; cite the exact repository commit during review and add a persistent
+archive identifier only after a deposit exists.
 
 Each JSONL entry contains: `timestamp`, `r_c`, `r_b`, `t_comp`, `t_mem`, `t_swap`, `t_sync`, `t_wall`, `platform`, `model`, `sweep_id`, `window_id`.
 
@@ -397,7 +398,7 @@ records = list(load_jsonl("path/to/sweep_00.jsonl"))
 
 ---
 
-## Reproducing sharpness coefficient S
+## Sharpness-coefficient API example
 
 ```python
 from orion.lower_bound import sharpness_coefficient
@@ -406,12 +407,12 @@ from orion.lower_bound import sharpness_coefficient
 t_values = [0.95, 0.93, 0.92, 0.88, 0.72, 0.54, 0.52, 0.51]
 r_values = [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65]
 S = sharpness_coefficient(t_values, r_values)
-print(f"S = {S:.2f}   (paper: 4.12 at θ_C, S* = 2.0)")
+print(f"S = {S:.2f}")
 ```
 
 ---
 
-## Statistical tests
+## Statistical-utility API examples
 
 ```python
 from utils.stats import bootstrap_ci, wilcoxon_one_sided, SweepStats
@@ -424,7 +425,7 @@ print(stats)
 # Wilcoxon test: H0: S ≤ S* = 2.0
 s_estimates = [4.05, 4.12, 3.98, 4.18, 4.09]
 p = wilcoxon_one_sided(s_estimates, null_value=2.0)
-print(f"p = {p:.4f}   (paper: p < 0.05 near boundaries)")
+print(f"p = {p:.4f}")
 ```
 
 ---

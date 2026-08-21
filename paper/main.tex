@@ -71,12 +71,7 @@
   \patchBothAmsMathEnvironmentsForLineno{multline}%
 }
 
-%% ---- Experiment-reporting helpers (kept from original) ---
-\newcommand{\ntrials}{5}
-\newcommand{\ci}{95\%~CI}
-\newcommand{\hwsetup}{2~$\times$~NVIDIA~A100~(80\,GB), 512\,GB DRAM, NVMe Gen4}
-\newcommand{\swsetup}{PyTorch~2.4, CUDA~12.2, vLLM~\cite{kwon2023pagedattention}~0.5.3}
-\newcommand{\capinfo}{\emph{Means across $n=\ntrials$ runs (\ci). HW: \hwsetup; SW: \swsetup.}}
+%% ---- Measured-result macros exported from committed records ---
 \input{generated_results}
 
 %% ---- ORCID icon (optional) ------------------------------

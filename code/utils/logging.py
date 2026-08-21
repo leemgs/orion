@@ -1,8 +1,8 @@
 """
 JSONL logging for measurement records (Methods §Code and data availability).
 
-Raw measurement logs (.jsonl format, one entry per 10-s window) are
-archived on Zenodo (DOI: 10.5281/zenodo.XXXXXXX).
+Raw measurement logs use JSONL format. The records supporting the submitted
+manuscript are version controlled in ``code/results``.
 """
 
 from __future__ import annotations
