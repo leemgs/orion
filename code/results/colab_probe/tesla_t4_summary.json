@@ -1,0 +1,31 @@
+{
+  "device": "GPU:Tesla T4",
+  "backend": "torch",
+  "provenance": "Measured on Google Colab (free Tesla T4 GPU runtime) with experiments/colab_regime_measurement.py; CUDA-event timing. Per-point means as printed by the run; per-window raw records were not retained from the Colab session.",
+  "d": 2048,
+  "n_layers": 24,
+  "batch": 8,
+  "windows": 10,
+  "theta_C": 0.50,
+  "theta_B": 1.0,
+  "points": [
+    {"sweep": "R_C", "r_c": 0.08, "r_b": 0.88, "t_total_s": 0.06001, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.21, "r_b": 0.48, "t_total_s": 0.04083, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.29, "r_b": 0.53, "t_total_s": 0.03810, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.42, "r_b": 0.65, "t_total_s": 0.03397, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.46, "r_b": 0.70, "t_total_s": 0.03247, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.50, "r_b": 0.75, "t_total_s": 0.03083, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.54, "r_b": 0.82, "t_total_s": 0.02954, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.58, "r_b": 0.90, "t_total_s": 0.02791, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.75, "r_b": 1.49, "t_total_s": 0.02215, "regime": "coordination-dominated"},
+    {"sweep": "R_C", "r_c": 0.92, "r_b": 4.48, "t_total_s": 0.01651, "regime": "coordination-dominated"},
+    {"sweep": "R_C", "r_c": 1.00, "r_b": null, "t_total_s": 0.01453, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 1,  "r_c": 0.58, "r_b": 0.21, "t_total_s": 0.01897, "regime": "io-limited"},
+    {"sweep": "R_B", "comp_repeats": 2,  "r_c": 0.58, "r_b": 0.35, "t_total_s": 0.02085, "regime": "io-limited"},
+    {"sweep": "R_B", "comp_repeats": 3,  "r_c": 0.58, "r_b": 0.54, "t_total_s": 0.02492, "regime": "io-limited"},
+    {"sweep": "R_B", "comp_repeats": 4,  "r_c": 0.58, "r_b": 0.66, "t_total_s": 0.02653, "regime": "io-limited"},
+    {"sweep": "R_B", "comp_repeats": 6,  "r_c": 0.58, "r_b": 0.90, "t_total_s": 0.02809, "regime": "io-limited"},
+    {"sweep": "R_B", "comp_repeats": 8,  "r_c": 0.58, "r_b": 1.19, "t_total_s": 0.03191, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 12, "r_c": 0.58, "r_b": 1.76, "t_total_s": 0.03998, "regime": "coordination-dominated"}
+  ]
+}

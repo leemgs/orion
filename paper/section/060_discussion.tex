@@ -13,11 +13,13 @@ changing Equation~\eqref{eq:lower_bound_regime}.
 The CPU probes show that latency depends strongly on working-set residency, but
 they do not validate a sharp boundary at $R_C=0.5$. They stress different
 mechanisms: dependent pointer loads probe cache and translation effects, while
-the layered matrix harness combines weight copying with computation. Neither
-test emulates accelerator DMA,
-asynchronous streams, HBM, or collective communication. The data therefore do
-not establish the I/O crossover on a GPU or the generality of the three labels
-across model families.
+the layered matrix harness combines weight copying with computation. The
+single-GPU run (Section~\ref{sec:gpu}) does exercise accelerator DMA and
+asynchronous CUDA streams, and it confirms both qualitative predictions,
+including the overlap crossover at $\theta_B=1$ that the CPU harness could not
+resolve. It nonetheless remains one accelerator: the data do not establish
+cross-accelerator boundary values, HBM- or collective-communication effects at
+scale, or the generality of the three labels across model families.
 
 The framework is most useful as a measurement discipline. Reporting $R_C$ and
 $R_B$ alongside latency makes hidden assumptions about residency and overlap

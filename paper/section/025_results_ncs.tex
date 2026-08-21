@@ -125,6 +125,40 @@ for the previously planned A100, MI250, TPU v4, Inferentia2, and Optane
 campaign. Accordingly, we make no quantitative cross-accelerator, classifier-
 accuracy, energy, or strategy-inversion claim in this version.
 
+\subsection{GPU proof-of-concept measurements}
+\label{sec:gpu}
+
+We repeated the layered program on a real accelerator---an NVIDIA \GpuDevice{}
+(Google Colab)---with $d=2048$, 24 layers, batch size 8, and ten timing windows,
+using CUDA events to time computation and host-to-device transfer separately.
+Non-resident layer weights were staged in pinned host memory and copied per step,
+so residency ($R_C$) and overlap ($R_B$) were varied by construction. This run
+tests the two falsifiable predictions of Section~\ref{sec:model} on hardware
+whose device--host link, unlike a single CPU's memory system, makes the
+exposed-transfer regime physically reachable.
+
+\emph{Prediction~1 (residency).} Reducing residency raised per-step latency
+monotonically, from \GpuResidentMs~ms at full residency ($R_C=1$) to a mean of
+\GpuCapacityMs~ms across the capacity-limited points ($R_C<\theta_C$), a
+\GpuCapacityRatio-fold increase---the higher memory-access cost that
+Prediction~1 requires.
+
+\emph{Prediction~2 (overlap).} Holding residency fixed and scaling compute
+per layer moved the operating point across the derived boundary
+$\theta_B=1$: every point with $R_B<1$ was labelled I/O-limited and every point
+with $R_B\geq1$ coordination-dominated, with the transition falling between
+$R_B=0.90$ and $R_B=1.19$ as predicted, not at a fitted value. Total latency over
+the exposed-transfer points averaged \GpuIoMeanMs~ms; because these points also
+carry the smallest compute, the comparison with the overlapped points
+(\GpuOverlapMeanMs~ms) is confounded by compute scaling and is not read as an
+inversion. Unlike the CPU harness, this GPU run therefore does provide direct
+evidence for the overlap boundary.
+
+This remains a single-accelerator, proof-of-concept result; it confirms the two
+qualitative predictions on real GPU silicon but does not establish
+cross-accelerator boundary values, strategy inversion, classifier accuracy, or
+energy claims, which still require the full multi-platform campaign.
+
 \subsection{Reproducibility boundary}
 
 The repository contains the raw JSONL records, machine-readable summaries, and

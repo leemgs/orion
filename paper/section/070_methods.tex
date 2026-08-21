@@ -27,13 +27,16 @@ loop. No outlier was removed and CPU affinity or frequency was not controlled.
 
 \subsection*{Layered matrix and copy probe}
 
-The second probe allocates 12 square, float32 layer matrices with $d=512$ and
-batch size 8. A selected fraction remains resident; non-resident matrices are
-copied before multiplication. NumPy's wall-clock path was used on the CPU, with
-five windows per point. Matrix entries are deterministically seeded and scaled
-by $1/\sqrt{d}$ to prevent numerical overflow during repeated multiplication.
-The script also supports CUDA-event timing and XLA synchronisation, but no GPU
-or TPU result is reported here.
+The second probe allocates square, float32 layer matrices; a selected fraction
+remains resident and non-resident matrices are copied before multiplication.
+Matrix entries are deterministically seeded and scaled by $1/\sqrt{d}$ to prevent
+numerical overflow during repeated multiplication. On the CPU we used NumPy's
+wall-clock path with 12 layers, $d=512$, and five windows per point. On the GPU
+(Section~\ref{sec:gpu}) the same program ran through the harness's CUDA-event
+path on an NVIDIA \GpuDevice{} with 24 layers, $d=2048$, batch size 8, ten
+windows, and pinned host staging; computation and host-to-device transfer were
+timed separately with \texttt{torch.cuda.Event}. The harness additionally
+supports XLA synchronisation for TPUs, which was not exercised here.
 
 For the reported capacity ratio, we averaged total latency at the three sampled
 points below $R_C=0.5$ and divided by latency at $R_C=1$. This endpoint summary
