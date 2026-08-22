@@ -298,14 +298,21 @@ def run(be: Backend, d, n_layers, batch, n_windows, quick):
 
     out = Path(__file__).resolve().parent.parent / "results" / "colab_probe"
     out.mkdir(parents=True, exist_ok=True)
+    payload = {"device": be.device, "backend": be.name, "d": d,
+               "n_layers": n_layers, "batch": batch,
+               "python": platform.python_version(),
+               "theta_C": 0.50, "theta_B": 1.0, "points": summary}
     (out / "records.jsonl").write_text(
         "\n".join(json.dumps(json_safe(r), allow_nan=False) for r in records)
         + "\n")
-    (out / "summary.json").write_text(json.dumps(json_safe(
-        {"device": be.device, "backend": be.name, "d": d,
-         "n_layers": n_layers, "batch": batch, "python": platform.python_version(),
-         "theta_C": 0.50, "theta_B": 1.0, "points": summary}),
-         indent=2, allow_nan=False))
+    (out / "summary.json").write_text(
+        json.dumps(json_safe(payload), indent=2, allow_nan=False))
+    # Device-tagged copy so multiple accelerator runs coexist without
+    # overwriting each other (e.g. accel_tesla-t4.json, accel_l4.json).
+    slug = "".join(c.lower() if c.isalnum() else "-" for c in be.device)
+    slug = "-".join(filter(None, slug.split("-")))
+    accel_file = out / f"accel_{slug}.json"
+    accel_file.write_text(json.dumps(json_safe(payload), indent=2, allow_nan=False))
 
     # --- 논문 붙여넣기용 요약 ---
     a = [s for s in summary if s["sweep"] == "R_C"]
@@ -326,7 +333,8 @@ def run(be: Backend, d, n_layers, batch, n_windows, quick):
     if io and hid:
         print(f"io-limited(R_B<1)  평균 T_total = {statistics.mean(io)*1e3:.2f} ms")
         print(f"overlapped(R_B>=1) 평균 T_total = {statistics.mean(hid)*1e3:.2f} ms")
-    print(f"저장: {out}/records.jsonl , summary.json")
+    print(f"저장: {out}/records.jsonl , summary.json , {accel_file.name}")
+    print(f"[2번째 가속기이면] 위 {accel_file.name} 파일 내용도 함께 전달해 주세요.")
     print("=" * 60)
 
 
