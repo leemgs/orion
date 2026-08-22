@@ -23,7 +23,7 @@ Their outcomes depend on model size, batch size, hardware topology, and the
 amount of traffic that remains on the critical path. This motivates a compact
 description that exposes those conditions before comparing policies.
 
-We answer this question with a regime-based view.
+We take a regime-based view.
 Denning's working-set model and thrashing theory~\cite{mattson1970evaluation}
 identify capacity saturation as a binary event on a \emph{single-tier} system,
 and the Roofline model~\cite{williams2009roofline} expresses performance as
@@ -54,15 +54,17 @@ We make three contributions:
     ($R_B = T_{\mathrm{comp}}/T_{\mathrm{transfer}} = 1$), and $\theta_C = 0.50$
     as the majority-residency crossover.
   \item \textbf{Open proof of concept.}
-    A compiled dependent-load CPU probe illustrates working-set sensitivity,
-    and a separate layered-matrix harness exercises the measurement protocol.
-    We distinguish these CPU observations and unexecuted CUDA/XLA paths from
-    accelerator evidence.
+    A compiled dependent-load CPU probe illustrates working-set sensitivity, and
+    a layered-matrix harness runs on both a CPU and a single NVIDIA GPU
+    (\GpuDevice), where the residency and overlap predictions both hold. We
+    distinguish this single-accelerator proof of concept, and the unexercised
+    XLA/TPU path, from a multi-platform campaign.
 \end{itemize}
 
-Together, the formulation and CPU data provide a reproducible
+Together, the formulation and measurements provide a reproducible
 starting point for testing when hierarchical-memory coordination is constrained
-by residency or exposed transfer. They do not establish effect sizes or
-strategy rankings on accelerators.
+by residency or exposed transfer. They confirm the two labels on one CPU and
+one GPU but do not establish effect sizes, strategy rankings, or
+cross-accelerator generality.
 
 \FloatBarrier

@@ -42,13 +42,21 @@ python code/experiments/colab_regime_measurement.py \
   --backend numpy --quick
 python code/experiments/reproduce_regime_map.py
 \end{verbatim}
-The last command regenerates an analytical schematic and does not perform an
-experiment. CPU results vary with processor, BLAS library, system load, and
-memory placement; exact numeric identity is not expected on other machines.
+The GPU measurements are reproduced by running the same harness on a
+CUDA device (e.g.\ a free cloud GPU runtime); it auto-detects the accelerator:
+\begin{verbatim}
+python code/experiments/colab_regime_measurement.py
+\end{verbatim}
+The \texttt{reproduce\_regime\_map.py} command regenerates an analytical
+schematic and does not perform an experiment. Measured latencies vary with
+processor, GPU, BLAS/CUDA library, system load, and memory placement; exact
+numeric identity is not expected on other machines.
 
-\subsection{Planned accelerator validation}
-A future confirmatory campaign should retain raw device-event timestamps,
-software versions, accelerator identifiers, warm-up policy, excluded-window
-reasons, and every prespecified operating point. CUDA and XLA paths already
-exist in the open harness. Their presence is not represented as completed
-validation.
+\subsection{Accelerator validation status}
+A single-GPU run on an NVIDIA \GpuDevice{} was performed with the harness's
+CUDA-event path (Section~\ref{sec:gpu}); the XLA/TPU path exists but was not
+exercised. This single-accelerator check is not represented as a multi-platform
+campaign. A future confirmatory campaign should retain raw device-event
+timestamps, software versions, accelerator identifiers, warm-up policy,
+excluded-window reasons, and every prespecified operating point across at least
+two accelerator architectures.
