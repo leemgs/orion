@@ -1,0 +1,32 @@
+{
+  "device": "TPU:Google TPU v5e",
+  "backend": "torch",
+  "provenance": "Measured on Google Colab TPU v5e-1 with experiments/colab_regime_measurement.py via the torch_xla path. NOTE: XLA uses deferred (lazy) execution, so per-op T_comp/T_transfer timing is unreliable; the R_B decomposition here is indicative only. Per-point means as printed by the run.",
+  "d": 2048,
+  "n_layers": 24,
+  "batch": 8,
+  "windows": 10,
+  "theta_C": 0.50,
+  "theta_B": 1.0,
+  "xla_timing_caveat": true,
+  "points": [
+    {"sweep": "R_C", "r_c": 0.08, "r_b": 0.89, "t_total_s": 0.34516, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.21, "r_b": 0.85, "t_total_s": 0.26482, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.29, "r_b": 0.65, "t_total_s": 0.25749, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.42, "r_b": 0.55, "t_total_s": 0.25282, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.46, "r_b": 0.62, "t_total_s": 0.23288, "regime": "capacity-limited"},
+    {"sweep": "R_C", "r_c": 0.50, "r_b": 0.30, "t_total_s": 0.22920, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.54, "r_b": 0.52, "t_total_s": 0.22292, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.58, "r_b": 0.40, "t_total_s": 0.20805, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.75, "r_b": 0.24, "t_total_s": 0.19777, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 0.92, "r_b": 0.07, "t_total_s": 0.17860, "regime": "io-limited"},
+    {"sweep": "R_C", "r_c": 1.00, "r_b": null, "t_total_s": 0.22064, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 1,  "r_c": 0.58, "r_b": 3.79, "t_total_s": 0.13782, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 2,  "r_c": 0.58, "r_b": 2.52, "t_total_s": 0.13441, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 3,  "r_c": 0.58, "r_b": 2.38, "t_total_s": 0.13987, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 4,  "r_c": 0.58, "r_b": 7.30, "t_total_s": 0.13651, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 6,  "r_c": 0.58, "r_b": 2.65, "t_total_s": 0.10484, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 8,  "r_c": 0.58, "r_b": 2.65, "t_total_s": 0.12960, "regime": "coordination-dominated"},
+    {"sweep": "R_B", "comp_repeats": 12, "r_c": 0.58, "r_b": 3.24, "t_total_s": 0.14888, "regime": "coordination-dominated"}
+  ]
+}

@@ -31,12 +31,14 @@ The second probe allocates square, float32 layer matrices; a selected fraction
 remains resident and non-resident matrices are copied before multiplication.
 Matrix entries are deterministically seeded and scaled by $1/\sqrt{d}$ to prevent
 numerical overflow during repeated multiplication. On the CPU we used NumPy's
-wall-clock path with 12 layers, $d=512$, and five windows per point. On the GPU
-(Section~\ref{sec:gpu}) the same program ran through the harness's CUDA-event
-path on an NVIDIA \GpuDevice{} with 24 layers, $d=2048$, batch size 8, ten
-windows, and pinned host staging; computation and host-to-device transfer were
-timed separately with \texttt{torch.cuda.Event}. The harness additionally
-supports XLA synchronisation for TPUs, which was not exercised here.
+wall-clock path with 12 layers, $d=512$, and five windows per point. On the
+accelerators (Section~\ref{sec:gpu}) the same program ran with 24 layers,
+$d=2048$, batch size 8, ten windows, and pinned host staging: on the NVIDIA
+\GpuDevice{} and A100 through the harness's CUDA-event path, timing computation
+and host-to-device transfer separately with \texttt{torch.cuda.Event}; and on a
+Google TPU~v5e through the \texttt{torch\_xla} path. Because XLA executes lazily,
+per-op $R_B$ timing on the TPU is unreliable and we treat its $R_B$ split as
+indicative only, relying on end-to-end latency for the residency test.
 
 For the reported capacity ratio, we averaged total latency at the three sampled
 points below $R_C=0.5$ and divided by latency at $R_C=1$. This endpoint summary

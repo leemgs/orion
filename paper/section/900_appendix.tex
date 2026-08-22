@@ -30,9 +30,10 @@ The machine-readable files
 pointer-chain points and seven-trial summaries. The files
 \path{code/results/colab_probe/records.jsonl} and
 \path{code/results/colab_probe/summary.json} contain the layered-matrix CPU measurements, and
-\path{code/results/colab_probe/tesla_t4_summary.json} contains the per-point
-NVIDIA \GpuDevice{} GPU measurements. Values in
-the main text are direct rounded summaries of those files.
+the device-tagged files \path{accel_tesla-t4.json}, \path{accel_a100.json}, and
+\path{accel_tpu-xla.json} (same directory) contain the per-point accelerator
+measurements for the NVIDIA \GpuDevice{}, the NVIDIA A100, and the Google
+TPU~v5e. Values in the main text are direct rounded summaries of those files.
 
 \subsection{Reproduction commands}
 From the repository root, the CPU measurements can be repeated with
@@ -53,10 +54,12 @@ processor, GPU, BLAS/CUDA library, system load, and memory placement; exact
 numeric identity is not expected on other machines.
 
 \subsection{Accelerator validation status}
-A single-GPU run on an NVIDIA \GpuDevice{} was performed with the harness's
-CUDA-event path (Section~\ref{sec:gpu}); the XLA/TPU path exists but was not
-exercised. This single-accelerator check is not represented as a multi-platform
-campaign. A future confirmatory campaign should retain raw device-event
-timestamps, software versions, accelerator identifiers, warm-up policy,
-excluded-window reasons, and every prespecified operating point across at least
-two accelerator architectures.
+Runs were performed on three accelerators of two vendors
+(Section~\ref{sec:gpu}): an NVIDIA \GpuDevice{} and an NVIDIA A100 through the
+CUDA-event path, and a Google TPU~v5e through the \texttt{torch\_xla} path. The
+residency prediction is confirmed on all three and the overlap boundary on the
+T4; these are proof-of-concept checks, not a preregistered multi-platform
+campaign. Such a campaign should retain raw device-event timestamps, software
+versions, accelerator identifiers, warm-up policy, excluded-window reasons, and
+every prespecified operating point, and should enlarge the per-step workload so
+that per-op timing is not dominated by launch overhead on fast devices.

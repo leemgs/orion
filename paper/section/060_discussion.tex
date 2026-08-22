@@ -14,12 +14,13 @@ The CPU probes show that latency depends strongly on working-set residency, but
 they do not validate a sharp boundary at $R_C=0.5$. They stress different
 mechanisms: dependent pointer loads probe cache and translation effects, while
 the layered matrix harness combines weight copying with computation. The
-single-GPU run (Section~\ref{sec:gpu}) does exercise accelerator DMA and
-asynchronous CUDA streams, and it confirms both qualitative predictions,
-including the overlap crossover at $\theta_B=1$ that the CPU harness could not
-resolve. It nonetheless remains one accelerator: the data do not establish
-cross-accelerator boundary values, HBM- or collective-communication effects at
-scale, or the generality of the three labels across model families.
+accelerator runs (Section~\ref{sec:gpu}) exercise real DMA and asynchronous CUDA
+streams across three devices of two vendors. The residency prediction holds on
+all three; the overlap crossover at $\theta_B=1$ is resolved on the T4, while the
+A100 sweep stayed compute-bound and the TPU's XLA timing is unreliable. The data
+do not establish per-device boundary \emph{values}, HBM- or
+collective-communication effects at scale, or the generality of the three labels
+across model families.
 
 The framework is most useful as a measurement discipline. Reporting $R_C$ and
 $R_B$ alongside latency makes hidden assumptions about residency and overlap
@@ -30,7 +31,7 @@ compute time must be measured for the actual workload and hardware rather than
 copied from nominal data-sheet values.
 
 Several limitations are material. The present evidence comes from one CPU and
-one GPU with small synthetic probes; it does not include production models,
+three accelerators (two GPUs and a TPU) with small synthetic probes; it does not include production models,
 concurrent requests, accelerator energy measurements, strategy comparisons, or
 unseen-hardware classifier tests. The standard deviations describe repeated
 trials on one machine and are not confidence intervals over a population of
@@ -48,5 +49,5 @@ architectures, and compare fixed orchestration policies without changing other
 workload parameters. Such data could test boundary sharpness, policy ranking,
 and generalisation. Until those measurements are available, the contribution
 of this work is the corrected analytical formulation, the open protocol, and a
-CPU-and-single-GPU proof of concept rather than a claim of universal
+CPU-and-multi-accelerator proof of concept rather than a claim of universal
 accelerator validation.

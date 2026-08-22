@@ -11,10 +11,18 @@
 따라서 검증의 요점은 "경계 위치"가 아니라 **동작점이 각 장치에서 예측한 쪽에
 떨어지는가**이다.
 
-## 현재 상태
-- **가속기 #1 = NVIDIA Tesla T4 (Colab)** — 완료·논문 반영됨.
-  용량 전환 2.83×, R_B=1.0에서 I/O 경계 확인.
-  데이터: `code/results/colab_probe/tesla_t4_summary.json`.
+## 현재 상태 (완료)
+서로 다른 아키텍처 **3종·2개 벤더** 실측 완료·논문 반영됨:
+- **NVIDIA Tesla T4** — 용량 전환 2.83×, R_B=1.0에서 I/O 경계 확인.
+  `code/results/colab_probe/accel_tesla-t4.json`
+- **NVIDIA A100** — 용량 전환 1.35×(방향 성립). sweep B는 compute-bound이라
+  I/O 경계 미탐침. `code/results/colab_probe/accel_a100.json`
+- **Google TPU v5e** — 용량 전환 1.23×(방향 성립). XLA 지연실행으로 R_B 분해
+  신뢰도 낮음(참고치). `code/results/colab_probe/accel_tpu-xla.json`
+
+핵심: **예측 1(잔류)은 3종 모두에서 성립**(방향; 크기는 장치 의존, 논문은 크기를
+예측하지 않음). **예측 2(오버랩 θ_B=1)는 T4에서 명확 확인.** 이로써 "단일 장치
+아티팩트" 지적을 완화하는 교차 아키텍처 증거를 확보.
 
 ## 가속기 #2 — 회원님이 셀 하나 실행 (권장 순서)
 

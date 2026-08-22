@@ -3,15 +3,16 @@
 ## Scientific reporting
 
 - The title and abstract state the limited contribution: an analytical
-  formulation and a CPU-and-single-GPU proof of concept.
+  formulation and a CPU-and-multi-accelerator proof of concept.
 - The Methods identify trial counts, grids, timing procedures, seeds,
   summaries, and the absence of hypothesis testing.
-- Limitations explicitly exclude multi-accelerator, production-workload, energy,
-  strategy-ranking, and classifier-generalisation claims; the single-GPU run is
-  scoped as a proof of concept, not a multi-platform campaign.
-- Every reported number is traceable to committed JSON/JSONL data (including the
-  Tesla T4 per-point summary); generated LaTeX macros prevent manual
-  transcription drift.
+- Limitations explicitly exclude per-device boundary values, production-workload,
+  energy, strategy-ranking, and classifier-generalisation claims; the three
+  accelerator runs (T4, A100, TPU v5e) are scoped as a proof of concept, not a
+  preregistered multi-platform campaign.
+- Every reported number is traceable to committed JSON data (the per-accelerator
+  accel_*.json summaries and the CPU summaries); generated LaTeX macros and the
+  generated comparison table prevent manual transcription drift.
 - The CPU summary records processor, visible CPU count, operating-system
   kernel, Python, NumPy, compiler, timer, seed, cache-size source, and trials.
 

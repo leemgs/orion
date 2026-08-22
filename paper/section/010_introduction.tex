@@ -79,16 +79,17 @@ We make three contributions:
     as the majority-residency crossover.
   \item \textbf{Open proof of concept.}
     A compiled dependent-load CPU probe illustrates working-set sensitivity, and
-    a layered-matrix harness runs on both a CPU and a single NVIDIA GPU
-    (\GpuDevice), where the residency and overlap predictions both hold. We
-    distinguish this single-accelerator proof of concept, and the unexercised
-    XLA/TPU path, from a multi-platform campaign.
+    a layered-matrix harness runs on a CPU and on \NumAccel{} accelerators of two
+    vendors (NVIDIA \GpuDevice{}, NVIDIA A100, Google TPU~v5e). The residency
+    prediction holds on all three accelerators and the overlap boundary is
+    resolved on the \GpuDevice{}. We distinguish this proof of concept from a
+    preregistered multi-platform campaign.
 \end{itemize}
 
 Together, the formulation and measurements provide a reproducible
 starting point for testing when hierarchical-memory coordination is constrained
-by residency or exposed transfer. They confirm the two labels on one CPU and
-one GPU but do not establish effect sizes, strategy rankings, or
-cross-accelerator generality.
+by residency or exposed transfer. They confirm the residency direction on one
+CPU and three accelerators, and the overlap boundary on one GPU, but do not
+establish effect sizes, strategy rankings, or per-device boundary values.
 
 \FloatBarrier
