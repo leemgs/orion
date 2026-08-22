@@ -8,20 +8,42 @@ memory, inference latency is governed less by compute and more by how efficientl
 execution coordinates data movement across a hierarchical memory system spanning
 device memory, host memory, and secondary
 storage~\cite{ma2026inference,gholami2024memorywall}.
+Because inference now dominates the recurring cost and energy of deployed
+models, this coordination has direct economic and environmental
+stakes~\cite{iea2024electricity,stojkovic2025dynamollm,juniewicz2026hyperscaler}.
+Memory-bound inference spans autoregressive language
+models~\cite{grattafiori2024llama,jiang2024mixtral}, vision and
+vision--language models~\cite{dosovitskiy2021vit,li2023blip2}, and
+retrieval-augmented pipelines~\cite{johnson2019faiss}, so the coordination
+question recurs across otherwise different workloads.
 
 Hardware analyses identify memory capacity, bandwidth, and interconnect
 latency as important constraints on
-inference~\cite{zhou2024survey}.
+inference~\cite{zhou2024survey,li2024llm,miao2025towards}.
 Separating capacity pressure from exposed transfer is therefore useful when
 reporting and comparing inference systems.
 
-Existing systems reduce memory pressure via CPU/NVMe
-offloading~\cite{flexgen2023,aminabadi2022deepspeedinference},
-GPU--CPU swapping~\cite{huang2020swapadvisor},
-and KV-cache management~\cite{kwon2023pagedattention}.
-Their outcomes depend on model size, batch size, hardware topology, and the
-amount of traffic that remains on the critical path. This motivates a compact
-description that exposes those conditions before comparing policies.
+Existing systems reduce memory pressure along several axes.
+Serving frameworks manage the KV cache and schedule requests to raise
+throughput~\cite{kwon2023pagedattention,yu2022orca,du2025prefillonly,jin2024p};
+offloading and memory-pooling systems spill weights or activations to host DRAM
+or NVMe~\cite{flexgen2023,aminabadi2022deepspeedinference,xu2024pie,neo2024,2025specoffload,ellm2023};
+swapping systems stage tensors on and off the
+accelerator~\cite{huang2020swapadvisor,wang2024swapnet,kida2025revisiting};
+and compression---sparsity, pruning, and IO-aware attention---shrinks the
+working set or its traffic~\cite{frantar2023sparsegpt,dao2022flashattention,korthikanti2023reducing}.
+Parallelism redistributes memory across
+devices~\cite{huang2019gpipe,shoeybi2019megatronlm}, while host-side allocators
+and NUMA-aware placement shape the sustained transfer
+path~\cite{osdi21malloc,yang2023numalloc,milic2017beyond,waldspurger2002ballooning}.
+The design space is large enough to warrant several recent
+surveys~\cite{long2025survey,wang2023modeloffloading}, and it widens further in
+edge and heterogeneous
+deployments~\cite{sarkar2023edge,luo2025toward,he2023cpu,beaumont2020optimal}.
+Across these approaches the same technique can help or hurt depending on model
+size, batch size, hardware topology, and how much compulsory traffic remains on
+the critical path. This motivates a compact description that exposes those
+conditions before comparing policies.
 
 We take a regime-based view.
 Denning's working-set model and thrashing theory~\cite{mattson1970evaluation}
@@ -31,7 +53,9 @@ $\min(F \cdot I,\, B_{\mathrm{peak}})$ for a fixed workload on a single tier.
 Neither framework addresses a \emph{multi-tier} hierarchy in which computation,
 locality, cross-tier transfer, and synchronisation co-exist as distinct,
 adjustable latency terms.
-Our accounting model decomposes end-to-end latency into four terms
+Building instead on classical queueing analysis of overlapping
+services~\cite{kleinrock1975queueing}, our accounting model decomposes
+end-to-end latency into four terms
 ($T_{\mathrm{comp}} + T_{\mathrm{mem}} + T_{\mathrm{swap}} + T_{\mathrm{sync}}$)
 and uses two dimensionless ratios to label an operating point.
 The three operational labels are governed by the
