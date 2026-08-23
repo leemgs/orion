@@ -144,9 +144,23 @@ exceeded that at full residency ($R_C\geq1$), by
 \AccelCapRatioMin--\AccelCapRatioMax$\times$
 (Table~\ref{tab:accel}). The formulation predicts this \emph{direction}, not its
 magnitude; the magnitude shrinks on higher-bandwidth devices, where the offload
-penalty is smaller relative to compute. Near $R_C=1$ the faster devices show
-non-monotonic noise, consistent with the small per-step workload
-($d=2048$) leaving launch and measurement overhead visible.
+penalty is smaller relative to compute.
+
+Latency is monotone in the number of offloaded (transferred) layers down to two
+offloaded layers on all three devices; the only departure is the single
+fully-resident point ($R_C=1$, zero transfers), which sits above the trend on
+the A100 ($+9$~ms) and the TPU ($+42$~ms) but not on the slower T4. We traced
+this to a measurement artifact rather than device memory behaviour: the
+fully-resident point is the one operating point at which the offload code path is
+skipped entirely, so it executes a structurally distinct computation---on the
+TPU a separately compiled XLA graph. At $d=2048$ the true per-step memory signal
+is small on the fast accelerators, so this point's one-off compilation and
+launch overhead exceed the residual signal, whereas on the slower T4 the signal
+dominates and monotonicity is preserved. An eager-execution control (NumPy
+backend, identical sweep) shows the fully-resident point as the \emph{lowest}
+latency, confirming the effect originates in the accelerator execution/timing
+path, not the probe logic. We have since added a discarded warm-up iteration to
+the harness so that per-point compilation is excluded from future timings.
 
 \emph{Prediction~2 (overlap) is resolved on the T4.} Holding residency fixed and
 scaling compute moved the T4 operating point across the derived boundary

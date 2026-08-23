@@ -215,20 +215,28 @@ def measure_point(be: Backend, d: int, n_layers: int, batch: int,
     resident = [be.new_weight(d) for _ in range(n_res)]
     host_off = [be.new_host_weight(d) for _ in range(n_off)]
 
-    t_comp_l, t_tx_l, t_tot_l = [], [], []
-    for _ in range(n_windows):
+    def one_step():
+        """한 스텝 실행. (t_total, comp, tx) 반환."""
         x = be.new_activation(batch, d)
         step_t0 = time.perf_counter()
-        # (1) 오프로딩 층: 전송 후 연산
         tx = 0.0; comp = 0.0
-        for hw in host_off:
+        for hw in host_off:                      # (1) 오프로딩 층: 전송 후 연산
             dev_w, dt = be.transfer_in(hw); tx += dt
             x, ct = be.matmul(x, dev_w, comp_repeats); comp += ct
-        # (2) 상주 층: 연산만
-        for rw in resident:
+        for rw in resident:                      # (2) 상주 층: 연산만
             x, ct = be.matmul(x, rw, comp_repeats); comp += ct
-        t_tot_l.append(time.perf_counter() - step_t0)
-        t_comp_l.append(comp); t_tx_l.append(tx)
+        return (time.perf_counter() - step_t0), comp, tx
+
+    # 워밍업 1스텝(측정 제외): 이 (R_C, R_B) 동작점의 그래프 구조가 다르므로
+    # XLA 컴파일·지연 초기화·할당 캐시를 정상 상태로 만든 뒤 측정한다.
+    # (R_C=1 처럼 오프로딩 루프가 비는 구조적으로 구별되는 점의 1회성 비용이
+    #  측정 평균에 섞이는 비단조성 아티팩트를 줄인다.)
+    one_step()
+
+    t_comp_l, t_tx_l, t_tot_l = [], [], []
+    for _ in range(n_windows):
+        tot, comp, tx = one_step()
+        t_tot_l.append(tot); t_comp_l.append(comp); t_tx_l.append(tx)
 
     t_comp = statistics.mean(t_comp_l)
     t_tx = statistics.mean(t_tx_l)
