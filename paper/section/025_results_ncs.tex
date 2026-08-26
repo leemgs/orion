@@ -68,6 +68,35 @@ Equation~\eqref{eq:lower_bound_regime} is not a performance predictor. The
 residual above it cannot be assigned to one latency component without
 event-level measurements.
 
+Two normalized consequences make the formulation useful beyond relabelling a
+roofline plot. No placement policy can make more than $C_{\mathrm{fast}}$ bytes
+resident, so the minimum non-resident share of an active working set is
+\begin{equation}
+f_{\mathrm{nonresident}}\geq \max(0,1-R_C).
+\label{eq:nonresident_fraction}
+\end{equation}
+Even a perfect overlap schedule leaves an exposed interval
+$\max(0,T_{\mathrm{transfer}}-T_{\mathrm{comp}})$; normalized by transfer time,
+\begin{equation}
+f_{\mathrm{exposed}}\geq \max(0,1-R_B).
+\label{eq:exposed_fraction}
+\end{equation}
+Thus $R_C$ answers how much placement pressure is irreducible, whereas $R_B$
+answers how much compulsory-transfer service cannot be hidden. The pair also
+supports controlled comparison across scales: multiplying both capacity and
+working set by the same factor leaves $R_C$ unchanged, as does multiplying both
+isolated service times by the same factor for $R_B$. Absolute latency still
+requires the dimensional quantities in Equation~\eqref{eq:lower_bound_regime}.
+
+This separation gives an actionable diagnostic without asserting an optimal
+policy. If $R_C<0.5$, interventions must reduce the active working set, increase
+usable capacity, or reduce the bytes touched while non-resident. If
+$R_C\geq0.5$ but $R_B<1$, overlap alone cannot remove the exposed interval, so
+reducing compulsory traffic or increasing sustained link bandwidth is
+necessary. If both tests pass, the residual directs measurement toward
+synchronisation, launch, contention, or locality costs. Labels describe
+operating points, not devices, and can change after an intervention.
+
 The formulation makes two falsifiable predictions. First, reducing residency
 while holding the access pattern fixed should expose a higher memory-access
 cost. Second, when $R_C\geq\theta_C$, configurations with $R_B<1$ must expose
@@ -190,9 +219,10 @@ claims, which still require a larger, preregistered multi-platform campaign.
 
 \subsection{Reproducibility boundary}
 
-The repository contains the raw JSONL records, machine-readable summaries, and
-scripts used for Table~\ref{tab:cpu_probe}. It also contains a simulated backend
-for testing the analysis pipeline. Simulated output is labelled as such and is
-not used as empirical evidence. Accelerator support in the measurement harness
-is an executable protocol for future validation; it is not evidence that those
-accelerators were measured in this study.
+The repository contains the CPU raw JSONL records, per-accelerator JSON
+summaries, machine-readable aggregate summaries, and export scripts used for
+Tables~\ref{tab:cpu_probe} and~\ref{tab:accel}. It also contains a simulated
+backend for testing the analysis pipeline. Simulated output is labelled as such
+and is not used as empirical evidence. The accelerator summaries support only
+the proof-of-concept comparisons reported here; they are not a substitute for
+raw event traces or independent hardware replication.

@@ -59,9 +59,10 @@ fourth generates an analytical schematic and does not execute an experiment.
 
 ## Evidence boundary
 
-The repository also includes simulated analysis paths and optional CUDA/XLA
-measurement paths. They are useful for testing or future experiments but are
-not evidence for claims in the submitted manuscript. Do not reintroduce earlier
+The repository also includes a separately labelled simulated analysis path,
+which is useful for software testing but is not evidence for claims in the
+submitted manuscript. The committed CUDA/XLA summaries support only the
+accelerator proof-of-concept reported in the paper. Do not reintroduce earlier
 draft claims about five-platform calibration, strategy inversion, classifier
 accuracy, or accelerator energy unless the corresponding raw traces, analysis,
 and Methods are added and independently checked.
@@ -81,5 +82,5 @@ Before uploading to the journal portal:
    and add its DOI to the Data availability statement.
 
 No checklist can guarantee editorial acceptance. The manuscript states its
-single-platform scope so that editors and reviewers can evaluate the evidence
-actually available.
+small synthetic, non-replicated scope so that editors and reviewers can
+evaluate the evidence actually available.

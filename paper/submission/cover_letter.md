@@ -14,12 +14,12 @@ total step duration inside a transfer-pressure ratio is circular.
 
 We have deliberately limited the empirical claim to a proof of concept. The
 evidence is a compiled dependent-load experiment on one virtualised Intel Xeon
-CPU and a layered-matrix run on a single NVIDIA Tesla T4 GPU; on the GPU both
-falsifiable predictions hold—latency rises as residency falls below the
-majority-residency convention, and the I/O-limited label appears exactly at the
-derived overlap boundary that the CPU harness could not resolve. We do not
-claim multi-accelerator, production-model, energy, or strategy-ranking
-validation. The manuscript states these limitations in the abstract, Results,
+CPU and layered-matrix runs on three accelerators of two vendors (NVIDIA T4 and
+A100, and Google TPU v5e). The residency direction holds on all three; the T4
+also crosses the derived overlap boundary that the other sweeps did not
+reliably resolve. We do not claim production-model, energy, strategy-ranking,
+per-device-boundary, or population-level hardware validation. The manuscript
+states these limitations in the abstract, Results,
 Methods, and Discussion, and the public repository separates measured from
 simulated output.
 

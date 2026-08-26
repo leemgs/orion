@@ -35,5 +35,5 @@ from the evidence.
   its DOI before submission.
 
 No editorial outcome can be guaranteed. The remaining primary scientific
-limitation is the single-platform proof-of-concept scope, which is stated
-without qualification or hidden placeholder claims.
+limitation is the small synthetic, non-replicated proof-of-concept scope, which
+is stated without qualification or hidden placeholder claims.

@@ -30,6 +30,17 @@ For deployment, $C_{\mathrm{fast}}$, $W$, $D$, sustained bandwidth, and isolated
 compute time must be measured for the actual workload and hardware rather than
 copied from nominal data-sheet values.
 
+Its broader relevance is methodological rather than tied to one model family.
+Weights, KV caches, embeddings, feature maps, and retrieval indices are
+different objects, but each admits the same audit: declare the active bytes and
+usable fast tier, measure compulsory cross-tier bytes and sustained bandwidth,
+and isolate compute time. Equations~\eqref{eq:nonresident_fraction}
+and~\eqref{eq:exposed_fraction} then state which part of the pressure cannot be
+removed by placement or ideal overlap. This creates a common reporting layer
+under otherwise incomparable offloading, compression, scheduling, and memory-
+pooling studies. Whether it predicts application outcomes is a hypothesis for
+production workloads, not a result of the present probes.
+
 Several limitations are material. The present evidence comes from one CPU and
 three accelerators (two GPUs and a TPU) with small synthetic probes; it does not include production models,
 concurrent requests, accelerator energy measurements, strategy comparisons, or

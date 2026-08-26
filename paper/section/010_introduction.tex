@@ -50,9 +50,14 @@ Denning's working-set model and thrashing theory~\cite{mattson1970evaluation}
 identify capacity saturation as a binary event on a \emph{single-tier} system,
 and the Roofline model~\cite{williams2009roofline} expresses performance as
 $\min(F \cdot I,\, B_{\mathrm{peak}})$ for a fixed workload on a single tier.
-Neither framework addresses a \emph{multi-tier} hierarchy in which computation,
-locality, cross-tier transfer, and synchronisation co-exist as distinct,
-adjustable latency terms.
+Roofline supplies a throughput ceiling and working-set analysis supplies a
+capacity lens, but neither alone distinguishes two operating points with the
+same arithmetic intensity and working-set size when one can overlap its
+cross-tier traffic and the other cannot. Conversely, a queueing description can
+represent overlap but does not supply a portable coordinate for residency.
+This is the narrow gap addressed here: not a replacement for these frameworks,
+but a common coordinate system for a \emph{multi-tier} hierarchy in which
+locality, cross-tier transfer, and synchronisation co-exist.
 Building instead on classical queueing analysis of overlapping
 services~\cite{kleinrock1975queueing}, our accounting model decomposes
 end-to-end latency into four terms
@@ -77,6 +82,9 @@ We make three contributions:
     $\theta_B = 1.0$ derived as the overlap boundary
     ($R_B = T_{\mathrm{comp}}/T_{\mathrm{transfer}} = 1$), and $\theta_C = 0.50$
     as the majority-residency crossover.
+    The ratios also expose normalized lower bounds: the non-resident fraction is
+    at least $\max(0,1-R_C)$ and the fraction of transfer time that ideal overlap
+    cannot hide is $\max(0,1-R_B)$.
   \item \textbf{Open proof of concept.}
     A compiled dependent-load CPU probe illustrates working-set sensitivity, and
     a layered-matrix harness runs on a CPU and on \NumAccel{} accelerators of two

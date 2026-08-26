@@ -100,7 +100,8 @@ Two scripts perform **real** measurements (wall-clock / CUDA-event timing, nothi
 - `experiments/colab_regime_measurement.py` — varies R_C (residency) and R_B (overlap) on real hardware; auto-detects a CUDA GPU, a TPU (via XLA), or a CPU. Measured on **three accelerators of two vendors** — NVIDIA Tesla T4 (2.83× capacity crossover; overlap boundary at θ_B=1 resolved), NVIDIA A100 (1.35×), and Google TPU v5e (1.23×) — see [`results/colab_probe/README.md`](results/colab_probe/README.md). The residency direction holds on all three; magnitudes are device-dependent and not predicted.
 - `experiments/cpu_hierarchy_probe.py` — pointer-chasing latency sweep over this machine's real cache hierarchy (L2/L3/DRAM); measures a **2.20×** cache-resident→DRAM-bound crossover (see [`results/cpu_probe/README.md`](results/cpu_probe/README.md)).
 
-Both are single-platform, qualitative confirmations of the capacity crossover; they do **not** substitute the five-accelerator quantitative campaign.
+Together they are small, qualitative confirmations of the capacity crossover;
+they do **not** substitute a preregistered, replicated accelerator campaign.
 
 ## Reproducing the manuscript results
 
