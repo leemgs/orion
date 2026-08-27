@@ -29,6 +29,26 @@ FORBIDDEN = {
 }
 
 
+def abstract_word_count(text: str) -> int:
+    """Count rendered abstract words, expanding the result macros it uses."""
+    match = re.search(r"\\abstract\{%(.*?)\n\}", text, flags=re.DOTALL)
+    if match is None:
+        return 0
+    abstract = match.group(1)
+    expansions = {
+        r"\NumAccel{}": "three",
+        r"\GpuDevice{}": "Tesla T4",
+        r"\AccelCapRatioMin": "1.23",
+        r"\AccelCapRatioMax": "2.83",
+        r"\times": "times",
+    }
+    for macro, rendered in expansions.items():
+        abstract = abstract.replace(macro, rendered)
+    abstract = re.sub(r"\\[A-Za-z]+", " ", abstract)
+    abstract = re.sub(r"[$\\{}~%_=]", " ", abstract)
+    return len(re.findall(r"[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*", abstract))
+
+
 def main() -> int:
     failures: list[str] = []
     for path in SOURCES:
@@ -37,6 +57,15 @@ def main() -> int:
             for match in re.finditer(pattern, text, flags=re.IGNORECASE):
                 line = text.count("\n", 0, match.start()) + 1
                 failures.append(f"{path.relative_to(ROOT)}:{line}: {label}")
+    main_text = (ROOT / "section" / "006_abstract_nature.tex").read_text(
+        encoding="utf-8"
+    )
+    words = abstract_word_count(main_text)
+    if words > 150:
+        failures.append(
+            "section/006_abstract_nature.tex:1: "
+            f"abstract has {words} words (Nature Communications limit: 150)"
+        )
     if failures:
         print("Submission-source audit failed:", file=sys.stderr)
         print("\n".join(f"- {item}" for item in failures), file=sys.stderr)

@@ -1,24 +1,20 @@
 \abstract{%
-We formulate hierarchical-memory inference using two dimensionless ratios:
-fast-memory residency
-$R_C=C_{\mathrm{fast}}/W$ and compute--transfer overlap
-$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$. These ratios define a
-capacity-limited region ($R_C<0.5$), an I/O-limited region
-($R_C\geq0.5$, $R_B<1$), and a coordination-dominated region
-($R_C\geq0.5$, $R_B\geq1$). We derive irreducible capacity and transfer-cost
-bounds and release a measurement harness using wall-clock or device-event
-timing. A compiled dependent-load microbenchmark on
-one Intel Xeon CPU shows mean access time increasing from \CpuSmallMean~ns for a
-0.5~MiB working set to \CpuLargeMean~ns for 256~MiB. The increase spans several cache
-and translation levels and does not identify a discontinuity at $R_C=0.5$.
-On \NumAccel{} accelerators of two vendors (NVIDIA \GpuDevice{}, NVIDIA A100,
-and Google TPU~v5e), the residency prediction holds---per-step latency rises as
-residency falls below $R_C=0.5$ on every device
-(\AccelCapRatioMin--\AccelCapRatioMax$\times$)---and on the \GpuDevice{} the
-I/O-limited label appears exactly where the derived overlap boundary $R_B<1$
-predicts. These results establish the two-ratio labels as a measurement
-discipline across real silicon; per-device boundary values and
-production-workload generality remain open.
+Hierarchical-memory inference conflates two constraints: whether an active
+working set fits in fast memory and whether computation can hide compulsory
+cross-tier transfer. We separate them with dimensionless residency
+$R_C=C_{\mathrm{fast}}/W$ and overlap
+$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$. The pair yields normalized
+lower bounds on non-resident data and exposed transfer, and an auditable
+measurement protocol rather than a device-specific performance predictor. A
+dependent-load probe on one Intel Xeon CPU shows working-set sensitivity without
+a discontinuity at the declared $R_C=0.5$ convention. Layered-matrix probes on
+three accelerators of two vendors (NVIDIA \GpuDevice{}, NVIDIA A100, and Google
+TPU~v5e) show higher latency under low residency
+(\AccelCapRatioMin--\AccelCapRatioMax$\times$); the \GpuDevice{} sweep also
+crosses the derived $R_B=1$ overlap boundary. The contribution is a falsifiable,
+scale-independent reporting discipline linking capacity and overlap evidence.
+Production workloads, per-device boundaries, and population-level hardware
+generality remain open.
 }
 
 \keywords{hierarchical memory systems, memory orchestration, AI inference,

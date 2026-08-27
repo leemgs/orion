@@ -71,33 +71,35 @@ The labels state whether majority residency is available and whether ideal
 compute--transfer overlap can hide compulsory traffic; they do not by
 themselves predict a policy's speed-up.
 
+The advance is deliberately analytical and methodological, with empirical
+evidence used to test direction rather than to claim a production effect size.
 We make three contributions:
 \begin{itemize}
-  \item \textbf{Operational formulation.}
-    We separate residency from compute--transfer overlap using two measurable,
-    dimensionless ratios and state an explicit three-label classification rule.
-  \item \textbf{Minimal analytical model.}
-    A structural lower bound on the irreducible memory-access and transfer
-    costs, with regime boundaries following directly from the two ratios:
-    $\theta_B = 1.0$ derived as the overlap boundary
-    ($R_B = T_{\mathrm{comp}}/T_{\mathrm{transfer}} = 1$), and $\theta_C = 0.50$
-    as the majority-residency crossover.
-    The ratios also expose normalized lower bounds: the non-resident fraction is
-    at least $\max(0,1-R_C)$ and the fraction of transfer time that ideal overlap
-    cannot hide is $\max(0,1-R_B)$.
-  \item \textbf{Open proof of concept.}
-    A compiled dependent-load CPU probe illustrates working-set sensitivity, and
-    a layered-matrix harness runs on a CPU and on \NumAccel{} accelerators of two
-    vendors (NVIDIA \GpuDevice{}, NVIDIA A100, Google TPU~v5e). The residency
-    prediction holds on all three accelerators and the overlap boundary is
-    resolved on the \GpuDevice{}. We distinguish this proof of concept from a
-    preregistered multi-platform campaign.
+  \item \textbf{An identifiable operating coordinate.} We separate capacity
+    pressure from exposed transfer using independently measurable $R_C$ and
+    $R_B$, avoiding the circular use of total latency to explain itself. The
+    continuous coordinates remain reportable when a categorical threshold is
+    inappropriate.
+  \item \textbf{Bounds that map diagnosis to intervention.} We derive a
+    conservative service-time bound, the minimum non-resident share
+    $\max(0,1-R_C)$, and the transfer share that ideal overlap cannot hide
+    $\max(0,1-R_B)$. Only $R_B=1$ is a derived crossover; $R_C=0.5$ is a
+    transparent majority-residency convention whose sensitivity must be
+    reported rather than fitted away.
+  \item \textbf{A falsifiable open protocol and bounded evidence.} A compiled
+    CPU probe and layered-matrix runs on \NumAccel{} accelerators of two vendors
+    test the predicted directions. Residency sensitivity appears on all three
+    accelerators and the overlap crossover is resolved on the \GpuDevice{};
+    code and records make stronger future tests directly comparable.
 \end{itemize}
 
 Together, the formulation and measurements provide a reproducible
 starting point for testing when hierarchical-memory coordination is constrained
 by residency or exposed transfer. They confirm the residency direction on one
 CPU and three accelerators, and the overlap boundary on one GPU, but do not
-establish effect sizes, strategy rankings, or per-device boundary values.
+establish production effect sizes, strategy rankings, or per-device boundary
+values. The scientific value is the separation of two necessary constraints
+that can otherwise generate the same observed latency, plus a protocol for
+rejecting the formulation when those directional predictions fail.
 
 \FloatBarrier

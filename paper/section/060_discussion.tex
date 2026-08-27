@@ -41,8 +41,18 @@ under otherwise incomparable offloading, compression, scheduling, and memory-
 pooling studies. Whether it predicts application outcomes is a hypothesis for
 production workloads, not a result of the present probes.
 
+The evidence changes one practical conclusion: capacity and transfer pressure
+should not be inferred from latency alone. A defensible comparison should report
+the working-set definition, usable fast capacity, compulsory bytes per step,
+sustained link bandwidth, isolated compute and transfer times, continuous
+$(R_C,R_B)$, and end-to-end latency. Those fields make denominator choices and
+uncontrolled changes visible, allow threshold sensitivity to be recomputed, and
+separate a failed directional prediction from a merely small effect. This
+reporting contract is the principal reusable output of the study.
+
 Several limitations are material. The present evidence comes from one CPU and
-three accelerators (two GPUs and a TPU) with small synthetic probes; it does not include production models,
+three accelerators (two GPUs and a TPU) with small synthetic probes; it does not
+include production models,
 concurrent requests, accelerator energy measurements, strategy comparisons, or
 unseen-hardware classifier tests. The standard deviations describe repeated
 trials on one machine and are not confidence intervals over a population of
@@ -57,8 +67,10 @@ max-form lower bound avoids assuming that decomposition in measured systems.
 A decisive follow-up should preregister operating-point grids around
 $R_C=0.5$ and $R_B=1$, collect raw event traces on at least two accelerator
 architectures, and compare fixed orchestration policies without changing other
-workload parameters. Such data could test boundary sharpness, policy ranking,
-and generalisation. Until those measurements are available, the contribution
-of this work is the corrected analytical formulation, the open protocol, and a
-CPU-and-multi-accelerator proof of concept rather than a claim of universal
-accelerator validation.
+workload parameters. It should report continuous coordinates and repeat the
+analysis across plausible residency conventions rather than optimise a
+threshold on the evaluation data. Such evidence could test boundary sharpness,
+policy ranking, and generalisation. Until then, the contribution is the
+identifiable coordinate, its bounds and reporting contract, and a
+CPU-and-multi-accelerator falsification attempt---not universal accelerator
+validation.

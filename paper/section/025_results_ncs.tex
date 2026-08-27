@@ -30,6 +30,10 @@ produce three operational labels:
 The capacity boundary is a convention, not a thermodynamic critical point. The
 I/O boundary is an overlap boundary: for $R_B<1$, at least
 $T_{\mathrm{transfer}}-T_{\mathrm{comp}}$ cannot be hidden by ideal overlap.
+Primary analyses should therefore retain continuous $(R_C,R_B)$ values. A label
+near $R_C=0.5$ is convention-sensitive, whereas crossing $R_B=1$ changes the
+sign of the ideal-overlap remainder. This distinction prevents a convenient
+residency cut-off from being presented as an empirically discovered constant.
 
 \begin{figure}[t]
 \centering
@@ -103,6 +107,12 @@ cost. Second, when $R_C\geq\theta_C$, configurations with $R_B<1$ must expose
 transfer time even under ideal compute--transfer overlap. It does not, without
 additional measurements, predict the magnitude of a strategy's speed-up or
 claim that strategy rankings necessarily invert.
+
+The two coordinates are jointly necessary but not sufficient for latency
+prediction. Equal $(R_C,R_B)$ does not imply equal latency because absolute
+service times, access locality, contention, and synchronisation can differ.
+This non-identifiability is useful: it defines the residual phenomena that must
+be measured rather than silently attributed to capacity or bandwidth.
 
 \subsection{CPU proof-of-concept measurements}
 \label{sec:experiments}

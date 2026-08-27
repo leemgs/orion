@@ -9,6 +9,11 @@ $R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$, with compute and transfer timed
 separately. Classification gives capacity precedence: $R_C<0.5$ is
 capacity-limited; otherwise $R_B<1$ is I/O-limited; all remaining points are
 coordination-dominated. This rule is implemented in the released Python code.
+We retain the continuous ratios in every record because $0.5$ is a reporting
+convention rather than an estimated device boundary. Any reuse should declare
+$W$ and usable $C_{\mathrm{fast}}$, report the unthresholded ratios, and repeat
+categorical summaries under application-relevant residency cut-offs when the
+conclusion depends on the label.
 
 \subsection*{Pointer-chain capacity probe}
 
