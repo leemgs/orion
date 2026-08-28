@@ -17,7 +17,7 @@ Latency improvement ranges from Table 2 (regime_inversion):
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional
 

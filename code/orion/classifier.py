@@ -36,10 +36,10 @@ the analytical path by passing r_c and r_b in RuntimeFeatures.
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
-from orion.config import Regime, THETA_C, THETA_B
+from orion.config import Regime
 
 
 @dataclass

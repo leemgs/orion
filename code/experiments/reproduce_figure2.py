@@ -27,7 +27,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from orion.config import A100_80GB, THETA_C, THETA_B
 from orion.profiler import HardwareProfiler
-from orion.ratios import classify_regime
 from experiments.simulated_backend import SimulatedBackend
 
 RC_GRID = [0.10, 0.20, 0.30, 0.40, 0.45, 0.50, 0.55, 0.60, 0.80,
@@ -81,7 +80,8 @@ def save_csv(out_dir: Path) -> None:
     panel_a = collect_sweep_data("orion", RC_GRID, r_b_fixed=1.61)
     with open(out_dir / "fig2a_rc_sweep.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["r_c", "r_b", "t_mean"])
-        w.writeheader(); w.writerows(panel_a)
+        w.writeheader()
+        w.writerows(panel_a)
 
     # Panel (b): latency decomposition at 3 operating points
     print("Collecting panel (b): latency decomposition …")
@@ -129,8 +129,6 @@ def plot_figure(save_pdf: str = "") -> None:
         import matplotlib
         matplotlib.use("Agg" if save_pdf else "TkAgg")
         import matplotlib.pyplot as plt
-        import matplotlib.patches as mpatches
-        from matplotlib.lines import Line2D
     except ImportError:
         print("matplotlib not available — falling back to CSV output.")
         save_csv(Path("results/figure2"))
@@ -147,7 +145,8 @@ def plot_figure(save_pdf: str = "") -> None:
     t_vals  = [d["t_mean"] for d in data_a]
     ax.plot(rc_vals, t_vals, "o-", color="steelblue")
     ax.axvline(THETA_C, color="red", linestyle="--", label=f"θ_C={THETA_C}")
-    ax.set_xlabel("R_C = C_fast / W"); ax.set_ylabel("T_total [s]")
+    ax.set_xlabel("R_C = C_fast / W")
+    ax.set_ylabel("T_total [s]")
     ax.set_title("(a) Capacity-limited → Coord-dominated")
     ax.legend()
 
@@ -182,7 +181,8 @@ def plot_figure(save_pdf: str = "") -> None:
             t_list.append(statistics.mean(r.t_total for r in valid) if valid else 0)
         ax.plot(RB_GRID, t_list, "o-", label=method, color=colors_m[method])
     ax.axvline(THETA_B, color="red", linestyle="--", label=f"θ_B={THETA_B}")
-    ax.set_xlabel("R_B = T_comp / T_transfer"); ax.set_ylabel("T_total [s]")
+    ax.set_xlabel("R_B = T_comp / T_transfer")
+    ax.set_ylabel("T_total [s]")
     ax.set_title("(c) I/O-limited → Coord-dominated (ranking inversion)")
     ax.legend()
 
@@ -194,7 +194,8 @@ def plot_figure(save_pdf: str = "") -> None:
     records = profiler.run_sweep(r_c=0.75, r_b=1.61, n_windows=60, warmup_sec=0)
     t_sync_series = [r.t_sync for r in records if r.is_valid()]
     ax.plot(t_sync_series, color="purple", linewidth=0.8)
-    ax.set_xlabel("Window index"); ax.set_ylabel("T_sync [s]")
+    ax.set_xlabel("Window index")
+    ax.set_ylabel("T_sync [s]")
     ax.set_title("(d) Synchronisation instability (coord-dominated)")
 
     plt.tight_layout()

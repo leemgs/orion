@@ -13,7 +13,6 @@ Usage:
 
 from __future__ import annotations
 
-import argparse
 import statistics
 import sys
 from pathlib import Path
@@ -22,7 +21,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from orion.config import Regime, A100_80GB
 from orion.profiler import HardwareProfiler
-from orion.ratios import classify_regime
 from experiments.simulated_backend import SimulatedBackend
 from utils.stats import SweepStats
 

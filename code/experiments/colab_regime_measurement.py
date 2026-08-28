@@ -149,10 +149,13 @@ class TorchBackend(Backend):
     def transfer_in(self, host_w):
         t = self.torch
         if self.dev.type == "cuda":
-            s = t.cuda.Event(enable_timing=True); e = t.cuda.Event(enable_timing=True)
-            t.cuda.synchronize(); s.record()
+            s = t.cuda.Event(enable_timing=True)
+            e = t.cuda.Event(enable_timing=True)
+            t.cuda.synchronize()
+            s.record()
             dev = host_w.to(self.dev, non_blocking=True)
-            e.record(); t.cuda.synchronize()
+            e.record()
+            t.cuda.synchronize()
             return dev, s.elapsed_time(e) / 1e3   # ms→s, 실측
         t0 = time.perf_counter()
         dev = host_w.to(self.dev)
@@ -162,12 +165,15 @@ class TorchBackend(Backend):
     def matmul(self, x, w, repeats):
         t = self.torch
         if self.dev.type == "cuda":
-            s = t.cuda.Event(enable_timing=True); e = t.cuda.Event(enable_timing=True)
-            t.cuda.synchronize(); s.record()
+            s = t.cuda.Event(enable_timing=True)
+            e = t.cuda.Event(enable_timing=True)
+            t.cuda.synchronize()
+            s.record()
             y = x
             for _ in range(repeats):
                 y = y @ w
-            e.record(); t.cuda.synchronize()
+            e.record()
+            t.cuda.synchronize()
             return y, s.elapsed_time(e) / 1e3
         t0 = time.perf_counter()
         y = x
@@ -219,12 +225,16 @@ def measure_point(be: Backend, d: int, n_layers: int, batch: int,
         """한 스텝 실행. (t_total, comp, tx) 반환."""
         x = be.new_activation(batch, d)
         step_t0 = time.perf_counter()
-        tx = 0.0; comp = 0.0
+        tx = 0.0
+        comp = 0.0
         for hw in host_off:                      # (1) 오프로딩 층: 전송 후 연산
-            dev_w, dt = be.transfer_in(hw); tx += dt
-            x, ct = be.matmul(x, dev_w, comp_repeats); comp += ct
+            dev_w, dt = be.transfer_in(hw)
+            tx += dt
+            x, ct = be.matmul(x, dev_w, comp_repeats)
+            comp += ct
         for rw in resident:                      # (2) 상주 층: 연산만
-            x, ct = be.matmul(x, rw, comp_repeats); comp += ct
+            x, ct = be.matmul(x, rw, comp_repeats)
+            comp += ct
         return (time.perf_counter() - step_t0), comp, tx
 
     # 워밍업 1스텝(측정 제외): 이 (R_C, R_B) 동작점의 그래프 구조가 다르므로
@@ -236,7 +246,9 @@ def measure_point(be: Backend, d: int, n_layers: int, batch: int,
     t_comp_l, t_tx_l, t_tot_l = [], [], []
     for _ in range(n_windows):
         tot, comp, tx = one_step()
-        t_tot_l.append(tot); t_comp_l.append(comp); t_tx_l.append(tx)
+        t_tot_l.append(tot)
+        t_comp_l.append(comp)
+        t_tx_l.append(tx)
 
     t_comp = statistics.mean(t_comp_l)
     t_tx = statistics.mean(t_tx_l)
@@ -288,7 +300,8 @@ def run(be: Backend, d, n_layers, batch, n_windows, quick):
         reg = classify(m["r_c"], m["r_b"])
         print(f"{m['r_c']:>6.2f} {reg:>20} {m['t_total_s']*1e3:>13.2f} "
               f"{m['r_b']:>7.2f}")
-        m.update(sweep="R_C", regime=reg, device=be.device); summary.append(m)
+        m.update(sweep="R_C", regime=reg, device=be.device)
+        summary.append(m)
         records.append(dict(m))
 
     # --- 스윕 B: 오버랩 R_B (θ_B=1.0 근방 I/O 전환) : R_C 높게(상주) 유지 ---
@@ -302,7 +315,8 @@ def run(be: Backend, d, n_layers, batch, n_windows, quick):
         reg = classify(m["r_c"], m["r_b"])
         print(f"{rep:>8} {reg:>20} {m['t_total_s']*1e3:>13.2f} {m['r_b']:>7.2f}")
         m.update(sweep="R_B", regime=reg, comp_repeats=rep, device=be.device)
-        summary.append(m); records.append(dict(m))
+        summary.append(m)
+        records.append(dict(m))
 
     out = Path(__file__).resolve().parent.parent / "results" / "colab_probe"
     out.mkdir(parents=True, exist_ok=True)

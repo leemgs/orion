@@ -33,10 +33,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import statistics
 from orion.config import N_SWEEPS, N_WINDOWS, THETA_C, THETA_B, A100_80GB
 from orion.nvml_monitor import MeasurementUnavailable
-from orion.profiler import HardwareProfiler, validate_completeness
+from orion.profiler import HardwareProfiler
 from orion.ratios import classify_regime
 from orion.lower_bound import sharpness_coefficient
-from utils.stats import SweepStats, bootstrap_ci, wilcoxon_one_sided
+from utils.stats import SweepStats
 from experiments.simulated_backend import SimulatedBackend
 
 

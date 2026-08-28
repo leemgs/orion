@@ -16,3 +16,13 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Python build / packaging artifacts
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+
+# Generated reproduction outputs (raw evidence under results/ is tracked explicitly)
+code/results/figure2/
+code/results/regime_sweep/
+

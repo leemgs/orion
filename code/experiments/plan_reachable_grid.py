@@ -49,7 +49,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from orion.config import (
-    LLAMA3_8B, A100_80GB, ALL_PLATFORMS, THETA_C, THETA_B, ModelSpec,
+    LLAMA3_8B, ALL_PLATFORMS, THETA_C, THETA_B, ModelSpec,
     HardwareProfile,
 )
 

@@ -33,12 +33,11 @@ to treat every number here as arbitrary.
 
 from __future__ import annotations
 
-import math
 import random
 import time
 
 from orion.config import (
-    THETA_C, THETA_B, Regime, HardwareProfile, A100_80GB, WINDOW_SEC,
+    Regime, HardwareProfile, A100_80GB,
 )
 from orion.profiler import LatencyRecord
 from orion.ratios import classify_regime

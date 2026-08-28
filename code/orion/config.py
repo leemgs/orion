@@ -34,7 +34,7 @@ produce an abrupt transition there. θ_C = 0.50 is retained as an empirical
 convention pending measurement; treat it as unvalidated.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
 
 

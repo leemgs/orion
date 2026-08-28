@@ -44,11 +44,11 @@ from __future__ import annotations
 
 import math
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 from orion.config import (
-    HardwareProfile, ModelSpec, A100_80GB, LLAMA3_8B, WINDOW_SEC, WARMUP_SEC,
+    HardwareProfile, ModelSpec, LLAMA3_8B, WINDOW_SEC, WARMUP_SEC,
     ALL_PLATFORMS,
 )
 from orion.cupti_counters import HBMCalibration, calibrate_rho, t_mem_from_counters
@@ -220,7 +220,7 @@ class CUDABackend:
         )
 
         # Measured, not assumed: the real parameter footprint of what we built.
-        self.w_param_bytes = sum(l.nbytes for l in self._layers)
+        self.w_param_bytes = sum(layer.nbytes for layer in self._layers)
         self.w_total_bytes = int(
             self.w_param_bytes
             + spec.w_act_gb * 1e9

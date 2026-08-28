@@ -18,15 +18,14 @@ fallback for environments without CUDA/CUPTI (e.g., CPU-only CI).
 from __future__ import annotations
 
 import json
-import math
 import time
 import threading
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Optional, Iterator
+from typing import Optional
 
 from orion.config import (
-    COMPLETENESS_TOL, WINDOW_SEC, WARMUP_SEC, N_WINDOWS, N_SWEEPS,
+    COMPLETENESS_TOL, WARMUP_SEC, N_WINDOWS,
 )
 
 

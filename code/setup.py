@@ -7,7 +7,7 @@ setup(
         "Hierarchical Memory Orchestration for AI Inference — "
         "two-ratio hierarchical-memory measurement framework"
     ),
-    packages=find_packages(exclude=["tests*", "experiments*"]),
+    packages=find_packages(exclude=["tests*"]),
     python_requires=">=3.9",
     install_requires=[
         "numpy>=1.24",
