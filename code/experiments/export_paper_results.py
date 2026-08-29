@@ -55,7 +55,7 @@ def main() -> None:
     rows = []
     for a in accels:
         note = "$R_B$ split unreliable (XLA)" if a["xla"] else \
-               ("overlap boundary resolved" if a["device"].endswith("T4") else
+               ("sweep spans $R_B=1$" if a["device"].endswith("T4") else
                 "sweep~B compute-bound")
         rows.append(f"{a['device']} & {a['res_ms']:.1f} & {a['cap_ms']:.1f} & "
                     f"{a['ratio']:.2f}$\\times$ & {note} \\\\")

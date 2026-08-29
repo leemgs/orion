@@ -1,8 +1,8 @@
 # ORION manuscript
 
 This directory contains the Nature Communications submission sources for
-**“Two dimensionless ratios define operational limits in hierarchical-memory
-inference.”** The submission is intentionally scoped to an analytical
+**“A two-ratio framework separates residency and transfer overlap in
+hierarchical-memory inference.”** The submission is intentionally scoped to an analytical
 formulation plus a proof of concept measured on one CPU and three accelerators
 of two vendors (NVIDIA Tesla T4, NVIDIA A100, Google TPU v5e). It does not claim
 per-device boundary values or cross-workload validation.

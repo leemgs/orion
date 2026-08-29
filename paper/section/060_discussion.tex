@@ -15,8 +15,9 @@ they do not validate a sharp boundary at $R_C=0.5$. They stress different
 mechanisms: dependent pointer loads probe cache and translation effects, while
 the layered matrix harness combines weight copying with computation. The
 accelerator runs (Section~\ref{sec:gpu}) exercise real DMA and asynchronous CUDA
-streams across three devices of two vendors. The residency prediction holds on
-all three; the overlap crossover at $\theta_B=1$ is resolved on the T4, while the
+streams across three devices of two vendors. The residency direction is
+descriptively consistent on all three; the T4 sweep contains points on both
+sides of $\theta_B=1$, while the
 A100 sweep stayed compute-bound and the TPU's XLA timing is unreliable. The data
 do not establish per-device boundary \emph{values}, HBM- or
 collective-communication effects at scale, or the generality of the three labels
@@ -41,7 +42,7 @@ under otherwise incomparable offloading, compression, scheduling, and memory-
 pooling studies. Whether it predicts application outcomes is a hypothesis for
 production workloads, not a result of the present probes.
 
-The evidence changes one practical conclusion: capacity and transfer pressure
+The analysis supports one practical conclusion: capacity and transfer pressure
 should not be inferred from latency alone. A defensible comparison should report
 the working-set definition, usable fast capacity, compulsory bytes per step,
 sustained link bandwidth, isolated compute and transfer times, continuous
@@ -58,7 +59,9 @@ unseen-hardware classifier tests. The standard deviations describe repeated
 trials on one machine and are not confidence intervals over a population of
 platforms. These measurements are exploratory technical checks rather than
 independent hardware replicates, and no causal inference is supported.
-The pointer-chain endpoints also span several hierarchy transitions, so their
+The accelerator ratios compare repeated windows within single runs; without
+independent reruns they quantify neither run-to-run uncertainty nor a hardware
+population. The pointer-chain endpoints also span several hierarchy transitions, so their
 ratio should not be interpreted as a universal effect size. Finally,
 Equation~\eqref{eq:latency_decomp} is an accounting identity only when its
 terms are defined as non-overlapping critical-path contributions; the

@@ -81,7 +81,7 @@ We make three contributions:
     continuous coordinates remain reportable when a categorical threshold is
     inappropriate.
   \item \textbf{Bounds that map diagnosis to intervention.} We derive a
-    conservative service-time bound, the minimum non-resident share
+    conservative service-time bound, the minimum non-resident storage share
     $\max(0,1-R_C)$, and the transfer share that ideal overlap cannot hide
     $\max(0,1-R_B)$. Only $R_B=1$ is a derived crossover; $R_C=0.5$ is a
     transparent majority-residency convention whose sensitivity must be
@@ -89,14 +89,14 @@ We make three contributions:
   \item \textbf{A falsifiable open protocol and bounded evidence.} A compiled
     CPU probe and layered-matrix runs on \NumAccel{} accelerators of two vendors
     test the predicted directions. Residency sensitivity appears on all three
-    accelerators and the overlap crossover is resolved on the \GpuDevice{};
+    accelerators and the \GpuDevice{} reaches both sides of the overlap coordinate;
     code and records make stronger future tests directly comparable.
 \end{itemize}
 
 Together, the formulation and measurements provide a reproducible
 starting point for testing when hierarchical-memory coordination is constrained
-by residency or exposed transfer. They confirm the residency direction on one
-CPU and three accelerators, and the overlap boundary on one GPU, but do not
+by residency or exposed transfer. They show a residency-consistent direction on
+one CPU and three accelerators, and span the overlap coordinate on one GPU, but do not
 establish production effect sizes, strategy rankings, or per-device boundary
 values. The scientific value is the separation of two necessary constraints
 that can otherwise generate the same observed latency, plus a protocol for

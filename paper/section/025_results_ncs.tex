@@ -27,6 +27,11 @@ produce three operational labels:
 \item \textbf{coordination-dominated}: $R_C\geq\theta_C$ and
       $R_B\geq\theta_B$.
 \end{itemize}
+These names are screening labels, not causal bottleneck estimates: a
+``capacity-limited'' point need not have capacity as its largest latency term,
+and a ``coordination-dominated'' point requires residual measurements before
+coordination cost can be attributed. Continuous ratios and dimensional timings
+carry the evidence; the labels provide compact indexing.
 The capacity boundary is a convention, not a thermodynamic critical point. The
 I/O boundary is an overlap boundary: for $R_B<1$, at least
 $T_{\mathrm{transfer}}-T_{\mathrm{comp}}$ cannot be hidden by ideal overlap.
@@ -60,11 +65,13 @@ lower bound that allows the underlying services to overlap is
 \begin{equation}
 T_{\mathrm{total}}\geq
 \max\!\left\{T_{\mathrm{comp}},
-\rho W\max(0,1-R_C),\frac{D}{B_{\mathrm{slow}}}\right\},
+\rho D_{\mathrm{nr}},\frac{D}{B_{\mathrm{slow}}}\right\},
 \label{eq:lower_bound_regime}
 \end{equation}
-where $W$ denotes bytes accessed in the step and $\rho$ is a lower bound on
-service time per non-resident byte for the specified access pattern. Taking the
+where $D_{\mathrm{nr}}$ is the number of non-resident bytes compulsorily
+accessed in the step and $\rho$ is a lower bound on their service time per byte.
+$R_C$ bounds storage residency but does not determine $D_{\mathrm{nr}}$ unless
+an access-coverage model is specified. Taking the
 maximum permits ideal overlap and avoids
 double-counting bytes that contribute to both a cache miss and a cross-tier
 transfer. Synchronisation and contention can only increase observed time, so
@@ -73,8 +80,9 @@ residual above it cannot be assigned to one latency component without
 event-level measurements.
 
 Two normalized consequences make the formulation useful beyond relabelling a
-roofline plot. No placement policy can make more than $C_{\mathrm{fast}}$ bytes
-resident, so the minimum non-resident share of an active working set is
+roofline plot. Under the aggregate-capacity approximation, no placement policy
+can make more than $C_{\mathrm{fast}}$ bytes simultaneously resident, so the
+minimum non-resident storage share of an active working set is
 \begin{equation}
 f_{\mathrm{nonresident}}\geq \max(0,1-R_C).
 \label{eq:nonresident_fraction}
@@ -93,7 +101,7 @@ isolated service times by the same factor for $R_B$. Absolute latency still
 requires the dimensional quantities in Equation~\eqref{eq:lower_bound_regime}.
 
 This separation gives an actionable diagnostic without asserting an optimal
-policy. If $R_C<0.5$, interventions must reduce the active working set, increase
+policy. If $R_C<0.5$, interventions can reduce the active working set, increase
 usable capacity, or reduce the bytes touched while non-resident. If
 $R_C\geq0.5$ but $R_B<1$, overlap alone cannot remove the exposed interval, so
 reducing compulsory traffic or increasing sustained link bandwidth is
@@ -103,7 +111,8 @@ operating points, not devices, and can change after an intervention.
 
 The formulation makes two falsifiable predictions. First, reducing residency
 while holding the access pattern fixed should expose a higher memory-access
-cost. Second, when $R_C\geq\theta_C$, configurations with $R_B<1$ must expose
+cost when it increases $D_{\mathrm{nr}}$. Second, when
+$R_C\geq\theta_C$, configurations with $R_B<1$ must expose
 transfer time even under ideal compute--transfer overlap. It does not, without
 additional measurements, predict the magnitude of a strategy's speed-up or
 claim that strategy rankings necessarily invert.
@@ -177,8 +186,9 @@ varied by construction. These runs test the two falsifiable predictions of
 Section~\ref{sec:model} on hardware whose device--host link, unlike a single
 CPU's memory system, makes the exposed-transfer regime physically reachable.
 
-\emph{Prediction~1 (residency) holds on all \NumAccel{} accelerators.} On every
-device, mean per-step latency in the capacity-limited region ($R_C<\theta_C$)
+\emph{Prediction~1 (residency) is directionally consistent on all
+\NumAccel{} accelerators.} On every device, mean per-step latency in the
+capacity-limited region ($R_C<\theta_C$)
 exceeded that at full residency ($R_C\geq1$), by
 \AccelCapRatioMin--\AccelCapRatioMax$\times$
 (Table~\ref{tab:accel}). The formulation predicts this \emph{direction}, not its
@@ -197,24 +207,27 @@ is small on the fast accelerators, so this point's one-off compilation and
 launch overhead exceed the residual signal, whereas on the slower T4 the signal
 dominates and monotonicity is preserved. An eager-execution control (NumPy
 backend, identical sweep) shows the fully-resident point as the \emph{lowest}
-latency, confirming the effect originates in the accelerator execution/timing
-path, not the probe logic. We have since added a discarded warm-up iteration to
+latency. This control is consistent with an accelerator execution/timing
+artifact but does not isolate a single cause. We have since added a discarded warm-up iteration to
 the harness so that per-point compilation is excluded from future timings.
 
-\emph{Prediction~2 (overlap) is resolved on the T4.} Holding residency fixed and
-scaling compute moved the T4 operating point across the derived boundary
-$\theta_B=1$: every point with $R_B<1$ was labelled I/O-limited and every point
-with $R_B\geq1$ coordination-dominated, with the transition between $R_B=0.90$
-and $R_B=1.19$---not at a fitted value. On the A100 the controlled sweep stayed
+\emph{The overlap sweep spans $R_B=1$ on the T4.} Holding residency fixed and
+scaling compute produced measured points on both sides of the derived boundary,
+between $R_B=0.90$ and $R_B=1.19$. Their I/O-limited and
+coordination-dominated labels follow from the declared rule and therefore do
+not independently validate it. The run instead establishes physical
+reachability of both sides with separately timed services. Testing whether the
+predicted exposed interval tracks end-to-end latency requires raw event traces
+and a larger sweep. On the A100 the controlled sweep stayed
 compute-bound ($R_B>2$) and so did not probe the boundary, and on the TPU the
 XLA path's deferred execution makes the per-op $R_B$ split unreliable; both need
-a larger-workload, preregistered run. The overlap boundary is therefore
-established on one GPU, while the capacity direction is established across three
-accelerators.
+a larger-workload, preregistered run. The overlap coordinate is therefore
+spanned on one GPU, while the capacity direction is descriptively consistent
+across three accelerators.
 
 \begin{table}[t]
 \centering
-\caption{Capacity crossover across \NumAccel{} accelerators (layered probe,
+\caption{Descriptive residency comparison across \NumAccel{} accelerators (layered probe,
 $d=2048$). $T$ is mean per-step latency; ``Ratio'' is capacity-limited over
 resident. The direction (ratio $>1$) is the predicted effect; magnitudes are
 device-dependent and not predicted.}
@@ -222,8 +235,9 @@ device-dependent and not predicted.}
 \input{generated_accel_table.tex}
 \end{table}
 
-These are proof-of-concept results; they confirm the residency prediction across
-architectures and the overlap boundary on one GPU, but do not establish
+These proof-of-concept results are directionally consistent with the residency
+prediction across architectures and reach both sides of the overlap coordinate
+on one GPU, but do not establish
 per-device boundary values, strategy inversion, classifier accuracy, or energy
 claims, which still require a larger, preregistered multi-platform campaign.
 

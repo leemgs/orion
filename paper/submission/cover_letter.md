@@ -15,9 +15,10 @@ total step duration inside a transfer-pressure ratio is circular.
 We have deliberately limited the empirical claim to a proof of concept. The
 evidence is a compiled dependent-load experiment on one virtualised Intel Xeon
 CPU and layered-matrix runs on three accelerators of two vendors (NVIDIA T4 and
-A100, and Google TPU v5e). The residency direction holds on all three; the T4
-also crosses the derived overlap boundary that the other sweeps did not
-reliably resolve. We do not claim production-model, energy, strategy-ranking,
+A100, and Google TPU v5e). The residency direction is descriptively consistent
+on all three; the T4 also reaches both sides of the derived overlap coordinate.
+Because the labels follow from the rule, we do not present this as independent
+boundary validation. We do not claim production-model, energy, strategy-ranking,
 per-device-boundary, or population-level hardware validation. The manuscript
 states these limitations in the abstract, Results,
 Methods, and Discussion, and the public repository separates measured from

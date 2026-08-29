@@ -48,14 +48,18 @@ indicative only, relying on end-to-end latency for the residency test.
 For the reported capacity ratio, we averaged total latency at the three sampled
 points below $R_C=0.5$ and divided by latency at $R_C=1$. This endpoint summary
 is descriptive; no hypothesis test or population-level confidence interval is
-claimed. The pointer-chain table reports mean and population standard deviation
-across the seven repeated trials exactly as stored in the JSON summary.
+claimed. Accelerator timing windows are repeated observations within one run,
+not independent device or run replicates. The pointer-chain table reports mean
+and population standard deviation across the seven repeated trials exactly as
+stored in the JSON summary.
 
 \subsection*{Software and provenance}
 
 The compiled pointer-chain run used Python 3.12.13, NumPy 2.5.2, and GCC 13.3;
 the earlier layered-matrix harness check used Python 3.11.15, but that summary
-did not capture the NumPy version. Seeds, grids, timing code, raw records, summaries, and
+did not capture the NumPy version. Seeds, grids, timing code, CPU raw records,
+and all reported summaries are version controlled. Accelerator JSON files
+retain per-point summaries but not raw device-event timestamps. Reproduction
 commands are version controlled. The analytical regime
 map reads threshold constants from the same module as the classifier. The
 simulated backend is provided solely for software testing and qualitative
@@ -65,7 +69,7 @@ exploration; its outputs are excluded from the reported measurements.
 
 This proof-of-concept study did not use random assignment, blinding, or a
 sample-size calculation. Trial counts were fixed before summarisation. We
-report all measured grid points in the machine-readable data, selected points
+report all measured grid points in the machine-readable summaries, selected points
 in Table~\ref{tab:cpu_probe}, arithmetic means, and one standard deviation. No
 claim of statistical significance is made. Hardware-platform generalisation
 requires independent machines and is left for future work.

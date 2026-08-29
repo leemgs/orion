@@ -1,13 +1,14 @@
 # ORION
 
-**Two dimensionless ratios define operational limits in hierarchical-memory inference**
+**A two-ratio framework separates residency and transfer overlap in hierarchical-memory inference**
 
 ORION is an analytical formulation and open measurement protocol for describing
 hierarchical-memory operating points with two dimensionless ratios:
 **R_C** (fast-memory capacity / active working set) and **R_B** (isolated compute
 time / compulsory-transfer time). The submitted evidence is deliberately
-limited to two proof-of-concept measurements on one CPU. It does not establish
-accelerator generality, policy rankings, or sharp regime transitions.
+limited to synthetic proof-of-concept measurements on one CPU and three
+accelerators of two vendors. It does not establish population-level accelerator
+generality, policy rankings, or sharp regime transitions.
 
 Target journal: **Nature Communications**. See [paper/README.md](paper/README.md)
 for the build, evidence boundary, and final author checks.
@@ -33,11 +34,12 @@ The repository is organized into three areas for easier maintenance.
 
 ## Current submission state
 
-The review package is evidence-aligned: the manuscript reports only the
-committed CPU pointer-chain and layered-matrix measurements, while the regime
-map is explicitly analytical. Reported values are exported from the committed
-JSON/JSONL records into `paper/generated_results.tex`; optional CUDA, XLA, and
-simulated paths are not presented as completed experiments.
+The review package is evidence-aligned: the manuscript reports the committed
+CPU pointer-chain and layered-matrix measurements and three accelerator summary
+runs, while the regime map is explicitly analytical. Reported values are
+exported from committed JSON/JSONL records; the simulated path is used only for
+software testing. Accelerator summaries are not raw event traces or independent
+hardware replicates.
 
 Run the release checks from the repository root:
 
@@ -68,4 +70,4 @@ Automated checks cannot establish novelty or guarantee acceptance. The
 corresponding author must verify author metadata, declarations, article type,
 and the journal's current portal requirements, and must visually inspect both
 PDFs before submission. The principal known limitation remains the deliberately
-stated single-platform, synthetic proof-of-concept evidence boundary.
+stated small, synthetic, non-replicated evidence boundary.
