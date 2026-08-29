@@ -101,6 +101,18 @@ necessary. If both tests pass, the residual directs measurement toward
 synchronisation, launch, contention, or locality costs. Labels describe
 operating points, not devices, and can change after an intervention.
 
+Both ratios are computable from datasheets before any run, which makes the
+diagnostic usable at planning time. For example, a 70B-parameter model holds
+roughly $140$~GB of weights in \texttt{fp16}. Deployed on a single $40$~GB
+accelerator, $R_C=40/(140+K)\leq 40/140\approx 0.29<0.5$ for any KV/activation
+footprint $K\geq0$: the configuration is capacity-limited, and no offloading
+schedule can remove the majority-eviction cost---additional fast capacity is
+required. Spreading the same weights across four such accelerators
+($C_{\mathrm{fast}}=160$~GB) gives $R_C\approx1$, leaving the capacity-limited
+region. This placement conclusion follows from published capacities and
+parameter counts alone, and is exactly the kind of decision the two ratios are
+meant to make explicit before, not after, benchmarking.
+
 The formulation makes two falsifiable predictions. First, reducing residency
 while holding the access pattern fixed should expose a higher memory-access
 cost. Second, when $R_C\geq\theta_C$, configurations with $R_B<1$ must expose
