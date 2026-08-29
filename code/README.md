@@ -97,7 +97,7 @@ print(f"Regime: {op.regime.name}")              # COORDINATION_DOMINATED
 
 Two scripts perform **real** measurements (wall-clock / CUDA-event timing, nothing synthesised):
 
-- `experiments/colab_regime_measurement.py` — varies R_C (residency) and R_B (overlap) on real hardware; auto-detects a CUDA GPU, a TPU (via XLA), or a CPU. Measured on **three accelerators of two vendors** — NVIDIA Tesla T4 (2.83× capacity crossover; overlap boundary at θ_B=1 resolved), NVIDIA A100 (1.35×), and Google TPU v5e (1.23×) — see [`results/colab_probe/README.md`](results/colab_probe/README.md). The residency direction holds on all three; magnitudes are device-dependent and not predicted.
+- `experiments/colab_regime_measurement.py` — varies R_C (residency) and R_B (overlap) on real hardware; auto-detects a CUDA GPU, a TPU (via XLA), or a CPU. Measured on **three accelerators of two vendors** — NVIDIA Tesla T4 (2.83× capacity crossover; its sweep spans θ_B=1), NVIDIA A100 (1.35×), and Google TPU v5e (1.23×) — see [`results/colab_probe/README.md`](results/colab_probe/README.md). The residency direction is descriptively consistent on all three; magnitudes are device-dependent and not predicted. Spanning θ_B=1 demonstrates reachability, not independent validation of a classification defined by that threshold.
 - `experiments/cpu_hierarchy_probe.py` — pointer-chasing latency sweep over this machine's real cache hierarchy (L2/L3/DRAM); measures a **2.20×** cache-resident→DRAM-bound crossover (see [`results/cpu_probe/README.md`](results/cpu_probe/README.md)).
 
 Together they are small, qualitative confirmations of the capacity crossover;
@@ -105,8 +105,11 @@ they do **not** substitute a preregistered, replicated accelerator campaign.
 
 ## Reproducing the manuscript results
 
-All experiments can be reproduced **without GPU** using the simulated backend.  
-The simulated backend reproduces the qualitative regime structure and exercises the complete analysis pipeline; it must not be presented as real-hardware evidence. Exact quantitative reproduction requires the raw JSONL hardware traces. The Zenodo DOI remains a placeholder until the archive is published.
+The analysis pipeline can be exercised **without a GPU** using the simulated
+backend, but this does not reproduce the real-hardware experiments. Simulated
+output must not be presented as empirical evidence. Exact numerical identity is
+not expected across hardware; the committed accelerator files contain per-point
+summaries, not raw device-event traces. No archive DOI is claimed.
 
 ### Table 2 — Regime-dependent strategy inversion
 

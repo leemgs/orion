@@ -4,14 +4,14 @@ working set fits in fast memory and whether computation can hide compulsory
 cross-tier transfer. We separate them with dimensionless residency
 $R_C=C_{\mathrm{fast}}/W$ and overlap
 $R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$. The pair yields normalized
-lower bounds on non-resident data and exposed transfer, and an auditable
+lower bounds on non-resident storage and exposed transfer, and an auditable
 measurement protocol rather than a device-specific performance predictor. A
 dependent-load probe on one Intel Xeon CPU shows working-set sensitivity without
 a discontinuity at the declared $R_C=0.5$ convention. Layered-matrix probes on
 three accelerators of two vendors (NVIDIA \GpuDevice{}, NVIDIA A100, and Google
 TPU~v5e) show higher latency under low residency
 (\AccelCapRatioMin--\AccelCapRatioMax$\times$); the \GpuDevice{} sweep also
-crosses the derived $R_B=1$ overlap boundary. The contribution is a falsifiable,
+spans the derived $R_B=1$ overlap coordinate. The contribution is a falsifiable,
 scale-independent reporting discipline linking capacity and overlap evidence.
 Production workloads, per-device boundaries, and population-level hardware
 generality remain open.

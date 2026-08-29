@@ -54,11 +54,12 @@ processor, GPU, BLAS/CUDA library, system load, and memory placement; exact
 numeric identity is not expected on other machines.
 
 \subsection{Accelerator validation status}
-Runs were performed on three accelerators of two vendors
-(Section~\ref{sec:gpu}): an NVIDIA \GpuDevice{} and an NVIDIA A100 through the
+Runs reported in the main-text accelerator Results were performed on three
+accelerators of two vendors: an NVIDIA \GpuDevice{} and an NVIDIA A100 through the
 CUDA-event path, and a Google TPU~v5e through the \texttt{torch\_xla} path. The
-residency prediction is confirmed on all three and the overlap boundary on the
-T4; these are proof-of-concept checks, not a preregistered multi-platform
+residency direction is descriptively consistent on all three and the T4 sweep
+reaches both sides of the overlap coordinate; these are proof-of-concept checks,
+not a preregistered multi-platform
 campaign. Such a campaign should retain raw device-event timestamps, software
 versions, accelerator identifiers, warm-up policy, excluded-window reasons, and
 every prespecified operating point, and should enlarge the per-step workload so

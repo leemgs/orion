@@ -26,6 +26,10 @@ FORBIDDEN = {
     r"reasonable request": "data-on-request wording",
     r"phase-like": "unsupported phase-transition framing",
     r"strategy rankings? invert": "unsupported strategy-inversion claim",
+    r"overlap (?:boundary|crossover).{0,30}resolved": (
+        "tautological overlap-boundary validation claim"
+    ),
+    r"\\rho W\\max\(0,1-R_C\)": "residency-only service-time lower bound",
 }
 
 

@@ -14,17 +14,16 @@ The analytical regime-map asset is generated from these constants by
 
 ## Evidence boundary
 
-The submitted claims are restricted to the compiled CPU pointer-chain
-measurement and the separate CPU harness check whose raw JSONL records and JSON
-summaries are committed under `code/results/`. Simulated
-backend outputs are not empirical evidence. CUDA and XLA paths are available as
-future measurement protocols, but the manuscript does not claim that GPU, TPU,
-Inferentia, MI250, or Optane experiments were performed.
+The submitted claims cover the compiled CPU pointer-chain measurement, the CPU
+harness check, and per-point summary files from NVIDIA T4, NVIDIA A100, and
+Google TPU v5e runs committed under `code/results/`. Simulated backend outputs
+are not empirical evidence. The accelerator files are summary-level records,
+not raw device-event traces or independent hardware replicates. No Inferentia,
+MI250, Optane, energy, or production-model experiment is claimed.
 
 Earlier draft-only claims about five-platform calibration, strategy inversion,
 classifier accuracy, energy, and cross-workload generality have been removed
-from the submission sources and supplementary information because supporting
-raw traces are not present.
+because supporting measurements are not present.
 
 ## Checks before upload
 

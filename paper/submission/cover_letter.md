@@ -21,12 +21,14 @@ contribution as this measurement discipline for a problem of broad and growing
 importance, delivered with open code and raw records.
 
 We were deliberate about matching the empirical claim to the evidence. Beyond a
-compiled dependent-load CPU experiment, we test the framework's two falsifiable
-predictions on three accelerators of two vendors (NVIDIA T4 and A100, Google TPU
-v5e): the residency prediction holds on all three, and the T4 crosses the derived
-overlap boundary. We do not claim production-model, energy, strategy-ranking,
-per-device-boundary, or population-level hardware validation, and we say so
-plainly in the abstract, Results, Methods, and Discussion; the repository
+compiled dependent-load CPU experiment, we exercise the framework on three
+accelerators of two vendors (NVIDIA T4 and A100, and Google TPU v5e). The
+residency direction is descriptively consistent on all three; the T4 also
+reaches both sides of the derived overlap coordinate. Because the labels follow
+from the rule, we do not present this as independent boundary validation, and we
+do not claim production-model, energy, strategy-ranking, per-device-boundary, or
+population-level hardware validation. The manuscript states these limitations in
+the abstract, Results, Methods, and Discussion, and the public repository
 separates measured from simulated output. We would welcome the editors' guidance
 on whether this scope fits Nature Communications or a more specialised sister
 journal, and we are prepared to extend the accelerator campaign during revision.
