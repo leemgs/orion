@@ -44,12 +44,51 @@ production workloads, not a result of the present probes.
 
 The analysis supports one practical conclusion: capacity and transfer pressure
 should not be inferred from latency alone. A defensible comparison should report
-the working-set definition, usable fast capacity, compulsory bytes per step,
-sustained link bandwidth, isolated compute and transfer times, continuous
-$(R_C,R_B)$, and end-to-end latency. Those fields make denominator choices and
-uncontrolled changes visible, allow threshold sensitivity to be recomputed, and
-separate a failed directional prediction from a merely small effect. This
-reporting contract is the principal reusable output of the study.
+the minimal field set in Table~\ref{tab:contract}, which fixes the denominator
+of each ratio and separates a failed directional prediction from a merely small
+effect. Those fields make denominator choices and uncontrolled changes visible,
+allow threshold sensitivity to be recomputed under an alternative residency
+convention, and let an independent reader recompute $(R_C,R_B)$ without access
+to the original latency trace. This reporting contract---not any single measured
+number---is the principal reusable output of the study.
+
+\begin{table}[t]
+\centering
+\caption{\textbf{Minimal reporting contract for a hierarchical-memory operating
+point.} Reporting these fields makes the residency and overlap ratios
+recomputable and their denominator choices auditable. Continuous ratios are
+mandatory; categorical labels are optional and, when used, must name the
+residency convention $\theta_C$.}
+\label{tab:contract}
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+Field & Symbol & Definition and measurement rule\\
+\midrule
+Active working set & $W$ & Bytes an execution step can touch; the denominator
+of $R_C$. State inclusion of weights, activations, and KV cache.\\
+Usable fast capacity & $C_{\mathrm{fast}}$ & \emph{Usable} fast-tier bytes,
+measured or from sysfs---not nominal die capacity.\\
+Compulsory traffic & $D$ & Cross-tier bytes that must move per step;
+denominator of $T_{\mathrm{transfer}}$.\\
+Non-resident bytes & $D_{\mathrm{nr}}$ & Compulsorily accessed non-resident
+bytes; needed to instantiate the lower bound.\\
+Sustained bandwidth & $B_{\mathrm{slow}}$ & Achieved bandwidth on the limiting
+link under load---not datasheet peak.\\
+Isolated compute time & $T_{\mathrm{comp}}$ & Step compute time with transfer
+disabled or separately timed.\\
+Isolated transfer time & $T_{\mathrm{transfer}}$ & $D/B_{\mathrm{slow}}$, timed
+independently of compute.\\
+Residency ratio & $R_C$ & $C_{\mathrm{fast}}/W$, reported as a continuous
+value.\\
+Overlap ratio & $R_B$ & $T_{\mathrm{comp}}/T_{\mathrm{transfer}}$, reported as a
+continuous value.\\
+End-to-end latency & $T_{\mathrm{total}}$ & Measured step latency, the outcome
+kept separate from the ratio denominators.\\
+Residency convention & $\theta_C$ & Declared majority-residency cut-off if a
+categorical label is reported (default $0.5$).\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 Several limitations are material. The present evidence comes from one CPU and
 three accelerators (two GPUs and a TPU) with small synthetic probes; it does not
