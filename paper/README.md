@@ -23,9 +23,13 @@ per-device boundary values or cross-workload validation.
   simulated referee panel (`nc_external_referee_simulation.md`), and the
   preregistration for the decisive confirmatory experiment
   (`preregistration.md`). The preregistered analysis is locked in
-  `../code/experiments/analyze_prereg.py` (tests in
-  `../code/tests/test_analyze_prereg.py`); the experiment itself is planned,
-  not yet run, and no result is claimed in the manuscript.
+  `../code/experiments/analyze_prereg.py` and the data-collection plumbing in
+  `../code/experiments/prereg_harvest.py` (tests in
+  `../code/tests/test_analyze_prereg.py` and
+  `../code/tests/test_prereg_harvest.py`); the experiment itself is planned,
+  not yet run, and no result is claimed in the manuscript. The harvest tool has
+  no path that labels synthetic numbers as measured; `--dry-run` validates the
+  pipeline without hardware.
 
 The CPU data and code live under `../code/`. In particular:
 

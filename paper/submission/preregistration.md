@@ -83,10 +83,18 @@ One JSON object per (machine, model, point, policy, run), JSONL:
 }
 ```
 
-`source` must be `"measured"`; records tagged `"simulated"` are rejected by the
-analysis as evidence (consistent with the repository's measured/simulated
-separation). Every field in the manuscript's reporting contract (Table 3) is
-mandatory.
+`source` must be `"measured"`; records tagged `"simulated"` or `"dryrun"` are
+rejected by the analysis as evidence (consistent with the repository's
+measured/simulated separation). Every field in the manuscript's reporting
+contract (Table 3) is mandatory.
+
+**Collection tooling.** `code/experiments/prereg_harvest.py` builds this grid,
+fixes the train/held-out split from a seed before any latency is seen, emits
+this schema, and validates it. It has no path that turns synthetic numbers into
+`source="measured"`: real records come only from wiring a serving-stack
+measurement into its integration seam (compute and transfer timed separately,
+per `experiments/cuda_backend.py`), and a `--dry-run` emits rejected `"dryrun"`
+placeholders so the pipeline can be checked without hardware.
 
 ## 5. Analysis (locked in `analyze_prereg.py`)
 
