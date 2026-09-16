@@ -19,7 +19,13 @@ per-device boundary values or cross-workload validation.
   instructions.
 - `figures/orion_regime_map.png` — analytical, not empirical, regime map.
 - `check_submission.py` — guard against known draft-only claims and markers.
-- `submission/` — reconciliation, pre-submission audit, and cover-letter draft.
+- `submission/` — reconciliation, pre-submission audit, cover-letter draft, the
+  simulated referee panel (`nc_external_referee_simulation.md`), and the
+  preregistration for the decisive confirmatory experiment
+  (`preregistration.md`). The preregistered analysis is locked in
+  `../code/experiments/analyze_prereg.py` (tests in
+  `../code/tests/test_analyze_prereg.py`); the experiment itself is planned,
+  not yet run, and no result is claimed in the manuscript.
 
 The CPU data and code live under `../code/`. In particular:
 
