@@ -1,21 +1,21 @@
 \abstract{%
-Hierarchical-memory inference conflates two constraints: whether an active
-working set fits in fast memory and whether computation can hide compulsory
-cross-tier transfer. We separate them with dimensionless residency
-$R_C=C_{\mathrm{fast}}/W$ and overlap
-$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$. The pair yields normalized
-lower bounds on non-resident storage and exposed transfer, and an auditable
-measurement protocol rather than a device-specific performance predictor. A
-dependent-load probe on one Intel Xeon CPU shows working-set sensitivity without
-a discontinuity at the declared $R_C=0.5$ convention. Layered-matrix probes on
-three accelerators of two vendors (NVIDIA \GpuDevice{}, NVIDIA A100, and Google
-TPU~v5e) show higher latency under low residency
-(\AccelCapRatioMin--\AccelCapRatioMax$\times$); the \GpuDevice{} sweep also
-spans the derived $R_B=1$ overlap coordinate. The contribution is a falsifiable,
-scale-independent reporting discipline linking capacity and overlap evidence.
-Production workloads, per-device boundaries, and population-level hardware
-generality remain open.
+Reported gains from offloading, swapping, caching, and compression in
+hierarchical-memory inference are hard to compare, partly because the operating
+point goes unreported and common bandwidth ratios are circular, placing total
+step time in both metric and outcome. We propose a
+measurement discipline: describe any operating point with two independently
+measurable, scale-invariant ratios---residency $R_C=C_{\mathrm{fast}}/W$ and
+non-circular overlap $R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$---plus the
+fields that make them recomputable. A conservative service-time bound
+yields two definitional floors: non-resident storage $\max(0,1-R_C)$ and exposed
+transfer $\max(0,1-R_B)$. The same audit applies to weights, key--value caches,
+embeddings, and retrieval indices. Proof-of-concept probes on one CPU and
+\NumAccel{} accelerators of two vendors show the protocol is executable and
+directionally consistent (\AccelCapRatioMin--\AccelCapRatioMax$\times$ under low
+residency). Production effect sizes, per-device boundaries, and population-level
+generality remain open and motivate a preregistered test.
 }
 
 \keywords{hierarchical memory systems, memory orchestration, AI inference,
-working-set residency, compute--transfer overlap, reproducible measurement}
+reporting contract, working-set residency, compute--transfer overlap,
+reproducible measurement}
