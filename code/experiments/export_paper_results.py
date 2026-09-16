@@ -7,7 +7,45 @@ import json
 import statistics
 from pathlib import Path
 
+import numpy as np
+
 ROOT = Path(__file__).resolve().parents[2]
+
+# Fixed seed so the reported bootstrap intervals are reproducible from the
+# committed raw trials.
+BOOTSTRAP_SEED = 20260818
+BOOTSTRAP_RESAMPLES = 10000
+
+
+def bootstrap_mean_ci(samples: list[float], seed: int = BOOTSTRAP_SEED,
+                      resamples: int = BOOTSTRAP_RESAMPLES,
+                      alpha: float = 0.05) -> tuple[float, float]:
+    """Percentile bootstrap CI for the mean of a small trial set.
+
+    This quantifies within-machine trial variability from the committed
+    per-trial records; it is not a confidence interval over a hardware
+    population (see Methods).
+    """
+    values = np.asarray(samples, dtype=float)
+    rng = np.random.default_rng(seed)
+    draws = rng.choice(values, size=(resamples, values.size), replace=True)
+    means = draws.mean(axis=1)
+    lo, hi = np.quantile(means, [alpha / 2, 1 - alpha / 2])
+    return float(lo), float(hi)
+
+
+def load_cpu_trials() -> dict[float, list[float]]:
+    """Group per-trial dependent-load latencies by working-set size (MiB)."""
+    path = ROOT / "code/results/cpu_probe/cpu_hierarchy_records.jsonl"
+    trials: dict[float, list[float]] = {}
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        record = json.loads(line)
+        w_mib = record["w_bytes"] / (1024 * 1024)
+        trials.setdefault(w_mib, []).append(record["lat_per_access_ns"])
+    return trials
 
 
 def main() -> None:
@@ -73,11 +111,26 @@ def main() -> None:
     def sd(size: float) -> str:
         return f"{points[size]['lat_ns_sd']:.1f}"
 
+    trials = load_cpu_trials()
+
+    def ci(size: float) -> tuple[str, str]:
+        lo, hi = bootstrap_mean_ci(trials[size])
+        return f"{lo:.1f}", f"{hi:.1f}"
+
+    small_lo, small_hi = ci(0.5)
+    llc_lo, llc_hi = ci(48)
+    boundary_lo, boundary_hi = ci(96)
+    large_lo, large_hi = ci(256)
+
     macros = {
         "CpuSmallMean": mean(0.5), "CpuSmallSd": sd(0.5),
         "CpuLlcMean": mean(48), "CpuLlcSd": sd(48),
         "CpuBoundaryMean": mean(96), "CpuBoundarySd": sd(96),
         "CpuLargeMean": mean(256), "CpuLargeSd": sd(256),
+        "CpuSmallCiLo": small_lo, "CpuSmallCiHi": small_hi,
+        "CpuLlcCiLo": llc_lo, "CpuLlcCiHi": llc_hi,
+        "CpuBoundaryCiLo": boundary_lo, "CpuBoundaryCiHi": boundary_hi,
+        "CpuLargeCiLo": large_lo, "CpuLargeCiHi": large_hi,
         "MatrixLowMeanMs": f"{low_ms:.2f}",
         "MatrixFullMeanMs": f"{full_ms:.2f}",
         "MatrixLatencyRatio": f"{low_ms / full_ms:.2f}",

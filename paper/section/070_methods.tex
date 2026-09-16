@@ -70,6 +70,12 @@ exploration; its outputs are excluded from the reported measurements.
 This proof-of-concept study did not use random assignment, blinding, or a
 sample-size calculation. Trial counts were fixed before summarisation. We
 report all measured grid points in the machine-readable summaries, selected points
-in Table~\ref{tab:cpu_probe}, arithmetic means, and one standard deviation. No
-claim of statistical significance is made. Hardware-platform generalisation
-requires independent machines and is left for future work.
+in Table~\ref{tab:cpu_probe}, arithmetic means, and one standard deviation. For
+the selected pointer-chain points we additionally report a 95\% percentile
+bootstrap confidence interval for the mean (10{,}000 resamples of the seven
+committed per-trial latencies, fixed seed for reproducibility). This interval
+describes within-machine trial variability only; because $n=1$ machine, it is
+not a confidence interval over a hardware population, and no accelerator interval
+is reported because per-window raw records were not retained from the accelerator
+runs. No claim of statistical significance is made. Hardware-platform
+generalisation requires independent machines and is left for future work.
