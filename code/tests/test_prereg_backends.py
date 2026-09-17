@@ -23,7 +23,8 @@ def _point():
 
 
 def test_registry_has_expected_backends():
-    assert set(pb.BACKENDS) == {"torch-cuda", "vllm", "deepspeed", "flexgen"}
+    assert set(pb.BACKENDS) == {
+        "torch-reference", "torch-cuda", "vllm", "deepspeed", "flexgen"}
 
 
 def test_unknown_backend_raises_valueerror():
@@ -32,9 +33,24 @@ def test_unknown_backend_raises_valueerror():
 
 
 @pytest.mark.parametrize("backend_id", ["torch-cuda", "vllm", "deepspeed", "flexgen"])
-def test_every_backend_refuses_without_wiring(backend_id):
+def test_skeleton_backends_refuse_without_wiring(backend_id):
     with pytest.raises(NotImplementedError):
         pb.get_backend(backend_id).measure(_point(), "no-offload", 0)
+
+
+def test_reference_backend_needs_a_gpu():
+    # The reference backend is real, not a skeleton: without torch or a CUDA
+    # GPU it must refuse cleanly (MeasurementUnavailable) rather than invent
+    # numbers. It never raises NotImplementedError, since it is complete.
+    try:
+        import torch
+        has_cuda = torch.cuda.is_available()
+    except Exception:
+        has_cuda = False
+    if has_cuda:
+        pytest.skip("CUDA present; refusal path not exercised here")
+    with pytest.raises(pb.MeasurementUnavailable):
+        pb.get_backend("torch-reference").measure(_point(), "paged-KV-offload", 0)
 
 
 def test_harvest_seam_dispatches_to_backend():

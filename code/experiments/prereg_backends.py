@@ -209,7 +209,98 @@ class FlexGenBackend(MeasurementBackend):
         )
 
 
+class TorchReferenceBackend(MeasurementBackend):
+    """Runnable reference backend: real GPU measurements, no code to write.
+
+    Unlike the skeletons above, this one is complete. It runs a controlled
+    layered workload on a real CUDA GPU, keeps a residency fraction of the
+    weights on the device and stages the rest from pinned host memory over the
+    real PCIe/NVLink link, and times compute and host-to-device transfer
+    separately with CUDA events. Every number returned is a genuine hardware
+    measurement -- nothing is invented.
+
+    It exists so the author can produce a real ``records.jsonl`` by running a
+    command, and validate the whole pipeline end-to-end, before investing in the
+    stronger vLLM/DeepSpeed/FlexGen + real-model campaign the referees ask for.
+    The realised residency ``C_fast/W`` and overlap ``T_comp/T_transfer`` are
+    recorded from what actually happened (see prereg_harvest._record), so the
+    records stay self-consistent even where they miss the planned grid target.
+
+    Policy handling (minimal but real): ``no-offload`` keeps all weights resident
+    (no transfer); every other policy stages the non-resident fraction each step.
+    """
+    framework = "torch"
+
+    # Controlled-workload shape (override via env if desired).
+    D_MODEL = 2048
+    N_LAYERS = 24
+    BATCH = 8
+
+    def measure(self, point, policy: str, run_idx: int) -> PointMeasurement:
+        try:
+            import torch
+        except Exception as exc:  # pragma: no cover - depends on environment
+            raise MeasurementUnavailable("PyTorch is not installed") from exc
+        if not torch.cuda.is_available():  # pragma: no cover - needs a GPU
+            raise MeasurementUnavailable(
+                "no CUDA GPU available for the reference backend")
+
+        dev = torch.device("cuda")
+        d, n_layers, batch = self.D_MODEL, self.N_LAYERS, self.BATCH
+        bytes_per_layer = d * d * 4  # float32
+        w_bytes = n_layers * bytes_per_layer
+
+        # Residency: no-offload forces full residency; else follow the target.
+        frac = 1.0 if policy == "no-offload" else min(max(point.r_c, 0.0), 1.0)
+        n_resident = max(0, min(n_layers, round(n_layers * frac)))
+        c_fast_bytes = n_resident * bytes_per_layer
+        d_bytes = (n_layers - n_resident) * bytes_per_layer  # staged per step
+        scale = 1.0 / (d ** 0.5)
+
+        gen = torch.Generator(device="cpu").manual_seed(1234 + run_idx)
+        host_w = [(torch.randn(d, d, generator=gen) * scale).pin_memory()
+                  for _ in range(n_layers)]
+        resident = [host_w[i].to(dev) for i in range(n_resident)]
+        staged = [torch.empty(d, d, device=dev) for _ in range(n_layers - n_resident)]
+        x = (torch.randn(batch, d, generator=gen) * scale).to(dev)
+
+        def transfer_fn() -> None:
+            for j in range(len(staged)):
+                staged[j].copy_(host_w[n_resident + j], non_blocking=True)
+
+        def compute_fn() -> None:
+            y = x
+            for w in resident:
+                y = torch.relu(y @ w)
+            for w in staged:
+                y = torch.relu(y @ w)
+            torch.cuda.synchronize()
+
+        n_windows = 10
+        t_comp, t_xfer = time_compute_transfer_cuda(
+            compute_fn, transfer_fn, windows=n_windows)
+        # End-to-end step for this policy: staged transfer then compute.
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        torch.cuda.synchronize(); start.record()
+        transfer_fn(); compute_fn()
+        end.record(); torch.cuda.synchronize()
+        t_total = start.elapsed_time(end) / 1e3
+
+        b_slow = (d_bytes / t_xfer) if (d_bytes > 0 and t_xfer > 0) else 0.0
+        return PointMeasurement(
+            t_comp_s=t_comp, t_transfer_s=max(t_xfer, 1e-12), t_total_s=t_total,
+            c_fast_bytes=float(c_fast_bytes), w_bytes=float(w_bytes),
+            d_bytes=float(d_bytes), d_nr_bytes=float(d_bytes),
+            b_slow_bytes_per_s=b_slow, windows=n_windows,
+            provenance=(f"TorchReferenceBackend on {torch.cuda.get_device_name(dev)}; "
+                        f"policy={policy}; real CUDA-event timing; d={d}, "
+                        f"n_layers={n_layers}, batch={batch}"),
+        )
+
+
 BACKENDS: dict[str, MeasurementBackend] = {
+    "torch-reference": TorchReferenceBackend(),
     "torch-cuda": TorchCudaBackend(),
     "vllm": VLLMBackend(),
     "deepspeed": DeepSpeedBackend(),

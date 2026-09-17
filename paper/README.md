@@ -34,7 +34,9 @@ per-device boundary values or cross-workload validation.
   and field dictionary under `../code/results/prereg_example/`. Per-framework
   measurement skeletons (vLLM / DeepSpeed / FlexGen / torch-cuda) are in
   `../code/experiments/prereg_backends.py`; each refuses until its real-run TODO
-  is filled, and reusable CUDA-event timing is provided.
+  is filled, and reusable CUDA-event timing is provided. A runnable
+  `torch-reference` backend produces real GPU measurements with no code to
+  write; `submission/RUN_STEPS.md` is the copy/paste run order.
 
 The CPU data and code live under `../code/`. In particular:
 

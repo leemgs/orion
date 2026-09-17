@@ -120,12 +120,23 @@ def assign_splits(points: list[GridPoint], seed: int = SPLIT_SEED,
 
 def _record(point: GridPoint, policy: str, split: str, run_idx: int,
             meas: PointMeasurement, source: str) -> dict:
-    """Assemble one JSONL record in the locked schema."""
+    """Assemble one JSONL record in the locked schema.
+
+    For a real measurement, record the *realised* ratios and label from what
+    actually happened, so every row satisfies R_C=C_fast/W and
+    R_B=T_comp/T_transfer. Dry-run rows (zero timings) keep the planned target.
+    """
+    if source == "measured" and meas.w_bytes > 0 and meas.t_transfer_s > 0:
+        r_c = meas.c_fast_bytes / meas.w_bytes
+        r_b = meas.t_comp_s / meas.t_transfer_s
+        label = REGIME_LABEL[classify_regime(r_c, r_b)]
+    else:
+        r_c, r_b, label = point.r_c, point.r_b, point.label
     return {
         "machine_id": point.machine_id, "arch": point.arch,
         "model": point.model, "framework": point.framework,
         "policy": policy, "split": split,
-        "R_C": point.r_c, "R_B": point.r_b, "label": point.label,
+        "R_C": r_c, "R_B": r_b, "label": label,
         "C_fast_bytes": meas.c_fast_bytes, "W_bytes": meas.w_bytes,
         "D_bytes": meas.d_bytes, "D_nr_bytes": meas.d_nr_bytes,
         "B_slow_bytes_per_s": meas.b_slow_bytes_per_s,
@@ -193,30 +204,31 @@ def validate_record(rec: dict) -> None:
         raise ValueError(f"unknown label {rec['label']!r}")
 
 
-def _default_targets() -> tuple[list[dict], list[dict]]:
-    machines = [
-        {"machine_id": "a100-node-1", "arch": "A100-80GB"},
-        {"machine_id": "h100-node-1", "arch": "H100-80GB"},
-    ]
-    models = [
-        {"model": "llama-3-8b", "framework": "vllm"},
-        {"model": "retrieval-rag", "framework": "flexgen"},
-    ]
-    return machines, models
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-o", "--output", type=Path, required=True,
                         help="output JSONL path")
-    parser.add_argument("--backend", default="torch-cuda",
-                        help="measurement backend id (must be wired)")
+    parser.add_argument("--backend", default="torch-reference",
+                        help="measurement backend id (default: torch-reference, "
+                             "runnable on a real GPU with no code to write)")
     parser.add_argument("--dry-run", action="store_true",
                         help="emit source='dryrun' placeholders (not evidence)")
     parser.add_argument("--runs", type=int, default=RUNS_PER_POINT)
+    # Provenance for THIS machine/model. Record the truth: the defaults are
+    # generic on purpose so a reference run never mislabels itself as, say, an
+    # A100 running Llama. Run once per machine and merge the JSONL files.
+    parser.add_argument("--machine-id", default="local-gpu-1")
+    parser.add_argument("--arch", default="local-gpu",
+                        help="e.g. A100-80GB, H100-80GB, MI250")
+    parser.add_argument("--model", default="ref-workload",
+                        help="e.g. llama-3-8b (only meaningful for real backends)")
+    parser.add_argument("--framework", default="",
+                        help="defaults to the backend's framework tag")
     args = parser.parse_args()
 
-    machines, models = _default_targets()
+    framework = args.framework or get_backend(args.backend).framework
+    machines = [{"machine_id": args.machine_id, "arch": args.arch}]
+    models = [{"model": args.model, "framework": framework}]
     points = build_grid(machines, models)
     splits = assign_splits(points)
 
