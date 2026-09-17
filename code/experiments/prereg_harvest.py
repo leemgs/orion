@@ -39,7 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 CODE_ROOT = Path(__file__).resolve().parents[1]
@@ -48,6 +48,9 @@ if str(CODE_ROOT) not in sys.path:
 
 from orion.config import Regime  # noqa: E402
 from orion.ratios import classify_regime  # noqa: E402
+# PointMeasurement and the serving-stack backends live in prereg_backends so the
+# measurement seam can be filled per framework without touching this plumbing.
+from experiments.prereg_backends import PointMeasurement, get_backend  # noqa: E402,F401
 
 # Preregistered label strings (must match preregistration.md and analyze_prereg).
 REGIME_LABEL = {
@@ -81,22 +84,6 @@ class GridPoint:
     @property
     def label(self) -> str:
         return REGIME_LABEL[classify_regime(self.r_c, self.r_b)]
-
-
-@dataclass
-class PointMeasurement:
-    """One real measurement for a (point, policy, run). All times in seconds."""
-    t_comp_s: float
-    t_transfer_s: float
-    t_total_s: float
-    c_fast_bytes: float
-    w_bytes: float
-    d_bytes: float
-    d_nr_bytes: float
-    b_slow_bytes_per_s: float
-    windows: int
-    provenance: str = ""
-    extra: dict = field(default_factory=dict)
 
 
 def build_grid(machines: list[dict], models: list[dict],
@@ -152,18 +139,14 @@ def _record(point: GridPoint, policy: str, split: str, run_idx: int,
 
 def measure_operating_point(point: GridPoint, policy: str, run_idx: int,
                             backend: str) -> PointMeasurement:
-    """INTEGRATION SEAM -- return a real measurement or refuse.
+    """INTEGRATION SEAM -- dispatch to a serving-stack backend or refuse.
 
-    Wire a serving-stack run here (vLLM / DeepSpeed / FlexGen) with separately
-    timed compute and transfer. Until wired, this refuses rather than inventing
-    numbers, so no synthetic value can ever be tagged ``source="measured"``.
+    Backends live in ``prereg_backends.py`` (vLLM / DeepSpeed / FlexGen /
+    torch-cuda); each raises ``NotImplementedError`` until its real-measurement
+    TODO is filled, so no synthetic value can ever be tagged ``source="measured"``.
+    Use ``--dry-run`` to validate the pipeline without hardware.
     """
-    raise NotImplementedError(
-        f"backend {backend!r} is not wired: implement measure_operating_point to "
-        "return a PointMeasurement from a real run (see experiments/cuda_backend.py "
-        "for CUDA-event timing). Use --dry-run to validate the pipeline without "
-        "hardware."
-    )
+    return get_backend(backend).measure(point, policy, run_idx)
 
 
 def _dry_run_measurement(point: GridPoint, policy: str) -> PointMeasurement:

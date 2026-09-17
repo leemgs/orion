@@ -20,12 +20,23 @@
 
 ---
 
-## STEP 1 — 측정 코드 연결 (한 곳만)
+## STEP 1 — 측정 코드 연결 (프레임워크별 뼈대 채우기)
 
-`code/experiments/prereg_harvest.py` 안의 `measure_operating_point()` **한 함수만**
-채우면 됩니다. 지금은 일부러 `NotImplementedError`를 던집니다(합성 숫자를 증거로
-둔갑시키는 경로를 원천 차단). 이 함수가 **실제 1회 측정 결과**를 담은
-`PointMeasurement`를 돌려주도록 만들면 됩니다:
+측정 코드는 `code/experiments/prereg_backends.py`에 프레임워크별 **뼈대 클래스**로
+준비돼 있습니다 — 쓰시는 스택 하나의 `measure()`만 채우면 됩니다:
+
+| 백엔드 id | 클래스 | 채울 것 |
+|-----------|--------|---------|
+| `vllm` | `VLLMBackend` | policy→offload 설정 매핑 + 실제 실행/타이밍 |
+| `deepspeed` | `DeepSpeedBackend` | policy→ZeRO-Inference offload 매핑 + 타이밍 |
+| `flexgen` | `FlexGenBackend` | policy→GPU/CPU/disk 퍼센트 split + per-stage 타이머 |
+| `torch-cuda` | `TorchCudaBackend` | 모델 로드 + compute/transfer 함수 정의 |
+
+각 클래스는 지금 일부러 `NotImplementedError`를 던집니다(합성 숫자를 증거로
+둔갑시키는 경로를 원천 차단). compute와 host→device transfer를 **따로** 재는 부분은
+`time_compute_transfer_cuda(compute_fn, transfer_fn, windows=10)`으로 **이미 구현돼**
+있으니 그대로 호출하면 됩니다(warm-up 1회 자동 폐기 → 컴파일/런치 artifact 제거).
+`measure()`가 **실제 1회 측정 결과**를 담은 `PointMeasurement`를 돌려주게 만드세요:
 
 ```python
 def measure_operating_point(point, policy, run_idx, backend):
@@ -60,8 +71,8 @@ def measure_operating_point(point, policy, run_idx, backend):
 python code/experiments/prereg_harvest.py --dry-run -o dry.jsonl
 python code/experiments/analyze_prereg.py dry.jsonl   # → dryrun 거부되면 정상
 
-# (b) STEP 1 연결 후, 실제 측정 캠페인
-python code/experiments/prereg_harvest.py --backend torch-cuda --runs 5 -o records.jsonl
+# (b) STEP 1 연결 후, 실제 측정 캠페인 (--backend 는 채운 프레임워크로: vllm/deepspeed/flexgen/torch-cuda)
+python code/experiments/prereg_harvest.py --backend vllm --runs 5 -o records.jsonl
 ```
 
 `records.jsonl` 이 나오면 당신 몫의 결과물입니다.

@@ -31,7 +31,10 @@ per-device boundary values or cross-workload validation.
   no path that labels synthetic numbers as measured; `--dry-run` validates the
   pipeline without hardware. What the author must produce and hand back is
   spelled out in `submission/handoff_checklist.md`, with a filled example file
-  and field dictionary under `../code/results/prereg_example/`.
+  and field dictionary under `../code/results/prereg_example/`. Per-framework
+  measurement skeletons (vLLM / DeepSpeed / FlexGen / torch-cuda) are in
+  `../code/experiments/prereg_backends.py`; each refuses until its real-run TODO
+  is filled, and reusable CUDA-event timing is provided.
 
 The CPU data and code live under `../code/`. In particular:
 
