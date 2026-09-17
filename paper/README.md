@@ -29,7 +29,9 @@ per-device boundary values or cross-workload validation.
   `../code/tests/test_prereg_harvest.py`); the experiment itself is planned,
   not yet run, and no result is claimed in the manuscript. The harvest tool has
   no path that labels synthetic numbers as measured; `--dry-run` validates the
-  pipeline without hardware.
+  pipeline without hardware. What the author must produce and hand back is
+  spelled out in `submission/handoff_checklist.md`, with a filled example file
+  and field dictionary under `../code/results/prereg_example/`.
 
 The CPU data and code live under `../code/`. In particular:
 
