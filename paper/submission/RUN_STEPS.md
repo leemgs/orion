@@ -1,5 +1,10 @@
 # 실행 순서 (copy / paste)
 
+> **Google Colab 원클릭:** 아래 STEP 0–5 를 한 노트북으로 묶어 두었습니다 —
+> `notebooks/orion_prereg_colab.ipynb`. 링크로 바로 열기:
+> https://colab.research.google.com/github/leemgs/orion/blob/main/notebooks/orion_prereg_colab.ipynb
+> (연 뒤 **런타임 → 런타임 유형 변경 → GPU**, 그다음 셀을 위에서부터 실행)
+
 아래 블록을 위에서부터 그대로 붙여넣어 실행하면 됩니다. **STEP 0–2 는 GPU 없이**
 (파이프라인 점검), **STEP 3 부터 GPU 필요** (실제 측정). 모든 경로는 저장소 루트
 (`orion/`) 기준입니다.

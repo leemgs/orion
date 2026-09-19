@@ -36,7 +36,9 @@ per-device boundary values or cross-workload validation.
   `../code/experiments/prereg_backends.py`; each refuses until its real-run TODO
   is filled, and reusable CUDA-event timing is provided. A runnable
   `torch-reference` backend produces real GPU measurements with no code to
-  write; `submission/RUN_STEPS.md` is the copy/paste run order.
+  write; `submission/RUN_STEPS.md` is the copy/paste run order and
+  `../notebooks/orion_prereg_colab.ipynb` runs STEP 0-5 in one Google Colab
+  notebook (GPU runtime).
 
 The CPU data and code live under `../code/`. In particular:
 
