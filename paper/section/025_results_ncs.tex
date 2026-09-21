@@ -74,8 +74,13 @@ $R_C$ bounds storage residency but does not determine $D_{\mathrm{nr}}$ unless
 an access-coverage model is specified. Taking the
 maximum permits ideal overlap and avoids
 double-counting bytes that contribute to both a cache miss and a cross-tier
-transfer. Synchronisation and contention can only increase observed time, so
-Equation~\eqref{eq:lower_bound_regime} is not a performance predictor. The
+transfer. Beyond a single-tier roofline bound $\max(T_{\mathrm{comp}},D/B_{\mathrm{peak}})$,
+Equation~\eqref{eq:lower_bound_regime} adds an explicit residency floor
+$\rho D_{\mathrm{nr}}$ for compulsorily non-resident bytes and uses sustained
+rather than peak bandwidth, so a capacity-limited operating point cannot be
+hidden by arithmetic intensity alone. Synchronisation and contention can only
+increase observed time, so Equation~\eqref{eq:lower_bound_regime} is not a
+performance predictor. The
 residual above it cannot be assigned to one latency component without
 event-level measurements.
 
@@ -166,16 +171,19 @@ used as evidence for the I/O boundary.
 \begin{table}[t]
 \centering
 \caption{Selected measured points from the compiled CPU pointer-chain experiment.
-Values are mean $\pm$ one standard deviation over seven trials.}
+Latency is mean $\pm$ one standard deviation over seven trials; the last column
+is a 95\% percentile bootstrap confidence interval for the mean, quantifying
+within-machine trial variability (not a hardware-population interval; see
+Methods).}
 \label{tab:cpu_probe}
-\begin{tabular}{rrrr}
+\begin{tabular}{rrrcl}
 \toprule
-Working set (MiB) & $R_C$ & Latency (ns/load) & Interpretation\\
+Working set (MiB) & $R_C$ & Latency (ns/load) & 95\% CI (ns) & Interpretation\\
 \midrule
-0.5 & 96.000 & $\CpuSmallMean\pm\CpuSmallSd$ & small working set\\
-48  & 1.000  & $\CpuLlcMean\pm\CpuLlcSd$ & reported LLC capacity\\
-96  & 0.500  & $\CpuBoundaryMean\pm\CpuBoundarySd$ & residency convention\\
-256 & 0.188  & $\CpuLargeMean\pm\CpuLargeSd$ & largest working set\\
+0.5 & 96.000 & $\CpuSmallMean\pm\CpuSmallSd$ & $[\CpuSmallCiLo,\CpuSmallCiHi]$ & small working set\\
+48  & 1.000  & $\CpuLlcMean\pm\CpuLlcSd$ & $[\CpuLlcCiLo,\CpuLlcCiHi]$ & reported LLC capacity\\
+96  & 0.500  & $\CpuBoundaryMean\pm\CpuBoundarySd$ & $[\CpuBoundaryCiLo,\CpuBoundaryCiHi]$ & residency convention\\
+256 & 0.188  & $\CpuLargeMean\pm\CpuLargeSd$ & $[\CpuLargeCiLo,\CpuLargeCiHi]$ & largest working set\\
 \bottomrule
 \end{tabular}
 \end{table}

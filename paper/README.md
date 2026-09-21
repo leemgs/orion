@@ -19,7 +19,26 @@ per-device boundary values or cross-workload validation.
   instructions.
 - `figures/orion_regime_map.png` — analytical, not empirical, regime map.
 - `check_submission.py` — guard against known draft-only claims and markers.
-- `submission/` — reconciliation, pre-submission audit, and cover-letter draft.
+- `submission/` — reconciliation, pre-submission audit, cover-letter draft, the
+  simulated referee panel (`nc_external_referee_simulation.md`), and the
+  preregistration for the decisive confirmatory experiment
+  (`preregistration.md`). The preregistered analysis is locked in
+  `../code/experiments/analyze_prereg.py` and the data-collection plumbing in
+  `../code/experiments/prereg_harvest.py` (tests in
+  `../code/tests/test_analyze_prereg.py` and
+  `../code/tests/test_prereg_harvest.py`); the experiment itself is planned,
+  not yet run, and no result is claimed in the manuscript. The harvest tool has
+  no path that labels synthetic numbers as measured; `--dry-run` validates the
+  pipeline without hardware. What the author must produce and hand back is
+  spelled out in `submission/handoff_checklist.md`, with a filled example file
+  and field dictionary under `../code/results/prereg_example/`. Per-framework
+  measurement skeletons (vLLM / DeepSpeed / FlexGen / torch-cuda) are in
+  `../code/experiments/prereg_backends.py`; each refuses until its real-run TODO
+  is filled, and reusable CUDA-event timing is provided. A runnable
+  `torch-reference` backend produces real GPU measurements with no code to
+  write; `submission/RUN_STEPS.md` is the copy/paste run order and
+  `../notebooks/orion_prereg_colab.ipynb` runs STEP 0-5 in one Google Colab
+  notebook (GPU runtime).
 
 The CPU data and code live under `../code/`. In particular:
 
