@@ -7,8 +7,10 @@
 *.log
 *.out
 *.pdf
-# ...except the built manuscript, which we track for easy sharing
+# ...except the built manuscript and its Supplementary Information, which we
+# track for easy sharing
 !paper/main.pdf
+!paper/supplementary.pdf
 
 
 # Python cache
