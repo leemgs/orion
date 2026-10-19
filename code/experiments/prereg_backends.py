@@ -141,6 +141,13 @@ class VLLMBackend(MeasurementBackend):
     from host-staging transfer (instrument the engine's copy stream, or run a
     transfer-only control), and read sustained PCIe/NVLink bandwidth for
     ``B_slow`` rather than the datasheet peak.
+
+    A complete, runnable vLLM harness for the strategy-inversion experiment
+    already exists at ``experiments/vllm_strategy_inversion.py``; it uses
+    explicit author-chosen operating points (the protocol's recommended way to
+    land one point per regime) and emits the same locked schema. Prefer it for
+    the real campaign. This grid-driven seam is left as a stub so no synthetic
+    value can be tagged ``source="measured"`` here.
     """
     framework = "vllm"
 

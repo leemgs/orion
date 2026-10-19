@@ -2,8 +2,17 @@
 
 Preregisterable design for the single result most likely to move the paper from
 "reporting discipline" to a substantial advance: **the ranking of orchestration
-strategies inverts across regimes.** Author-run on real hardware; the assistant
-can turn this into a runnable harness once a target stack is chosen.
+strategies inverts across regimes.** Author-run on real hardware.
+
+**Runnable harness (vLLM):** `code/experiments/vllm_strategy_inversion.py`
+implements this protocol for vLLM. It drives the four policies below across
+operating points, measures `T_total` per (point, policy) plus the
+reporting-contract fields (`B_slow` from a real H2D-bandwidth probe, isolated
+`T_comp` from a resident baseline, `T_transfer = D/B_slow`), emits the locked
+record schema of `preregistration.md`, and prints the H3/H4 summary by reusing
+`analyze_prereg.py`. It raises rather than inventing numbers when a GPU/vLLM is
+absent; `--dry-run` validates the whole pipeline without hardware. Run it on
+each real machine, merge the JSONL, and analyse the held-out split.
 
 ## Falsifiable hypothesis (preregister before measuring)
 For a fixed model and hardware, and for orchestration strategies
