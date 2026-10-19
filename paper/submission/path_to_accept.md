@@ -44,7 +44,11 @@
 - [x] **필수 statement 존재** — Data/Code availability, Competing interests,
       Author Contributions(CRediT-스타일), Acknowledgements.
 - [x] **70B 예시를 "illustrative calculation, not an empirical measurement"로
-      명시** (referee minor point 직접 반영, 이번 세션).
+      명시** (referee minor point 직접 반영).
+- [x] **내부 불일치 수정.** CPU 소절이 "previously planned A100, MI250, TPU v4,
+      Inferentia2, Optane campaign"을 미실행으로 기술했으나 A100은 바로 다음
+      소절에서 실제 실행·보고됨(Table 2). 유령 하드웨어 열거를 제거하고
+      "preregistered, multi-platform campaign"으로 일반화하여 모순 해소.
 - [x] **Supplementary Information(`supplementary.pdf`)를 저장소에서 추적**하도록
       `.gitignore` 예외 추가 및 커밋.
 
