@@ -90,13 +90,16 @@
    - 성공 기준(사전지정): coordination-dominated에서 이긴 정책이 I/O- 또는
      capacity-limited에서 짐(문서화된 rank inversion), bootstrap CI 동반.
    - 해제되는 주장: "roofline 재명명"을 넘어서는 신규성·처방력.
-   - **[측정 스크립트 제공됨]** `code/experiments/vllm_strategy_inversion.py` —
-     4개 정책을 동작점별로 구동, `T_total` + reporting-contract 필드(실측
-     H2D 대역폭 `B_slow`, resident baseline에서 isolated `T_comp`,
-     `T_transfer=D/B_slow`)를 측정하고 locked JSONL 스키마로 기록,
-     `analyze_prereg.py`로 H3/H4(역전·예측 적중률, bootstrap CI) 요약 출력.
-     GPU/vLLM 부재 시 수치를 날조하지 않고 예외 발생, `--dry-run`으로 하드웨어
-     없이 파이프라인 검증. **실제 가속기 구동·데이터 생성은 저자 몫.**
+   - **[측정 스크립트 제공됨 — vLLM · DeepSpeed-Inference · FlexGen]**
+     `code/experiments/{vllm,deepspeed,flexgen}_strategy_inversion.py`
+     (공통 코어 `strategy_inversion_common.py`). 세 스택을 동일한 방식으로 측정:
+     4개 정책을 동작점별로 구동해 `T_total` + reporting-contract 필드(실측 H2D
+     대역폭 `B_slow`, resident baseline의 isolated `T_comp`, `T_transfer=D/B_slow`)를
+     locked JSONL 스키마로 기록, `analyze_prereg.py`로 H3/H4 요약 출력.
+     GPU/프레임워크 부재 시 예외(날조 없음), 실행 불가 셀은 기록 없이 건너뜀,
+     `--dry-run`으로 하드웨어 없이 검증. vLLM의 KV offload는 V1 엔진에서
+     무시되는 `swap_space` 대신 KV-offloading connector 사용(엔진 로그로 활성
+     확인 필요). **실제 가속기 구동·데이터 생성은 저자 몫.**
 
 2. **실제 워크로드 substance** — d=2048 합성 matmul 대체.
    - 작업: 토큰 생성(prefill+decode), KV 캐시/continuous batching/IO-aware

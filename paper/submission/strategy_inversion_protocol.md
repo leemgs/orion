@@ -4,15 +4,27 @@ Preregisterable design for the single result most likely to move the paper from
 "reporting discipline" to a substantial advance: **the ranking of orchestration
 strategies inverts across regimes.** Author-run on real hardware.
 
-**Runnable harness (vLLM):** `code/experiments/vllm_strategy_inversion.py`
-implements this protocol for vLLM. It drives the four policies below across
-operating points, measures `T_total` per (point, policy) plus the
-reporting-contract fields (`B_slow` from a real H2D-bandwidth probe, isolated
-`T_comp` from a resident baseline, `T_transfer = D/B_slow`), emits the locked
-record schema of `preregistration.md`, and prints the H3/H4 summary by reusing
-`analyze_prereg.py`. It raises rather than inventing numbers when a GPU/vLLM is
-absent; `--dry-run` validates the whole pipeline without hardware. Run it on
-each real machine, merge the JSONL, and analyse the held-out split.
+**Runnable harnesses (vLLM, DeepSpeed-Inference, FlexGen):**
+`code/experiments/{vllm,deepspeed,flexgen}_strategy_inversion.py` implement this
+protocol on three serving stacks over one shared core
+(`strategy_inversion_common.py`), so every framework is measured identically:
+`T_total` per (operating point, policy); `B_slow` from a real H2D-bandwidth
+probe; isolated `T_comp` from a resident baseline; `T_transfer = D/B_slow`;
+`W`, `C_fast`, `D`, `D_nr` from the model config and the declared GPU budget.
+All emit the locked record schema of `preregistration.md` and print the H3/H4
+summary via `analyze_prereg.py`. They raise rather than invent numbers when a
+GPU or framework is absent, skip (and log) any cell that cannot run, and
+`--dry-run` validates the pipeline without hardware. Run each on every real
+machine and analyse the held-out split per framework.
+
+Framework notes. *vLLM:* the V1 engine (current default) does not swap KV to
+CPU, so `paged-KV-offload` uses vLLM's CPU KV-offloading connector
+(`kv_transfer_config`), not `swap_space`; confirm in the engine log that the
+connector is active. *DeepSpeed:* all policies use one ZeRO-3 (ZeRO-Inference)
+engine; ZeRO places parameters by size threshold, so partial offload is
+approximate and the measured GPU-resident bytes are recorded. KV offload uses
+Hugging Face's `OffloadedCache`. *FlexGen:* OPT models only (2048-token
+context), with native GPU/CPU placement percentages per policy.
 
 ## Falsifiable hypothesis (preregister before measuring)
 For a fixed model and hardware, and for orchestration strategies

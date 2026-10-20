@@ -175,6 +175,12 @@ class DeepSpeedBackend(MeasurementBackend):
     ``layer-pinned`` = partial layer offload; ``paged-KV-offload`` = KV to host.
     Realise r_c through the offload ratio, r_b through compute scale, and time
     the prefetch/transfer stream separately from compute.
+
+    A complete, runnable DeepSpeed harness for the strategy-inversion experiment
+    exists at ``experiments/deepspeed_strategy_inversion.py`` (same locked
+    schema; explicit author-chosen operating points). Prefer it for the real
+    campaign; this grid-driven seam stays a stub so nothing synthetic can be
+    tagged ``source="measured"`` here.
     """
     framework = "deepspeed"
 
@@ -200,6 +206,11 @@ class FlexGenBackend(MeasurementBackend):
     keep hot tensors on GPU. Realise r_c through the GPU percentage and r_b
     through generation length; FlexGen already separates compute and I/O stages,
     so read its per-stage timers for T_comp and T_transfer.
+
+    A complete, runnable FlexGen harness for the strategy-inversion experiment
+    exists at ``experiments/flexgen_strategy_inversion.py`` (same locked
+    schema; OPT models; explicit operating points within OPT's context).
+    Prefer it for the real campaign; this seam stays a stub.
     """
     framework = "flexgen"
 
