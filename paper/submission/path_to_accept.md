@@ -38,6 +38,16 @@
     2020, DOI 10.1109/COMST.2020.2970550 (검증).
   - BibTeX가 역순 파싱하던 저자명 16건, 연도 오류 1건(He 2023→2024), 제목
     오타/약어 대소문자, 중복 bib 4건 정리.
+- [x] **출판본 메타데이터 정합(Crossref 대조).** arXiv로만 검증했던 항목을
+      출판본과 대조: faiss 연도 2019→2021(7(3):535–547은 2021호),
+      PagedAttention arXiv→SOSP'23(611–626), Ma & Patterson "Accepted"→
+      *Computer* 59(5):55–64, SpecOffload→IWQoS'26, NEO→MLSys'25, Luo→TCCN
+      11(6), Long→COMST 27(6), Gholami→IEEE Micro 44(3) 등 18건 권/호/쪽/DOI
+      보강; 인쇄 제목의 고유명사 대소문자(P/D-Serve, SwapNet·DNN·AI,
+      SwapAdvisor, FlexGen, PrefillOnly, NEO·LLM, DeepSpeed-Inference) 교정.
+- [x] **커버레터 과장 표현 교정.** "We prove R_B is non-circular" → "non-circular
+      by construction"(원고에 증명 없음), "per-trial bootstrap" → 각 CPU 점
+      평균의 95% bootstrap(Methods와 일치), 측정 하네스 공개 사실 추가(결과 주장 없음).
 - [x] **인용 키 44 = 인쇄 참고문헌 44** 1:1 정합, undefined ref/citation 0.
 - [x] **제출 감사(`check_submission.py`) 통과** — draft-only 표현/placeholder 없음,
       초록 ≤150단어.

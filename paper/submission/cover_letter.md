@@ -18,8 +18,9 @@ principle—an auditable **reporting contract** that makes otherwise incomparabl
 systems studies directly comparable.
 
 Concretely, the contract rests on two independently measurable, scale-invariant
-coordinates—fast-memory residency $R_C$ and compute–transfer overlap $R_B$. We
-prove $R_B$ is non-circular (compute and transfer are timed separately), derive
+coordinates—fast-memory residency $R_C$ and compute–transfer overlap $R_B$.
+$R_B$ is non-circular by construction (compute and transfer are timed
+separately, so total step time never enters the ratio). We derive
 a conservative service-time lower bound, and from it two floors that are fixed
 by definition rather than fitted: a non-resident-storage floor $\max(0,1-R_C)$
 and an exposed-transfer floor $\max(0,1-R_B)$. The reusable output is the
@@ -40,8 +41,9 @@ derived overlap coordinate. Because the operating labels follow deductively from
 the classification rule, we explicitly do **not** present this as independent
 boundary validation, and we make no production-model, energy, strategy-ranking,
 per-device-boundary, or population-level hardware claim. These boundaries are
-stated plainly in the abstract, Results, Methods, and Discussion; per-trial
-bootstrap intervals accompany the CPU points; and the public repository keeps
+stated plainly in the abstract, Results, Methods, and Discussion; 95% bootstrap
+intervals for each CPU point's mean (from its seven trials) accompany the
+CPU table; and the public repository keeps
 measured output separate from a clearly labelled simulated backend. We regard
 this scoping as a feature of the work's rigour, not a gap concealed.
 
@@ -55,7 +57,10 @@ regime membership predicts the fastest orchestration policy a priori on a
 held-out grid, including whether a policy pair reverses its ranking across a
 predicted coordinate; (iii) replicate across multiple machines with bootstrap
 confidence intervals; and (iv) deposit raw device-event traces under a persistent
-DOI. Given that our present contribution is methodological, we would welcome the
+DOI. The measurement harnesses for (i)–(ii) on vLLM, DeepSpeed-Inference and
+FlexGen are already released in the repository and emit records in the
+preregistered schema; no results from them are reported in this manuscript.
+Given that our present contribution is methodological, we would welcome the
 editors' early guidance on whether this staged scope fits *Nature Communications*
 or a more specialised sister journal before we commit the full accelerator
 campaign.
