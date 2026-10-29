@@ -45,6 +45,12 @@
       11(6), Long→COMST 27(6), Gholami→IEEE Micro 44(3) 등 18건 권/호/쪽/DOI
       보강; 인쇄 제목의 고유명사 대소문자(P/D-Serve, SwapNet·DNN·AI,
       SwapAdvisor, FlexGen, PrefillOnly, NEO·LLM, DeepSpeed-Inference) 교정.
+- [x] **링크·가용성 실검증.** 참고문헌 URL 47개 해석 확인(ACM·IEA의 HTTP 403은
+      봇 차단이며, ACM DOI 8건은 DOI 레지스트리 handle API로 등록·정상 해석 확인).
+      Kleinrock 교과서의 ACM `10.5555` 의사-DOI 링크(DOI 미등록, 검증 불가)를
+      제거하고 출판사·ISBN(978-0-471-49110-1, 검증됨)만 유지. Data/Code
+      availability에 명시된 경로 13개가 git에 추적되고 공개 저장소(HTTP 200)에서
+      접근 가능함을 확인.
 - [x] **커버레터 과장 표현 교정.** "We prove R_B is non-circular" → "non-circular
       by construction"(원고에 증명 없음), "per-trial bootstrap" → 각 CPU 점
       평균의 95% bootstrap(Methods와 일치), 측정 하네스 공개 사실 추가(결과 주장 없음).
