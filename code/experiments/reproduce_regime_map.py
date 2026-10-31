@@ -46,8 +46,8 @@ def plot(output: Path) -> None:
 
     ax.set(xlim=(0, x_max), ylim=(0, y_max),
            xlabel=r"$R_C=C_{\mathrm{fast}}/W$ (fast-memory residency ratio)",
-           ylabel=r"$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$ (overlap ratio)",
-           title="Operational regime map for hierarchical-memory inference")
+           ylabel=r"$R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$ (overlap ratio)")
+    # No in-plot title: Nature style carries the title in the figure legend.
     ax.legend(handles=[
         Patch(facecolor=colours["capacity"], label="Capacity-limited"),
         Patch(facecolor=colours["coordination"], label="Coordination-dominated"),
@@ -58,7 +58,7 @@ def plot(output: Path) -> None:
     ax.grid(alpha=0.15)
     fig.tight_layout()
     output.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(output, dpi=220, bbox_inches="tight")
+    fig.savefig(output, dpi=300, bbox_inches="tight")  # Nature: >=300 dpi
 
 
 def main() -> None:

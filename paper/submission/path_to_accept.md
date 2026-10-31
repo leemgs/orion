@@ -1,172 +1,147 @@
-# Path to Accept — 통합 우선순위 TODO (Nature Communications)
+# Path to Accept — *Nature* (Article) 기준 통합 우선순위 TODO
 
-> 최상위 통합 문서. 기존 개별 문서(`nc_referee_report.md`, `nc_external_referee_simulation.md`,
-> `reviewer_readiness_plan.md`, `nc_revision_plan.md`, `preregistration.md`)의
-> 지적을 하나의 우선순위 체크리스트로 합친 것. **근거 없는 결과를 만들지 않는다**는
-> 원칙에 따라, 텍스트로 방어 가능한 항목만 즉시 수정했고 실측이 필요한 항목은
-> "저자 실행 필요"로 명시한다.
-
----
-
-## 0. 정직한 현재 판정 (reviewer 관점 요약)
-
-- **형식·정직성·재현성: 충족.** desk-reject을 유발하는 형식 결함은 남아 있지 않다
-  (아래 §1). 제목/초록은 발견된 "한계"를 주장하지 않으며, 모든 수치는 커밋된
-  데이터에서 추적 가능하고, 측정/시뮬레이션이 분리되어 있다.
-- **핵심 약점은 유의성(significance/advance)이다 — 텍스트로 해결 불가.** 현재
-  증거는 소규모 합성 프로브의 proof-of-concept이며, 논문 스스로 production·전략
-  순위·에너지·장치별 경계값·모집단 일반화 주장을 **명시적으로 유보**한다. 이
-  조합은 Nature Communications에서 외부심사 전 editorial decline(유의성 사유)
-  위험이 크다. 이는 자체 referee 시뮬레이션의 결론과 일치한다
-  (`nc_external_referee_simulation.md`).
-- **결론:** 제목 그대로의 "최종 제출 가능 수준"은 **형식적으로는 도달**했으나,
-  Accept 확률을 실질적으로 높이려면 §3의 실험이 필요하다. 실험 없이 텍스트만으로
-  Accept를 보장한다고 말하는 것은 근거 없는 주장이므로 하지 않는다. 자원 제약 시
-  전문 시스템/측정 학회(MLSys, SC, ISCA, IISWC, IMC, IEEE TPDS/TC)가 현 상태의
-  적합 투고처다.
+> 투고처: **Nature 본지 (Article)**. 이 문서가 최상위 기준이며, Nature
+> Communications를 전제로 작성된 `nc_referee_report.md`,
+> `nc_external_referee_simulation.md`, `nc_revision_plan.md`,
+> `ncomms_compliance_report.md`, `reviewer_readiness_plan.md`는 **참고용
+> 이력**이다(실험 설계 세부는 여전히 유효). 원칙: 근거 없는 주장·결과를 만들지
+> 않는다. 텍스트·형식으로 해결 가능한 것은 즉시 반영했고, 실험이 필요한 것은
+> "저자 실행 필요"로 구분한다.
+>
+> 형식 기준 출처: Nature formatting guide (nature.com/nature/for-authors/
+> formatting-guide), 2026-10 확인.
 
 ---
 
-## 1. 완료됨 — 형식/무결성 (DONE, 이번 및 직전 세션에서 수정)
+## 0. 정직한 판정 — Nature 편집자·리뷰어 관점
 
-- [x] **표·그림 가로 폭 초과 제거.** 본문·부록 모두 overfull hbox/vbox = 0.
-      Table 2 컬럼 간격 축소로 7.77pt 초과 해소. 그림 해상도 ≈380 dpi(≥300 dpi).
-- [x] **참고문헌 무결성.** 인용 44편 전수 실재 확인(arXiv API, Crossref, DBLP,
-      OpenAlex, IEEE Xplore, USENIX).
-  - 날조/비해석 DOI 1건 적발·교체: `wang2023modeloffloading`(DOI 404, 제목
-    미존재) → Xiaofei Wang 외, *IEEE Comm. Surveys & Tutorials* 22(2):869–904,
-    2020, DOI 10.1109/COMST.2020.2970550 (검증).
-  - BibTeX가 역순 파싱하던 저자명 16건, 연도 오류 1건(He 2023→2024), 제목
-    오타/약어 대소문자, 중복 bib 4건 정리.
-- [x] **출판본 메타데이터 정합(Crossref 대조).** arXiv로만 검증했던 항목을
-      출판본과 대조: faiss 연도 2019→2021(7(3):535–547은 2021호),
-      PagedAttention arXiv→SOSP'23(611–626), Ma & Patterson "Accepted"→
-      *Computer* 59(5):55–64, SpecOffload→IWQoS'26, NEO→MLSys'25, Luo→TCCN
-      11(6), Long→COMST 27(6), Gholami→IEEE Micro 44(3) 등 18건 권/호/쪽/DOI
-      보강; 인쇄 제목의 고유명사 대소문자(P/D-Serve, SwapNet·DNN·AI,
-      SwapAdvisor, FlexGen, PrefillOnly, NEO·LLM, DeepSpeed-Inference) 교정.
-- [x] **링크·가용성 실검증.** 참고문헌 URL 47개 해석 확인(ACM·IEA의 HTTP 403은
-      봇 차단이며, ACM DOI 8건은 DOI 레지스트리 handle API로 등록·정상 해석 확인).
-      Kleinrock 교과서의 ACM `10.5555` 의사-DOI 링크(DOI 미등록, 검증 불가)를
-      제거하고 출판사·ISBN(978-0-471-49110-1, 검증됨)만 유지. Data/Code
-      availability에 명시된 경로 13개가 git에 추적되고 공개 저장소(HTTP 200)에서
-      접근 가능함을 확인.
-- [x] **커버레터 과장 표현 교정.** "We prove R_B is non-circular" → "non-circular
-      by construction"(원고에 증명 없음), "per-trial bootstrap" → 각 CPU 점
-      평균의 95% bootstrap(Methods와 일치), 측정 하네스 공개 사실 추가(결과 주장 없음).
-- [x] **인용 키 44 = 인쇄 참고문헌 44** 1:1 정합, undefined ref/citation 0.
-- [x] **제출 감사(`check_submission.py`) 통과** — draft-only 표현/placeholder 없음,
-      초록 ≤150단어.
-- [x] **필수 statement 존재** — Data/Code availability, Competing interests,
-      Author Contributions(CRediT-스타일), Acknowledgements.
-- [x] **70B 예시를 "illustrative calculation, not an empirical measurement"로
-      명시** (referee minor point 직접 반영).
-- [x] **내부 불일치 수정.** CPU 소절이 "previously planned A100, MI250, TPU v4,
-      Inferentia2, Optane campaign"을 미실행으로 기술했으나 A100은 바로 다음
-      소절에서 실제 실행·보고됨(Table 2). 유령 하드웨어 열거를 제거하고
-      "preregistered, multi-platform campaign"으로 일반화하여 모순 해소.
-- [x] **Supplementary Information(`supplementary.pdf`)를 저장소에서 추적**하도록
-      `.gitignore` 예외 추가 및 커밋.
+**형식: 충족.** Nature Article 형식 요건(아래 §1)을 모두 맞췄고, 자동 점검으로
+검증된다.
+
+**과학적 판정: 현 상태로는 desk reject 가능성이 매우 높다.** Nature의 핵심
+기준은 "탁월한 과학적 중요성"과 "분야 밖 독자에게 의미 있는 결론"이다. 이
+원고는 측정 규약(reporting contract)과 소규모 proof-of-concept이며, 스스로
+production 효과크기·정책 순위·에너지·장치별 경계값·모집단 일반화를 유보한다.
+Nature Communications 기준에서도 자체 referee 시뮬레이션은 "유의성 부족으로
+reject"였고, Nature 본지의 문턱은 그보다 훨씬 높다. 이 판단은 텍스트 수정으로
+바뀌지 않는다.
+
+**권고.** (1) 본 투고 전에 Nature의 **presubmission enquiry**(편집자 사전
+문의, 공식 제도)를 먼저 보내 범위 적합성을 확인한다. 커버레터에도 같은 질문을
+넣어 두었다. (2) 아래 P0 실험 결과를 확보한 뒤 본 투고하는 것이 현실적인
+경로다. (3) P0 확보 전 투고가 꼭 필요하면 Nature Communications 또는 전문
+학회(MLSys, ASPLOS, ISCA, SC 등)가 현 증거 수준에 맞는다.
+
+### 예상 거절 사유 (엄격한 리뷰어 관점, 심각도순)
+
+| # | 예상 지적 | 근거 | 텍스트로 해결? |
+|---|---|---|---|
+| R1 | **새 현상·결과가 없다.** 기여가 측정 규약이며 결론의 귀결(consequence)이 입증되지 않음 | 원고가 예측력·정책 순위를 "open test"로 명시 | 불가 — P0 |
+| R2 | **신규성 점진적.** R_C=working-set 상주율, R_B=Roofline식 compute/transfer 균형의 재조합 | 서론이 "narrow gap"이라 스스로 기술 | 불가 — P0이 신규성 근거 |
+| R3 | **증거가 합성 마이크로 프로브.** d=2048 layered matrix, pointer chase; 라벨은 규칙에서 연역되어 독립 검증 아님 | Results·Discussion에 명시 | 불가 — P0/P1 |
+| R4 | **분야 밖 독자 관심 부족.** 컴퓨터 시스템 내부 문제로 읽힘 | Nature는 CS 논문을 광범위한 파급이 있을 때만 게재 | 일부 — 에너지·재현성 위기와 연결은 P0-1·P2-8 결과가 있어야 설득력 |
+| R5 | **통계적 근거 약함.** 장치당 1대, 머신 내 반복만, 가속기 CI 없음, 유의성 검정 없음 | Methods·Discussion에 명시 | 불가 — P1 |
+| R6 | **측정 artifact가 표에 남음.** A100/TPU의 fully-resident 점; warm-up 수정 후 재측정 안 함 | Methods에 명시 | 불가 — P1-5 |
+| R7 | **"규약이 상충 결과를 해소한다"는 핵심 동기 미입증** | 커버레터·Discussion의 동기 | 불가 — P0-1 |
 
 ---
 
-## 2. 텍스트/컴플라이언스로 해결 가능 — 상태
+## 1. 완료됨 — 이번 Nature 재정비에서 직접 수정 (DONE)
 
-즉시 수정 가능한 항목(실험 불필요). 이번 세션에서 처리했거나 저자 포털 작업만 남은 것.
+- [x] **제목 교체 (95 → 73자).** "Separating memory capacity from data movement
+      in neural network inference". Nature 규정(≤75자, 숫자·약어·구두점 없음,
+      분야 밖 독자 이해 가능) 충족, 원고가 실제로 하는 일(두 제약의 분리)만
+      서술하고 성능 결과를 주장하지 않음. SI·README·코드 문서도 동기화.
+- [x] **Summary paragraph 재작성 (199단어).** Nature 지정 구조(기초 도입 →
+      배경·근거 → "Here we introduce…" → 일반적 맥락), **참고문헌 인용 포함**,
+      수치·약어·기호 제거. 주장 범위는 본문 증거와 동일.
+- [x] **본문 분량 3,050 → 약 2,170단어** (Nature: 표시항목 4개 기준 약 2,500).
+      삭제가 아니라 기술적 세부를 Methods로 이동: CPU layered-matrix 결과,
+      fully-resident 측정 artifact 상세, reproducibility boundary. 모든 한계·
+      단서 유지, 수치는 생성 매크로 그대로.
+- [x] **Nature 구조.** 서론 제목 없음; 주제형 소제목(≤40자); Discussion;
+      **main references → Methods(Data/Code availability 포함) →
+      Acknowledgements → Author contributions → Competing interests** 순서.
+      번호 없는 절로 바꾸면서 생긴 "Section N" 교차참조를 문장으로 교체.
+- [x] **그림.** 그림 내부 제목 제거(Nature는 캡션에 제목), 300 dpi로 재생성
+      (`reproduce_regime_map.py`, 정의·라벨 동일).
+- [x] **저장소 정합성(리뷰어가 실제로 여는 곳).** 코드 README의 "three intrinsic
+      operating regimes separated by abrupt, phase-like transitions" 및 과거
+      과장 제목("Intrinsic regime-dependent limits govern…")을 원고 주장과
+      일치하도록 수정. 원고는 불연속을 명시적으로 부정한다.
+- [x] **자동 점검 강화(`check_submission.py`).** Nature 기준: 제목 ≤75자,
+      summary ≤200단어 + 인용 필수, 본문 ≤3,000단어, 소제목 ≤40자, main 참고문헌
+      ≤50; 금지 표현 검사를 README 3개까지 확대. citation key를 단어로 세던
+      버그 수정.
+- [x] **커버레터 Nature용 재작성.** 증거 범위를 정직하게 기술하고 편집자에게
+      범위 적합성을 직접 질문.
+- [x] (이전 세션) 표·그림 폭 초과 0, 참고문헌 44편 실재·메타데이터 검증
+      (날조 1건 교체 포함), 링크·데이터 가용성 실검증.
 
-- [x] 제목/초록이 경험적 "한계" 발견을 함의하지 않도록 유지 (현재 통제됨:
-      θ_C=0.5는 관례, θ_B=1은 정의로 명시).
-- [x] max-form 하한이 단일-tier roofline 대비 무엇을 더하는지 Results에서 명시
-      (ρ·D_nr 잔류 floor + sustained(비peak) 대역폭).
-- [x] 70B 예시 = 설명용 산술임을 명시 (§1).
-- [x] 저자권 vs Acknowledgements 정합성 확인: 단독저자 G.L.; Acknowledgements의
-      피드백 제공자들은 authorship 기준 미충족 → acknowledgement 처리 적절. 변경 불필요.
-- [ ] **(저자, 포털)** article type 선택, editor/reviewer 추천, competing-interest/
-      ORCID/이메일 최종 확인, 저널의 현행 포맷·저장소 정책 재확인
-      (`ncomms_compliance_report.md`).
-- [ ] **(저자, 선택)** 서론의 에너지·경제 stakes는 현재 인용 기반 "동기"로 한정되어
-      있음. §3의 에너지 실측(R8)을 하지 않을 경우 현 문장 유지가 안전(결과 주장이
-      아니라 동기이므로 과장 아님). 에너지 실측을 추가하면 서론과 결과가 연결됨.
+## 2. 저자가 직접 해야 하는 비실험 항목
 
----
+- [ ] **Funding statement** — Nature 순서상 필수 항목. 연구비 정보는 저자만 알
+      수 있어 비워 두었다(추측 기재 금지). 없으면 "This research received no
+      specific funding." 등 사실대로 기재.
+- [ ] **Presubmission enquiry** 발송 (권고, §0).
+- [ ] 포털: article type, 추천/배제 리뷰어, ORCID·소속·이메일 최종 확인.
+      Reporting Summary는 Nature 지침상 생명과학·행동/사회과학 논문 필수로
+      명시되어 있으므로 본 논문은 해당 여부를 포털에서 확인.
+- [ ] 코드·데이터 릴리스를 Zenodo 등에 예치하고 **DOI를 Data availability에 추가**.
 
-## 3. Accept 바를 넘기 위한 필수 실험 TODO — 우선순위별 (저자 실행 필요)
+## 3. Accept를 위한 필수 실험 TODO — 우선순위 (저자 실행 필요)
 
-> 아래는 **텍스트로 해결 불가**하며 실제 가속기 실험이 필요하다. 어시스턴트는
-> 프로토콜·스크립트·통합을 지원할 수 있으나, 실행·데이터 생성은 저자 몫이다.
-> 각 항목에 **사전지정 성공 기준**을 둔다(사후 fitting 금지).
-> 상세: `nc_revision_plan.md`(단계별), `reviewer_readiness_plan.md`(지적↔작업),
-> `preregistration.md`(사전등록 설계).
+> 텍스트로 해결 불가. 측정 하네스는 이미 저장소에 있다
+> (`code/experiments/{vllm,deepspeed,flexgen}_strategy_inversion.py`,
+> 분석은 `analyze_prereg.py`에 고정). 각 항목은 사전등록된 성공 기준으로
+> 판정하며, null 결과도 그대로 보고한다.
 
-### P0 — 이게 없으면 Accept 불가 (desk/major-reject 방어의 핵심)
+### P0 — Nature 편집자 단계를 넘기 위한 최소 조건
 
-1. **전략 순위 역전(strategy-ranking inversion) 실측** — *단일 최고 레버리지*.
-   - 작업: 실제 서빙 스택(vLLM 기본; FlexGen/DeepSpeed-Inference 2차)에서 실제
-     모델로, ≥3개 오케스트레이션 정책을 3개 레짐을 가로지르는 ≥3 동작점에서 비교.
-   - 성공 기준(사전지정): coordination-dominated에서 이긴 정책이 I/O- 또는
-     capacity-limited에서 짐(문서화된 rank inversion), bootstrap CI 동반.
-   - 해제되는 주장: "roofline 재명명"을 넘어서는 신규성·처방력.
-   - **[측정 스크립트 제공됨 — vLLM · DeepSpeed-Inference · FlexGen]**
-     `code/experiments/{vllm,deepspeed,flexgen}_strategy_inversion.py`
-     (공통 코어 `strategy_inversion_common.py`). 세 스택을 동일한 방식으로 측정:
-     4개 정책을 동작점별로 구동해 `T_total` + reporting-contract 필드(실측 H2D
-     대역폭 `B_slow`, resident baseline의 isolated `T_comp`, `T_transfer=D/B_slow`)를
-     locked JSONL 스키마로 기록, `analyze_prereg.py`로 H3/H4 요약 출력.
-     GPU/프레임워크 부재 시 예외(날조 없음), 실행 불가 셀은 기록 없이 건너뜀,
-     `--dry-run`으로 하드웨어 없이 검증. vLLM의 KV offload는 V1 엔진에서
-     무시되는 `swap_space` 대신 KV-offloading connector 사용(엔진 로그로 활성
-     확인 필요). **실제 가속기 구동·데이터 생성은 저자 몫.**
+1. **상충하던 기존 결과의 해소 (Nature급 "귀결")** — 서로 다른 결론을 낸
+   공개된 오프로딩/서빙 연구 2건 이상을 재현해, 동작점 (R_C, R_B)을 보고하면
+   두 결론이 서로 다른 regime에 있어 모순이 아님을 보인다. 이것이 "측정
+   규약이 분야의 재현성 문제를 푼다"는 주장의 직접 증거이며 R1·R4·R7의 핵심 방어.
+2. **예측력 홀드아웃 시험 (H3)** — 실제 서빙 스택 ≥2개, 가속기 아키텍처 ≥2개,
+   실제 모델(예: 8B·70B급 LLM)에서 (R_C, R_B)를 측정 전 계산해 최속 정책을
+   예측하고, label-blind baseline 대비 정확도의 bootstrap CI 하한이 baseline을
+   넘는지 보고.
+3. **정책 순위 역전 (H4)** — 예측된 좌표(R_C=θ_C 또는 R_B=1)를 사이에 두고
+   정책 쌍의 순위가 CI가 분리된 채 뒤집히는지.
+4. **실제 규모와 폭** — 합성 matmul이 아닌 실제 prefill/decode, ≥2개 워크로드
+   계열(자기회귀 LLM + 검색증강 또는 비전).
 
-2. **실제 워크로드 substance** — d=2048 합성 matmul 대체.
-   - 작업: 토큰 생성(prefill+decode), KV 캐시/continuous batching/IO-aware
-     attention/PCIe·NVLink 오프로드 포함. 4항 분해(T_comp,T_mem,T_swap,T_sync)를
-     선언된 동작점에서 측정; (R_C,R_B)를 datasheet로 예측 후 실측 확인.
+### P1 — 통계·측정 엄밀성
 
-3. **홀드아웃 예측 시험(predictive, not descriptive)**.
-   - 작업: N개 실제 구성에 대해 (R_C,R_B)를 사전 계산 → 레짐/최속 정책을 **측정 전**
-     예측 → 적중률 보고(naive baseline 대비). 예: "N개 중 k개에서 최속 정책 정확 예측".
+5. **가속기 재측정** — warm-up이 들어간 하네스로 재실행해 fully-resident
+   artifact(R6) 제거 후 Table 2 갱신.
+6. **다중 머신 복제** — 아키텍처당 독립 머신 2–3대, 모든 효과크기에 bootstrap
+   CI, 방향성 예측에 대한 사전등록 검정.
+7. **경계의 독립 검증** — 라벨 정의와 무관한 결과 지표(달성 speedup,
+   marginal latency)가 R_B=1 부근에서 꺾이는지.
 
-### P1 — 통계적 엄밀성 (P0 결과의 신뢰성 확보)
+### P2 — 분야 밖 독자 설득력 강화
 
-4. **다중 머신 복제 + 유의성.** 가속기 클래스당 독립 머신/인스턴스 2–3대,
-   모든 효과크기에 bootstrap CI, 방향성 예측에 유의성 검정, 동작점 그리드 사전등록.
-   (현재 s.d.는 머신내 반복이며 모집단 분산 아님 — referee R5.)
+8. **에너지** — 레짐별 토큰당 에너지(NVML)를 측정해 서론의 에너지 동기와
+   연결. Nature 독자층에 대한 파급을 보여 주는 가장 직접적인 경로.
+9. **Raw 트레이스 공개** — 윈도우·연산 단위 이벤트 타임스탬프를 DOI로 예치.
+10. **Extended Data** (최대 10개) — 전체 sweep, 민감도(θ_C ∈ {0.4, 0.5, 0.6}),
+    프레임워크별 결과.
 
-5. **가속기 artifact 재측정.** warm-up fix를 넣고 재실행하여 Table 2의 fully-resident
-   분모(현재 compile/launch artifact 영향)를 정정; 깨끗한 단조 전환을 CI와 함께 제시.
+## 4. 최소 실행 세트
 
-6. **독립 경계 검증(boundary decoupled from label).** R_B에 정의상 묶이지 않은
-   결과 지표(달성 speedup, marginal latency, 에너지)가 R_B=1 근방에서 꺾이는지를,
-   런치/컴파일 오버헤드를 벗어난 큰 워크로드에서 측정하고 sharpness를 정량화.
-
-### P2 — 일반성·재현성·동기 폐루프 (리비전 강화)
-
-7. **워크로드 일반성.** 3-레짐 거동을 ≥2(이상적으로 3) 모델 클래스에서 재현:
-   자기회귀 LLM(Llama-3 8B/70B, Mixtral), 비전/VL(ViT, BLIP-2), RAG(FAISS+생성기).
-
-8. **Raw 트레이스 공개.** 윈도우별·op별 raw device-event 타임스탬프 + 고정 컨테이너를
-   Zenodo DOI로 예치하고 Data availability에 DOI 인용(현재 요약 JSON만 존재 — R9).
-
-9. **에너지(선택).** NVML 전력적분으로 레짐별 throughput-per-watt를 ≥2 가속기에서
-   측정 → 서론의 에너지 동기와 연결(R8). 불가 시 서론 에너지 프레이밍 축소.
-
-10. **선행 상충결과 재해석.** 서로 어긋났던 기존 오프로딩/서빙 결과 2건을 재현하여
-    서로 다른 레짐에 있음을 보임 → "reporting contract"의 유용성 실증(R10).
-
----
-
-## 4. 최소 실행 세트 (자원 제약 시)
-
-desk-reject 위험 → 외부심사 진입으로 전환하는 최소 조합:
-**P0 전체(1·2·3) + P1-4(다중 머신 CI) + P2-8(raw 트레이스 DOI).**
-이 조합이면 "실증 substance 부족"이라는 핵심 지적이 대부분 방어된다. P1-6(경계),
-P2-7(일반성), P2-9(에너지), P2-10(재해석)은 리비전에서 강화.
+Nature 본 투고 전에: **P0-1 + P0-2 + P0-3 (≥2 아키텍처, 실제 모델) + P1-6**.
+이 결과가 확보되면 원고의 중심 주장을 "측정 규약 제안"에서 "동작점 보고가
+상충 결과를 해소하고 최적 정책을 예측한다"로 올릴 수 있고, 그때 제목·summary를
+그 결과에 맞게 다시 쓴다(현재 제목은 결과가 없는 상태에 맞춰 의도적으로
+보수적이다).
 
 ## 5. 역할 분담
 
-- **어시스턴트:** 측정 프로토콜·스크립트(vLLM/FlexGen 통합, 역전·홀드아웃 설계,
-  사전등록 문서, 트레이스 export), 확보된 실측의 표/그림/수치/통계 통합, 텍스트 정비.
-- **저자:** 실제 가속기 실행, DOI 예치, 포털 제출, 저자권/competing-interest 최종 확인.
+- **어시스턴트:** 하네스·분석 유지보수, 확보된 실측의 표/그림/Extended
+  Data/통계 통합, 결과에 맞춘 제목·summary·본문 재작성, 형식 점검.
+- **저자:** 실제 가속기 실행, 기존 논문 재현 대상 선정, DOI 예치, funding
+  statement, presubmission enquiry, 포털 제출.
 
-> 어떤 편집 결정도 보장할 수 없다. 남은 1차 과학적 한계는 소규모 합성·비복제
-> proof-of-concept 범위이며, 이는 은폐 없이 원고에 그대로 기술되어 있다.
+> 어떤 편집 결정도 보장할 수 없다. 현재 원고는 증거 범위를 숨김없이 기술하고
+> 있으며, Accept 가능성을 실질적으로 바꾸는 것은 §3의 실험이다.

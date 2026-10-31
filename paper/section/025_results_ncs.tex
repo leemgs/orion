@@ -1,7 +1,6 @@
-\section{Results}
-\label{sec:results}
-
-\subsection{A two-ratio operational model}
+%% Nature: topical subheadings (<= 40 characters), no "Results" heading.
+%% Technical detail lives in Methods.
+\section*{A two-ratio operating coordinate}
 \label{sec:regime}
 
 We describe a hierarchical-memory operating point using
@@ -19,26 +18,18 @@ step time, $R_B$ is not circular: it compares independently timed computation
 and transfer intervals.
 
 We use $\theta_C=0.50$ as an explicit majority-residency convention and derive
-$\theta_B=1$ from equality of computation and transfer time. These definitions
-produce three operational labels:
-\begin{itemize}
-\item \textbf{capacity-limited}: $R_C<\theta_C$;
-\item \textbf{I/O-limited}: $R_C\geq\theta_C$ and $R_B<\theta_B$; and
-\item \textbf{coordination-dominated}: $R_C\geq\theta_C$ and
-      $R_B\geq\theta_B$.
-\end{itemize}
-These names are screening labels, not causal bottleneck estimates: a
-``capacity-limited'' point need not have capacity as its largest latency term,
-and a ``coordination-dominated'' point requires residual measurements before
-coordination cost can be attributed. Continuous ratios and dimensional timings
-carry the evidence; the labels provide compact indexing.
-The capacity boundary is a convention, not a thermodynamic critical point. The
-I/O boundary is an overlap boundary: for $R_B<1$, at least
-$T_{\mathrm{transfer}}-T_{\mathrm{comp}}$ cannot be hidden by ideal overlap.
-Primary analyses should therefore retain continuous $(R_C,R_B)$ values. A label
-near $R_C=0.5$ is convention-sensitive, whereas crossing $R_B=1$ changes the
-sign of the ideal-overlap remainder. This distinction prevents a convenient
-residency cut-off from being presented as an empirically discovered constant.
+$\theta_B=1$ from equality of computation and transfer time, giving three
+operational labels (Fig.~\ref{fig:regime_map}): capacity-limited
+($R_C<\theta_C$); I/O-limited ($R_C\geq\theta_C$ and $R_B<\theta_B$); and
+coordination-dominated ($R_C\geq\theta_C$ and $R_B\geq\theta_B$). These are
+screening labels, not causal bottleneck estimates: a ``capacity-limited'' point
+need not have capacity as its largest latency term, and continuous ratios with
+dimensional timings carry the evidence. The capacity boundary is a convention,
+not a critical point, whereas crossing $R_B=1$ changes the sign of the
+ideal-overlap remainder: for $R_B<1$, at least
+$T_{\mathrm{transfer}}-T_{\mathrm{comp}}$ cannot be hidden. Primary analyses
+therefore retain continuous $(R_C,R_B)$, so that a convenient residency cut-off
+is not presented as an empirically discovered constant.
 
 \begin{figure}[t]
 \centering
@@ -50,7 +41,7 @@ same constants as the released classifier and contains no empirical data.}
 \label{fig:regime_map}
 \end{figure}
 
-\subsection{Irreducible costs and falsifiable predictions}
+\section*{Irreducible costs and predictions}
 \label{sec:model}
 
 For accounting purposes, define non-overlapping critical-path contributions so
@@ -60,8 +51,8 @@ T_{\mathrm{total}}=T_{\mathrm{comp}}+T_{\mathrm{mem}}+
 T_{\mathrm{swap}}+T_{\mathrm{sync}}.
 \label{eq:latency_decomp}
 \end{equation}
-Independently of that accounting decomposition, a conservative service-time
-lower bound that allows the underlying services to overlap is
+Independently of that decomposition, a conservative service-time lower bound
+that allows the underlying services to overlap is
 \begin{equation}
 T_{\mathrm{total}}\geq
 \max\!\left\{T_{\mathrm{comp}},
@@ -71,18 +62,16 @@ T_{\mathrm{total}}\geq
 where $D_{\mathrm{nr}}$ is the number of non-resident bytes compulsorily
 accessed in the step and $\rho$ is a lower bound on their service time per byte.
 $R_C$ bounds storage residency but does not determine $D_{\mathrm{nr}}$ unless
-an access-coverage model is specified. Taking the
-maximum permits ideal overlap and avoids
-double-counting bytes that contribute to both a cache miss and a cross-tier
-transfer. Beyond a single-tier roofline bound $\max(T_{\mathrm{comp}},D/B_{\mathrm{peak}})$,
+an access-coverage model is specified. Taking the maximum permits ideal overlap
+and avoids double-counting bytes that contribute to both a cache miss and a
+cross-tier transfer. Beyond a single-tier roofline bound
+$\max(T_{\mathrm{comp}},D/B_{\mathrm{peak}})$,
 Equation~\eqref{eq:lower_bound_regime} adds an explicit residency floor
-$\rho D_{\mathrm{nr}}$ for compulsorily non-resident bytes and uses sustained
-rather than peak bandwidth, so a capacity-limited operating point cannot be
-hidden by arithmetic intensity alone. Synchronisation and contention can only
-increase observed time, so Equation~\eqref{eq:lower_bound_regime} is not a
-performance predictor. The
-residual above it cannot be assigned to one latency component without
-event-level measurements.
+$\rho D_{\mathrm{nr}}$ and uses sustained rather than peak bandwidth, so a
+capacity-limited operating point cannot be hidden by arithmetic intensity alone.
+Synchronisation and contention can only increase observed time, so the bound
+is not a performance predictor, and the residual above it cannot be assigned to
+one latency component without event-level measurements.
 
 Two normalized consequences make the formulation useful beyond relabelling a
 roofline plot. Under the aggregate-capacity approximation, no placement policy
@@ -99,11 +88,9 @@ f_{\mathrm{exposed}}\geq \max(0,1-R_B).
 \label{eq:exposed_fraction}
 \end{equation}
 Thus $R_C$ answers how much placement pressure is irreducible, whereas $R_B$
-answers how much compulsory-transfer service cannot be hidden. The pair also
-supports controlled comparison across scales: multiplying both capacity and
-working set by the same factor leaves $R_C$ unchanged, as does multiplying both
-isolated service times by the same factor for $R_B$. Absolute latency still
-requires the dimensional quantities in Equation~\eqref{eq:lower_bound_regime}.
+answers how much compulsory-transfer service cannot be hidden. Both are
+scale-invariant: multiplying capacity and working set, or both isolated service
+times, by the same factor leaves the ratio unchanged.
 
 This separation gives an actionable diagnostic without asserting an optimal
 policy. If $R_C<0.5$, interventions can reduce the active working set, increase
@@ -111,63 +98,45 @@ usable capacity, or reduce the bytes touched while non-resident. If
 $R_C\geq0.5$ but $R_B<1$, overlap alone cannot remove the exposed interval, so
 reducing compulsory traffic or increasing sustained link bandwidth is
 necessary. If both tests pass, the residual directs measurement toward
-synchronisation, launch, contention, or locality costs. Labels describe
-operating points, not devices, and can change after an intervention.
+synchronisation, launch, contention or locality costs.
 
-Both ratios are computable from datasheets before any run, which makes the
-diagnostic usable at planning time. For example, a 70B-parameter model holds
-roughly $140$~GB of weights in \texttt{fp16}. Deployed on a single $40$~GB
-accelerator, $R_C=40/(140+K)\leq 40/140\approx 0.29<0.5$ for any KV/activation
-footprint $K\geq0$: the configuration is capacity-limited, and no offloading
-schedule can remove the majority-eviction cost---additional fast capacity is
-required. Spreading the same weights across four such accelerators
-($C_{\mathrm{fast}}=160$~GB) gives $R_C\approx1$, leaving the capacity-limited
-region. This placement conclusion is an illustrative calculation from published
-capacities and parameter counts alone, not an empirical measurement, and is
-exactly the kind of decision the two ratios are meant to make explicit before,
-not after, benchmarking.
+Both ratios are computable from datasheets before any run. For example, a
+70B-parameter model holds roughly $140$~GB of weights in \texttt{fp16}. On a
+single $40$~GB accelerator, $R_C=40/(140+K)\leq 40/140\approx 0.29<0.5$ for any
+KV/activation footprint $K\geq0$, so no offloading schedule can remove the
+majority-eviction cost; four such accelerators ($C_{\mathrm{fast}}=160$~GB)
+give $R_C\approx1$. This is an illustrative calculation from published
+capacities and parameter counts, not an empirical measurement, and is exactly
+the kind of decision the two ratios make explicit before benchmarking.
 
 The formulation makes two falsifiable predictions. First, reducing residency
 while holding the access pattern fixed should expose a higher memory-access
-cost when it increases $D_{\mathrm{nr}}$. Second, when
-$R_C\geq\theta_C$, configurations with $R_B<1$ must expose
-transfer time even under ideal compute--transfer overlap. It does not, without
-additional measurements, predict the magnitude of a strategy's speed-up or
-claim that strategy rankings necessarily invert.
+cost when it increases $D_{\mathrm{nr}}$. Second, when $R_C\geq\theta_C$,
+configurations with $R_B<1$ must expose transfer time even under ideal
+compute--transfer overlap. It does not, without additional measurements,
+predict the magnitude of a policy's speed-up or which policy is fastest. The two
+coordinates are jointly necessary but not sufficient for latency prediction:
+equal $(R_C,R_B)$ does not imply equal latency, and this non-identifiability
+defines the residual phenomena that must be measured rather than attributed to
+capacity or bandwidth.
 
-The two coordinates are jointly necessary but not sufficient for latency
-prediction. Equal $(R_C,R_B)$ does not imply equal latency because absolute
-service times, access locality, contention, and synchronisation can differ.
-This non-identifiability is useful: it defines the residual phenomena that must
-be measured rather than silently attributed to capacity or bandwidth.
-
-\subsection{CPU proof-of-concept measurements}
+\section*{Residency effects on a processor}
 \label{sec:experiments}
 
-We evaluated working-set sensitivity on an Intel Xeon Platinum 8370C CPU
-exposed through a virtualised Linux environment. The experiment used a
-randomised pointer chain over working sets from 0.5 to 256~MiB and seven trials
-per point. A compiled C loop performed dependent loads and timed them with
-\texttt{CLOCK\_MONOTONIC\_RAW}; Python was used only to construct the chain and
-summarise trials. Linux sysfs reported a 48~MiB last-level cache, which we used
-as $C_{\mathrm{fast}}$. Mean dependent-load time was
+We evaluated working-set sensitivity on an Intel Xeon Platinum 8370C processor
+in a virtualised Linux environment, using a randomised pointer chain over
+working sets from 0.5 to 256~MiB with seven trials per point (Methods). Linux
+sysfs reported a 48~MiB last-level cache, which we used as
+$C_{\mathrm{fast}}$. Mean dependent-load time was
 $\CpuSmallMean\pm\CpuSmallSd$~ns at 0.5~MiB ($R_C=96$),
 $\CpuLlcMean\pm\CpuLlcSd$~ns at 48~MiB ($R_C=1$),
 $\CpuBoundaryMean\pm\CpuBoundarySd$~ns at 96~MiB ($R_C=0.5$), and
-$\CpuLargeMean\pm\CpuLargeSd$~ns at 256~MiB
-($R_C=0.188$), where uncertainty is one standard deviation across trials.
-The non-monotonic intermediate points show that cache level, translation,
-virtualisation, and system noise matter. In particular, these data do not show
-a discontinuity at the conventional $R_C=0.5$ label.
-
-As a separate harness check, we used the layered matrix program with 12 layers,
-$d=512$, batch size 8, and five timing windows. It varied the fraction of layer
-weights retained in the fast tier. The mean total latency averaged over the
-three sampled points below $R_C=0.5$ was \MatrixLowMeanMs~ms, compared with
-\MatrixFullMeanMs~ms for the fully resident point, a
-\MatrixLatencyRatio-fold descriptive ratio. Because computation and copying share
-the same CPU memory system, the accompanying $R_B$ sweep was noisy and is not
-used as evidence for the I/O boundary.
+$\CpuLargeMean\pm\CpuLargeSd$~ns at 256~MiB ($R_C=0.188$; mean $\pm$ s.d. across
+trials; Table~\ref{tab:cpu_probe}). The non-monotonic intermediate points show
+that cache level, translation, virtualisation and system noise matter, and the
+data show no discontinuity at the conventional $R_C=0.5$ label. A separate
+layered-matrix harness on the same processor gave the same residency direction
+(Methods).
 
 \begin{table}[t]
 \centering
@@ -189,63 +158,38 @@ Working set (MiB) & $R_C$ & Latency (ns/load) & 95\% CI (ns) & Interpretation\\
 \end{tabular}
 \end{table}
 
-These measurements are proof-of-concept results from one CPU, not a substitute
-for a preregistered, multi-platform campaign across diverse accelerator and
-memory technologies. Accordingly, this version makes no quantitative
-classifier-accuracy, energy, or strategy-inversion claim, and the
-cross-accelerator comparison that follows is descriptive only.
-
-\subsection{Accelerator proof-of-concept measurements}
+\section*{Residency and overlap on accelerators}
 \label{sec:gpu}
 
-We ran the layered program on \NumAccel{} real accelerators of distinct
-architectures and two vendors---an NVIDIA \GpuDevice{}, an NVIDIA A100, and a
-Google TPU~v5e---with $d=2048$, 24 layers, batch size 8, and ten timing windows.
+We ran the layered program on \NumAccel{} accelerators of distinct
+architectures and two vendors---an NVIDIA \GpuDevice{}, an NVIDIA A100 and a
+Google TPU~v5e---with $d=2048$, 24 layers, batch size 8 and ten timing windows.
 On the CUDA devices, computation and host-to-device transfer were timed
-separately with CUDA events; non-resident layer weights were staged in pinned
-host memory and copied per step, so residency ($R_C$) and overlap ($R_B$) were
-varied by construction. These runs test the two falsifiable predictions of
-Section~\ref{sec:model} on hardware whose device--host link, unlike a single
-CPU's memory system, makes the exposed-transfer regime physically reachable.
+separately with CUDA events and non-resident layer weights were staged from
+pinned host memory each step, so $R_C$ and $R_B$ were varied by construction.
+Unlike a single processor's memory system, the device--host link makes the
+exposed-transfer regime physically reachable.
 
-\emph{Prediction~1 (residency) is directionally consistent on all
+\emph{The residency prediction is directionally consistent on all
 \NumAccel{} accelerators.} On every device, mean per-step latency in the
-capacity-limited region ($R_C<\theta_C$)
-exceeded that at full residency ($R_C\geq1$), by
-\AccelCapRatioMin--\AccelCapRatioMax$\times$
+capacity-limited region ($R_C<\theta_C$) exceeded that at full residency
+($R_C\geq1$), by \AccelCapRatioMin--\AccelCapRatioMax$\times$
 (Table~\ref{tab:accel}). The formulation predicts this \emph{direction}, not its
 magnitude; the magnitude shrinks on higher-bandwidth devices, where the offload
-penalty is smaller relative to compute.
-
-Latency is monotone in the number of offloaded (transferred) layers down to two
-offloaded layers on all three devices; the only departure is the single
-fully-resident point ($R_C=1$, zero transfers), which sits above the trend on
-the A100 ($+9$~ms) and the TPU ($+42$~ms) but not on the slower T4. We traced
-this to a measurement artifact rather than device memory behaviour: the
-fully-resident point is the one operating point at which the offload code path is
-skipped entirely, so it executes a structurally distinct computation---on the
-TPU a separately compiled XLA graph. At $d=2048$ the true per-step memory signal
-is small on the fast accelerators, so this point's one-off compilation and
-launch overhead exceed the residual signal, whereas on the slower T4 the signal
-dominates and monotonicity is preserved. An eager-execution control (NumPy
-backend, identical sweep) shows the fully-resident point as the \emph{lowest}
-latency. This control is consistent with an accelerator execution/timing
-artifact but does not isolate a single cause. We have since added a discarded warm-up iteration to
-the harness so that per-point compilation is excluded from future timings.
+penalty is smaller relative to compute. Latency is monotone in the number of
+offloaded layers on all three devices except at the fully resident point on the
+A100 and the TPU, which we trace to a measurement artifact of its structurally
+distinct code path rather than to memory behaviour (Methods).
 
 \emph{The overlap sweep spans $R_B=1$ on the T4.} Holding residency fixed and
 scaling compute produced measured points on both sides of the derived boundary,
 between $R_B=0.90$ and $R_B=1.19$. Their I/O-limited and
 coordination-dominated labels follow from the declared rule and therefore do
-not independently validate it. The run instead establishes physical
-reachability of both sides with separately timed services. Testing whether the
-predicted exposed interval tracks end-to-end latency requires raw event traces
-and a larger sweep. On the A100 the controlled sweep stayed
-compute-bound ($R_B>2$) and so did not probe the boundary, and on the TPU the
-XLA path's deferred execution makes the per-op $R_B$ split unreliable; both need
-a larger-workload, preregistered run. The overlap coordinate is therefore
-spanned on one GPU, while the capacity direction is descriptively consistent
-across three accelerators.
+not independently validate it; the run establishes physical reachability of both
+sides with separately timed services. On the A100 the controlled sweep stayed
+compute-bound ($R_B>2$), and on the TPU the XLA path's deferred execution makes
+the per-operation $R_B$ split unreliable; both need a larger-workload,
+preregistered run.
 
 \begin{table}[t]
 \centering
@@ -257,19 +201,3 @@ device-dependent and not predicted.}
 \setlength{\tabcolsep}{4pt}
 \input{generated_accel_table.tex}
 \end{table}
-
-These proof-of-concept results are directionally consistent with the residency
-prediction across architectures and reach both sides of the overlap coordinate
-on one GPU, but do not establish
-per-device boundary values, strategy inversion, classifier accuracy, or energy
-claims, which still require a larger, preregistered multi-platform campaign.
-
-\subsection{Reproducibility boundary}
-
-The repository contains the CPU raw JSONL records, per-accelerator JSON
-summaries, machine-readable aggregate summaries, and export scripts used for
-Tables~\ref{tab:cpu_probe} and~\ref{tab:accel}. It also contains a simulated
-backend for testing the analysis pipeline. Simulated output is labelled as such
-and is not used as empirical evidence. The accelerator summaries support only
-the proof-of-concept comparisons reported here; they are not a substitute for
-raw event traces or independent hardware replication.

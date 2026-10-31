@@ -1,21 +1,27 @@
+%% Nature summary paragraph: fully referenced, ideally <= 200 words, no numbers
+%% or abbreviations unless essential, aimed at readers outside the field.
+%% Structure (Nature formatting guide): basic introduction; background and
+%% rationale; main conclusion ("Here we ..."); wider context. Every claim is
+%% bounded by the evidence in the main text.
 \abstract{%
-Reported gains from offloading, swapping, caching, and compression in
-hierarchical-memory inference are hard to compare, partly because the operating
-point goes unreported and common bandwidth ratios are circular, placing total
-step time in both metric and outcome. We propose a
-measurement discipline: describe any operating point with two independently
-measurable, scale-invariant ratios---residency $R_C=C_{\mathrm{fast}}/W$ and
-non-circular overlap $R_B=T_{\mathrm{comp}}/T_{\mathrm{transfer}}$---plus the
-fields that make them recomputable. A conservative service-time bound
-yields two definitional floors: non-resident storage $\max(0,1-R_C)$ and exposed
-transfer $\max(0,1-R_B)$. The same audit applies to weights, key--value caches,
-embeddings, and retrieval indices. Proof-of-concept probes on one CPU and
-\NumAccel{} accelerators of two vendors show the protocol is executable and
-directionally consistent (\AccelCapRatioMin--\AccelCapRatioMax$\times$ under low
-residency). Production effect sizes, per-device boundaries, and population-level
-generality remain open and motivate a preregistered test.
+Running large neural networks now depends less on arithmetic speed than on how
+efficiently data move between fast and slow memory, and inference dominates the
+recurring cost and energy of deployed
+models~\cite{gholami2024memorywall,ma2026inference,iea2024electricity}. Many
+techniques relieve this pressure, including offloading, swapping, caching and
+compression~\cite{kwon2023pagedattention,flexgen2023,huang2020swapadvisor,dao2022flashattention},
+yet their reported gains are hard to compare. The operating condition of each
+measurement usually goes unreported, and common bandwidth measures reuse the
+very latency they are meant to explain. Here we introduce a measurement
+framework that describes any operating point with two independently measurable
+ratios: how much of the active data can reside in fast memory, and how long
+computation takes relative to the transfers it must hide. From a conservative
+bound on service time we derive two floors that no placement or scheduling
+policy can remove, together with a minimal set of reported quantities that lets
+any reader recompute both ratios. Small probes on a server processor and on
+accelerators from two vendors show that the protocol is executable and that
+latency rises in the predicted direction as residency falls. The framework gives
+studies of memory-bound inference a common, auditable coordinate system;
+whether it predicts the fastest orchestration policy remains an open,
+preregistered test.
 }
-
-\keywords{hierarchical memory systems, memory orchestration, AI inference,
-reporting contract, working-set residency, compute--transfer overlap,
-reproducible measurement}

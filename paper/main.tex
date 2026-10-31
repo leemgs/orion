@@ -2,17 +2,16 @@
 %%  Springer Nature / Nature-family journal template
 %%  Class file required: sn-jnl.cls
 %%  Download: https://www.springernature.com/gp/authors/campaigns/latex-author-support
-%%  Target journal: Nature Communications (primary submission target).
-%%    Article limits complied with: abstract <=150 words, main text
-%%    <=5,000 words (Intro+Results+Discussion), <=10 display items,
-%%    ~<=70 references, continuous line numbers for the review version.
+%%  Target journal: Nature (Article).
+%%    Nature formatting guide: title <= 75 characters; fully referenced
+%%    summary paragraph ~<= 200 words; ~2,500 words of body text with 4
+%%    display items; <= ~50 main-text references; subheadings <= 40
+%%    characters; Methods (with Data/Code availability) after the main
+%%    references; continuous line numbers.
 %%
 %%  This is the single entry file for the paper. Build: ./run.sh
 %%  (pdflatex → bibtex → pdflatex × 2  →  main.pdf)
-%%  The manuscript foregrounds a general, regime-dependent principle of
-%%  memory-bound computing rather than a systems-engineering optimisation,
-%%  which suits the multidisciplinary Nature Communications readership.
-%%  See README.md §4 / §8.
+%%  See README.md §4 / §8 and submission/path_to_accept.md.
 %% ============================================================
 
 \documentclass[
@@ -46,8 +45,8 @@
 \usepackage{ifthen}
 \usepackage{diagbox}
 
-%% ---- Continuous line numbers (Nature Communications review copy) ---------
-%% Nature Communications requests continuous line numbering on the submitted
+%% ---- Continuous line numbers (Nature review copy) ------------------------
+%% Nature requests continuous line numbering on the submitted
 %% manuscript to help reviewers. The patch below keeps line numbers running
 %% through amsmath display equations (align/equation/gather/...), which lineno
 %% otherwise skips. Comment out \linenumbers (issued after \begin{document})
@@ -100,7 +99,7 @@
 \begin{document}
 %% =============================================================
 
-%% Continuous line numbers for the Nature Communications review copy.
+%% Continuous line numbers (requested by Nature for the review copy).
 \linenumbers
 
 %% ---- Title -------------------------------------------------
@@ -116,51 +115,31 @@
 %% the \abstract{...} definition above.
 \maketitle
 
-%% ---- Main text (Intro → Results → Discussion) ---
+%% ---- Main text (Nature order: no Introduction heading; topical
+%% subheadings <= 40 characters; Discussion) ----------------------------
 \input{section/010_introduction}
 \input{section/025_results_ncs}
 \input{section/060_discussion}
 
-%% ---- Methods (Nature: starred section, not counted in word limit) ----
+%% ---- Main references (Nature: after the main text, before Methods) ----
+\input{section/095_reference_nature.tex}
+
+%% ---- Methods, including Data and Code availability (Nature order) -----
+%% Methods cite no additional references.
 \input{section/070_methods}
 
-%% ---- Data availability (Nature Portfolio: standalone statement) ----
-\section*{Data availability}
-All data supporting the reported CPU and accelerator measurements are included
-in the public
-repository at \url{https://github.com/leemgs/orion}, under
-\texttt{code/results/cpu\_probe/} and
-\texttt{code/results/colab\_probe/}. These directories contain the raw JSONL
-records and machine-readable JSON summaries used in the text and tables.
+%% ---- End matter (Nature order) ----------------------------------------
+\input{section/090_ack.tex}
 
-%% ---- Code availability (Nature Portfolio: standalone statement) ----
-\section*{Code availability}
-The analysis and measurement code is available at
-\url{https://github.com/leemgs/orion}. The \texttt{code/experiments/}
-directory contains the CPU probes, analytical-figure generator, and optional
-CUDA/XLA measurement paths. Exact reproduction commands are provided in the
-README and Supplementary Information. A separately labelled simulated backend
-is supplied for software testing; simulated output is not used as evidence in
-this article.
-
-%% ---- Author Contributions ---------------------------------
-\section*{Author Contributions}
+\section*{Author contributions}
 G.L.: Conceptualization, Formal analysis, Investigation, Methodology,
 Software, Validation, Visualization, Writing -- original draft,
 Writing -- review \& editing.
 
-%% ---- Competing Interests ----------------------------------
-\section*{Competing Interests}
+\section*{Competing interests}
 The author declares no competing interests.
 
-%% ---- Acknowledgements -------------------------------------
-\input{section/090_ack.tex}
-
-%% ---- References -------------------------------------------
-\input{section/095_reference_nature.tex}
-
-%% ---- Supplementary Information --------------------------------
-%% Nature Communications: submitted as a SEPARATE file — see supplementary.tex
-%% (builds supplementary.pdf with derivations and reproduction details).
+%% ---- Supplementary Information ----------------------------------------
+%% Submitted as a SEPARATE file -- see supplementary.tex.
 
 \end{document}

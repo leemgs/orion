@@ -1,6 +1,6 @@
 # ORION
 
-**A two-ratio framework separates residency and transfer overlap in hierarchical-memory inference**
+**Separating memory capacity from data movement in neural network inference**
 
 ORION is an analytical formulation and open measurement protocol for describing
 hierarchical-memory operating points with two dimensionless ratios:
@@ -10,7 +10,7 @@ limited to synthetic proof-of-concept measurements on one CPU and three
 accelerators of two vendors. It does not establish population-level accelerator
 generality, policy rankings, or sharp regime transitions.
 
-Target journal: **Nature Communications**. See [paper/README.md](paper/README.md)
+Target journal: **Nature** (Article). See [paper/README.md](paper/README.md)
 for the build, evidence boundary, and final author checks.
 
 ---
@@ -22,7 +22,7 @@ The repository is organized into three areas for easier maintenance.
 | Directory | Contents | Documentation |
 |-----------|----------|---------------|
 | [`code/`](code/) | ORION measurement framework and scripts for reproducing the paper's results (Python) | [code/README.md](code/README.md) |
-| [`paper/`](paper/) | Nature Communications manuscript, supplementary information, figures, references, and build scripts | [paper/README.md](paper/README.md) |
+| [`paper/`](paper/) | Nature manuscript, supplementary information, figures, references, and build scripts | [paper/README.md](paper/README.md) |
 | [`ppt/`](ppt/) | Presentation materials (Korean and English slides, including the NCS presentation) | — |
 
 ---

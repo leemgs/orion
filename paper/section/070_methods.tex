@@ -1,4 +1,4 @@
-\section{Methods}
+\section*{Methods}
 \label{sec:methods}
 
 \subsection*{Definitions and classification}
@@ -36,14 +36,37 @@ The second probe allocates square, float32 layer matrices; a selected fraction
 remains resident and non-resident matrices are copied before multiplication.
 Matrix entries are deterministically seeded and scaled by $1/\sqrt{d}$ to prevent
 numerical overflow during repeated multiplication. On the CPU we used NumPy's
-wall-clock path with 12 layers, $d=512$, and five windows per point. On the
-accelerators (Section~\ref{sec:gpu}) the same program ran with 24 layers,
+wall-clock path with 12 layers, $d=512$, batch size 8, and five windows per
+point. The mean total latency averaged over the three sampled points below
+$R_C=0.5$ was \MatrixLowMeanMs~ms, compared with \MatrixFullMeanMs~ms for the
+fully resident point, a \MatrixLatencyRatio-fold descriptive ratio. Because
+computation and copying share the same processor memory system, the
+accompanying $R_B$ sweep was noisy and is not used as evidence for the I/O
+boundary. On the accelerators the same program ran with 24 layers,
 $d=2048$, batch size 8, ten windows, and pinned host staging: on the NVIDIA
 \GpuDevice{} and A100 through the harness's CUDA-event path, timing computation
 and host-to-device transfer separately with \texttt{torch.cuda.Event}; and on a
 Google TPU~v5e through the \texttt{torch\_xla} path. Because XLA executes lazily,
 per-op $R_B$ timing on the TPU is unreliable and we treat its $R_B$ split as
 indicative only, relying on end-to-end latency for the residency test.
+
+\subsection*{Fully resident point on fast devices}
+
+Latency is monotone in the number of offloaded layers down to two offloaded
+layers on all three accelerators; the only departure is the single fully
+resident point ($R_C=1$, zero transfers), which sits above the trend on the
+A100 ($+9$~ms) and the TPU ($+42$~ms) but not on the slower T4. This is the one
+operating point at which the offload code path is skipped entirely, so it
+executes a structurally distinct computation---on the TPU a separately compiled
+XLA graph. At $d=2048$ the true per-step memory signal is small on the fast
+accelerators, so this point's one-off compilation and launch overhead exceed
+the residual signal, whereas on the slower T4 the signal dominates and
+monotonicity is preserved. An eager-execution control (NumPy backend, identical
+sweep) shows the fully resident point as the \emph{lowest} latency. This
+control is consistent with an accelerator execution/timing artifact but does
+not isolate a single cause. A discarded warm-up iteration has since been added
+to the harness so that per-point compilation is excluded from future timings;
+the reported accelerator runs were not repeated with it.
 
 For the reported capacity ratio, we averaged total latency at the three sampled
 points below $R_C=0.5$ and divided by latency at $R_C=1$. This endpoint summary
@@ -79,3 +102,31 @@ not a confidence interval over a hardware population, and no accelerator interva
 is reported because per-window raw records were not retained from the accelerator
 runs. No claim of statistical significance is made. Hardware-platform
 generalisation requires independent machines and is left for future work.
+
+\subsection*{Reproducibility boundary}
+
+The repository contains the CPU raw JSONL records, per-accelerator JSON
+summaries, machine-readable aggregate summaries, and the export scripts that
+generate Tables~\ref{tab:cpu_probe} and~\ref{tab:accel} and the numerical
+macros in the text. It also contains a simulated backend for testing the
+analysis pipeline; simulated output is labelled as such and is not used as
+evidence. The accelerator summaries support only the proof-of-concept
+comparisons reported here and are not a substitute for raw event traces or
+independent hardware replication.
+
+\subsection*{Data availability}
+All data supporting the reported CPU and accelerator measurements are included
+in the public repository at \url{https://github.com/leemgs/orion}, under
+\texttt{code/results/cpu\_probe/} and \texttt{code/results/colab\_probe/}. These
+directories contain the raw JSONL records and machine-readable JSON summaries
+used in the text and tables.
+
+\subsection*{Code availability}
+The analysis and measurement code is available at
+\url{https://github.com/leemgs/orion}. The \texttt{code/experiments/} directory
+contains the CPU probes, the analytical-figure generator, the optional
+CUDA/XLA measurement paths, and the preregistered analysis. Exact reproduction
+commands are provided in the README and Supplementary Information. A separately
+labelled simulated backend is supplied for software testing; simulated output
+is not used as evidence in this article.
+

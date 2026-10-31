@@ -2,9 +2,8 @@
 Orion: Hierarchical Memory Orchestration for AI Inference.
 
 Implements the regime-based framework from:
-  "Two dimensionless ratios define operational limits in
-   hierarchical-memory inference"
-  Nature Communications (submission target)
+  "Separating memory capacity from data movement in neural network inference"
+  Nature (submission target)
 
 Key components:
   - ratios.py     : R_C, R_B computation and regime classification

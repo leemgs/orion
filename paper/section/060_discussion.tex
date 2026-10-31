@@ -1,55 +1,44 @@
-\section{Discussion}
+\section*{Discussion}
 \label{sec:discussion}
 
 The two-ratio description separates two questions that are often conflated in
 hierarchical-memory optimisation: whether the active data can reside in the
 fast tier, and whether compulsory transfer can be hidden behind computation.
-The resulting labels are operational rather than universal phases.
+The resulting labels are operational rather than universal phases:
 $\theta_B=1$ follows exactly from the overlap definition, whereas
-$\theta_C=0.5$ is a declared midpoint that makes ``majority resident'' precise.
-A different application may choose another residency threshold without
-changing Equation~\eqref{eq:lower_bound_regime}.
+$\theta_C=0.5$ is a declared midpoint that another application may replace
+without changing Equation~\eqref{eq:lower_bound_regime}.
 
-The CPU probes show that latency depends strongly on working-set residency, but
-they do not validate a sharp boundary at $R_C=0.5$. They stress different
-mechanisms: dependent pointer loads probe cache and translation effects, while
-the layered matrix harness combines weight copying with computation. The
-accelerator runs (Section~\ref{sec:gpu}) exercise real DMA and asynchronous CUDA
-streams across three devices of two vendors. The residency direction is
-descriptively consistent on all three; the T4 sweep contains points on both
-sides of $\theta_B=1$, while the
-A100 sweep stayed compute-bound and the TPU's XLA timing is unreliable. The data
-do not establish per-device boundary \emph{values}, HBM- or
-collective-communication effects at scale, or the generality of the three labels
-across model families.
+The processor probes show that latency depends strongly on working-set
+residency but do not validate a sharp boundary at $R_C=0.5$. The accelerator
+runs exercise real DMA and asynchronous CUDA streams on three devices of two
+vendors: the residency direction is consistent on all three, and the T4 sweep
+contains points on both sides of $\theta_B=1$. The data do not establish
+per-device boundary \emph{values}, HBM- or collective-communication effects at
+scale, or the generality of the three labels across model families.
 
 The framework is most useful as a measurement discipline. Reporting $R_C$ and
 $R_B$ alongside latency makes hidden assumptions about residency and overlap
-inspectable. It also prevents a common circularity: using total step duration
-in both the numerator of a bandwidth ratio and as the outcome being explained.
-For deployment, $C_{\mathrm{fast}}$, $W$, $D$, sustained bandwidth, and isolated
-compute time must be measured for the actual workload and hardware rather than
-copied from nominal data-sheet values.
-
-Its broader relevance is methodological rather than tied to one model family.
-Weights, KV caches, embeddings, feature maps, and retrieval indices are
-different objects, but each admits the same audit: declare the active bytes and
-usable fast tier, measure compulsory cross-tier bytes and sustained bandwidth,
-and isolate compute time. Equations~\eqref{eq:nonresident_fraction}
-and~\eqref{eq:exposed_fraction} then state which part of the pressure cannot be
-removed by placement or ideal overlap. This creates a common reporting layer
-under otherwise incomparable offloading, compression, scheduling, and memory-
-pooling studies. Whether it predicts application outcomes is a hypothesis for
-production workloads, not a result of the present probes.
+inspectable, and prevents a common circularity: using total step duration both
+in a bandwidth ratio and as the outcome being explained. Its relevance is not
+tied to one model family. Weights, KV caches, embeddings, feature maps and
+retrieval indices are different objects, but each admits the same audit:
+declare the active bytes and usable fast tier, measure compulsory cross-tier
+bytes and sustained bandwidth, and isolate compute time.
+Equations~\eqref{eq:nonresident_fraction} and~\eqref{eq:exposed_fraction} then
+state which part of the pressure cannot be removed by placement or ideal
+overlap. This creates a common reporting layer under otherwise incomparable
+offloading, compression, scheduling and memory-pooling studies. Whether it
+predicts application outcomes is a hypothesis for production workloads, not a
+result of the present probes.
 
 The analysis supports one practical conclusion: capacity and transfer pressure
 should not be inferred from latency alone. A defensible comparison should report
 the minimal field set in Table~\ref{tab:contract}, which fixes the denominator
-of each ratio and separates a failed directional prediction from a merely small
-effect. Those fields make denominator choices and uncontrolled changes visible,
-allow threshold sensitivity to be recomputed under an alternative residency
-convention, and let an independent reader recompute $(R_C,R_B)$ without access
-to the original latency trace. This reporting contract---not any single measured
+of each ratio, separates a failed directional prediction from a merely small
+effect, allows threshold sensitivity to be recomputed under another residency
+convention, and lets an independent reader recompute $(R_C,R_B)$ without the
+original latency trace. This reporting contract---not any single measured
 number---is the principal reusable output of the study.
 
 \begin{table}[t]
@@ -90,29 +79,24 @@ categorical label is reported (default $0.5$).\\
 \end{tabularx}
 \end{table}
 
-Several limitations are material. The present evidence comes from one CPU and
-three accelerators (two GPUs and a TPU) with small synthetic probes; it does not
-include production models,
-concurrent requests, accelerator energy measurements, strategy comparisons, or
-unseen-hardware classifier tests. The standard deviations describe repeated
-trials on one machine and are not confidence intervals over a population of
-platforms. These measurements are exploratory technical checks rather than
-independent hardware replicates, and no causal inference is supported.
-The accelerator ratios compare repeated windows within single runs; without
-independent reruns they quantify neither run-to-run uncertainty nor a hardware
-population. The pointer-chain endpoints also span several hierarchy transitions, so their
-ratio should not be interpreted as a universal effect size. Finally,
-Equation~\eqref{eq:latency_decomp} is an accounting identity only when its
-terms are defined as non-overlapping critical-path contributions; the
-max-form lower bound avoids assuming that decomposition in measured systems.
+Several limitations are material. The present evidence comes from one
+processor and three accelerators (two GPUs and a TPU) with small synthetic
+probes; it does not include production models, concurrent requests, energy
+measurements, policy comparisons or unseen-hardware classifier tests. The
+standard deviations describe repeated trials on one machine, not a population
+of platforms; the accelerator ratios compare repeated windows within single
+runs and quantify neither run-to-run uncertainty nor a hardware population; and
+no causal inference is supported. The pointer-chain endpoints span several
+hierarchy transitions, so their ratio is not a universal effect size. Finally,
+Equation~\eqref{eq:latency_decomp} is an accounting identity only when its terms
+are defined as non-overlapping critical-path contributions; the max-form lower
+bound avoids assuming that decomposition in measured systems.
 
 A decisive follow-up should preregister operating-point grids around
 $R_C=0.5$ and $R_B=1$, collect raw event traces on at least two accelerator
-architectures, and compare fixed orchestration policies without changing other
-workload parameters. It should report continuous coordinates and repeat the
-analysis across plausible residency conventions rather than optimise a
-threshold on the evaluation data. Such evidence could test boundary sharpness,
-policy ranking, and generalisation. Until then, the contribution is the
-identifiable coordinate, its bounds and reporting contract, and a
-CPU-and-multi-accelerator falsification attempt---not universal accelerator
-validation.
+architectures, compare fixed orchestration policies on production serving
+stacks without changing other workload parameters, and repeat the analysis
+across plausible residency conventions rather than tune a threshold on the
+evaluation data. Until then, the contribution is the identifiable coordinate,
+its bounds and reporting contract, and a processor-and-multi-accelerator
+falsification attempt---not universal accelerator validation.

@@ -1,8 +1,7 @@
 # ORION manuscript
 
-This directory contains the Nature Communications submission sources for
-**“A two-ratio framework separates residency and transfer overlap in
-hierarchical-memory inference.”** The submission is intentionally scoped to an analytical
+This directory contains the Nature (Article) submission sources for
+**“Separating memory capacity from data movement in neural network inference.”** The submission is intentionally scoped to an analytical
 formulation plus a proof of concept measured on one CPU and three accelerators
 of two vendors (NVIDIA Tesla T4, NVIDIA A100, Google TPU v5e). It does not claim
 per-device boundary values or cross-workload validation.
@@ -96,7 +95,7 @@ Before uploading to the journal portal:
 3. Verify the title, author name, ORCID, affiliation, email, contributions,
    acknowledgements, and competing-interest declaration.
 4. Confirm current article-type, formatting, data-repository, and reporting
-   requirements in the live Nature Communications submission portal.
+   requirements in the live Nature submission portal.
 5. Preferably archive the exact code/data release in a persistent repository
    and add its DOI to the Data availability statement.
 

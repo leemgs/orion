@@ -2,16 +2,16 @@
 
 Reference implementation for:
 
-> **"Intrinsic regime-dependent limits govern hierarchical memory orchestration in large-scale AI inference"**  
-> Primary submission target: *Nature Communications*
+> **"Separating memory capacity from data movement in neural network inference"**  
+> Primary submission target: *Nature*
 
-This directory contains the Orion measurement framework and the scripts used to reproduce the manuscript's figures, tables, and regime-classification results. The code documentation follows the manuscript framing: ORION is presented as evidence for a general, regime-dependent principle of memory-bound computing, while preserving a strict distinction between simulated reproduction and real-hardware measurements.
+This directory contains the Orion measurement framework and the scripts used to reproduce the manuscript's figures, tables, and regime-classification results. The code documentation follows the manuscript framing: ORION provides a measurement discipline for memory-bound inference -- two independently measurable ratios plus a reporting contract -- with proof-of-concept evidence, and it keeps a strict distinction between simulated reproduction and real-hardware measurements.
 
 ### Manuscript alignment
 
-- **Scientific claim:** hierarchical memory orchestration exhibits three intrinsic operating regimes separated by abrupt, phase-like transitions.
-- **Generality:** the framework uses dimensionless ratios, R_C and R_B, to compare hardware platforms and AI workloads.
-- **Strategy inversion:** an optimization that improves latency in one regime can degrade it in another.
+- **Scientific claim:** two independently measurable ratios, residency R_C and overlap R_B, separate capacity pressure from exposed transfer, and a conservative service-time bound gives two floors, max(0, 1-R_C) and max(0, 1-R_B). The three labels are screening conventions (θ_C = 0.5 is declared, θ_B = 1 is derived), not intrinsic phases; the manuscript reports no discontinuity at R_C = 0.5.
+- **Generality (hypothesis):** the ratios are dimensionless, so the same audit can describe different hardware and workloads; generality across workloads and devices is not yet demonstrated.
+- **Strategy inversion (open test, not a result):** whether an optimization that helps in one regime hurts in another is tested by the preregistered harnesses in `experiments/{vllm,deepspeed,flexgen}_strategy_inversion.py`; no such result is claimed.
 - **Reproducibility:** CPU-only simulation reproduces the qualitative regime structure; quantitative values reported as hardware measurements must come from live traces.
 - **Transparency:** unavailable counters are reported as `NaN` or `MeasurementUnavailable`; live mode never falls back silently to simulation.
 
@@ -459,10 +459,10 @@ python experiments/reproduce_figure2.py --save-csv
 
 ```bibtex
 @article{orion2026nature,
-  title   = {Intrinsic regime-dependent limits govern hierarchical memory
-             orchestration in large-scale {AI} inference},
+  title   = {Separating memory capacity from data movement in neural
+             network inference},
   author  = {Lim, Geunsik and others},
-  journal = {Nature Communications},
+  journal = {Nature (submitted)},
   year    = {2026},
   note    = {Manuscript in preparation},
 }
