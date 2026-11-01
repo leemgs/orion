@@ -52,6 +52,8 @@
 %% otherwise skips. Comment out \linenumbers (issued after \begin{document})
 %% to produce a clean copy without line numbers.
 \usepackage{lineno}
+%% Nature: "Contributions should be double-spaced".
+\usepackage{setspace}
 \newcommand*\patchAmsMathEnvironmentForLineno[1]{%
   \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
   \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
@@ -101,6 +103,9 @@
 
 %% Continuous line numbers (requested by Nature for the review copy).
 \linenumbers
+\doublespacing
+%% Nature: the summary is a bold first paragraph, not a headed "Abstract".
+\renewcommand\abstractname{}
 
 %% ---- Title -------------------------------------------------
 \input{./section/001_title.tex}

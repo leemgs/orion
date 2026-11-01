@@ -48,7 +48,7 @@ def _rendered_words(tex: str) -> int:
         r"\times": "times",
     }
     tex = re.sub(r"(?m)%.*$", "", tex)
-    tex = re.sub(r"\\(cite|label|ref|eqref|input|url|path)\{[^}]*\}", " ", tex)
+    tex = re.sub(r"\\(cite|label|ref|eqref|input|url|path|setstretch)\{[^}]*\}", " ", tex)
     for macro, rendered in expansions.items():
         tex = tex.replace(macro, rendered)
     tex = re.sub(r"\\[A-Za-z]+", " ", tex)

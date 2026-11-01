@@ -73,6 +73,14 @@ reject"였고, Nature 본지의 문턱은 그보다 훨씬 높다. 이 판단은
       summary ≤200단어 + 인용 필수, 본문 ≤3,000단어, 소제목 ≤40자, main 참고문헌
       ≤50; 금지 표현 검사를 README 3개까지 확대. citation key를 단어로 세던
       버그 수정.
+- [x] **2차 점검에서 찾은 Nature 형식 누락 3건 수정.** 공식 가이드 원문 대조로
+      발견: (1) "Contributions should be double-spaced" → 본문·summary 모두 2배
+      줄간격; (2) summary는 "bold first paragraph" → 굵은 글씨, "Abstract" 제목
+      제거; (3) "Tables have a short, one-line title in bold text" → Table 1·2에
+      굵은 한 줄 제목 추가(Table 3은 이미 충족).
+- [ ] (선택, 교정 단계) 철자 통일: Nature는 Oxford English Dictionary 철자를
+      쓰며, 원고에 -ise/-ize가 섞여 있다(synchronisation / normalized). 게재
+      확정 후 subeditor가 정리하는 항목이라 desk-reject 요인은 아님.
 - [x] **커버레터 Nature용 재작성.** 증거 범위를 정직하게 기술하고 편집자에게
       범위 적합성을 직접 질문.
 - [x] (이전 세션) 표·그림 폭 초과 0, 참고문헌 44편 실재·메타데이터 검증
